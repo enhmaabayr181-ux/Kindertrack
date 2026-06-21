@@ -1,0 +1,3657 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a2e">
+<title>KinderTrack</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
+body{font-family:'DM Sans',sans-serif;background:#f8f7f4;color:#1a1a2e;min-height:100vh;overscroll-behavior:none;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;}
+
+#scr-landing{flex-direction:column;align-items:center;justify-content:center;background:#1a1a2e;color:#fff;padding:24px;position:relative;overflow:hidden;}
+#scr-landing::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,#3b2f8a 0,transparent 60%),radial-gradient(ellipse 40% 40% at 90% 90%,#0d9488 0,transparent 50%);}
+.land-wrap{position:relative;z-index:1;max-width:420px;width:100%;text-align:center;}
+.land-logo{font-family:'DM Serif Display',serif;font-size:40px;margin-bottom:8px;}
+.land-logo span{color:#5eead4;}
+.land-tag{color:#94a3b8;font-size:14px;margin-bottom:40px;line-height:1.6;}
+.land-tag b{color:#e2e8f0;}
+.btn-primary{width:100%;padding:16px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;background:linear-gradient(135deg,#5eead4,#0d9488);color:#1a1a2e;margin-bottom:12px;box-shadow:0 4px 20px rgba(94,234,212,.3);}
+.btn-ghost{width:100%;padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-family:inherit;font-size:16px;font-weight:500;background:transparent;color:#fff;}
+.land-stats{display:flex;gap:28px;justify-content:center;margin-top:40px;}
+.stat-it{text-align:center;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:26px;color:#5eead4;}
+.stat-lbl{font-size:11px;color:#64748b;margin-top:2px;}
+.install-hint{margin-top:28px;font-size:11px;color:#64748b;line-height:1.6;cursor:pointer;text-decoration:underline;}
+
+.remembered-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px;margin-bottom:14px;}
+.rem-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#5eead4,#0d9488);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#1a1a2e;flex-shrink:0;}
+.rem-info{text-align:left;flex:1;min-width:0;}
+.rem-name{font-weight:700;font-size:14px;color:#fff;}
+.rem-email{font-size:11.5px;color:#94a3b8;margin-top:1px;}
+.rem-switch{font-size:12px;color:#64748b;text-decoration:underline;cursor:pointer;margin-bottom:24px;}
+
+#scr-auth{flex-direction:column;align-items:center;justify-content:center;background:#f8f7f4;padding:24px;}
+.auth-card{background:#fff;border-radius:24px;padding:32px 26px;box-shadow:0 8px 32px rgba(0,0,0,.1);width:100%;max-width:380px;}
+.auth-back{display:flex;align-items:center;gap:6px;font-size:13px;color:#9ca3af;cursor:pointer;margin-bottom:24px;background:none;border:none;font-family:inherit;}
+.auth-title{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:4px;}
+.auth-sub{font-size:13px;color:#9ca3af;margin-bottom:24px;}
+.f-group{margin-bottom:14px;}
+.f-label{display:block;font-size:11px;font-weight:700;color:#4b5563;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.f-input,.f-select{width:100%;padding:12px 14px;border:2px solid #e5e7eb;border-radius:10px;font-family:inherit;font-size:14px;outline:none;background:#f9fafb;color:#1a1a2e;}
+.f-input:focus,.f-select:focus{border-color:#0d9488;background:#fff;}
+.btn-submit{width:100%;padding:14px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;background:#1a1a2e;color:#fff;margin-top:6px;}
+.auth-switch{text-align:center;margin-top:18px;font-size:13px;color:#9ca3af;}
+.auth-switch a{color:#0d9488;cursor:pointer;font-weight:500;}
+.err-msg{font-size:13px;color:#ef4444;background:#fef2f2;padding:8px 12px;border-radius:8px;margin-bottom:4px;}
+
+#scr-app{flex-direction:column;background:#f8f7f4;}
+.topbar{background:#fff;border-bottom:1px solid #f0f0f0;padding:0 18px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.tb-logo{font-family:'DM Serif Display',serif;font-size:20px;}
+.tb-logo span{color:#0d9488;}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#5eead4,#0d9488);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;cursor:pointer;}
+.trial-badge{background:#fef3c7;color:#d97706;padding:4px 9px;border-radius:50px;font-size:11px;font-weight:600;}
+.app-body{flex:1;overflow:auto;padding-bottom:90px;}
+.page{display:none;padding:18px;max-width:640px;margin:0 auto;}
+.page.active{display:block;}
+
+.bottom-nav{background:#fff;border-top:1px solid #f0f0f0;display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;max-width:640px;margin:0 auto;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 4px 7px;cursor:pointer;border:none;background:none;font-family:inherit;color:#9ca3af;font-size:10.5px;gap:3px;}
+.nav-item.active{color:#0d9488;}
+.nav-icon{font-size:19px;}
+
+.page-title{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:3px;}
+.page-sub{font-size:13px;color:#9ca3af;margin-bottom:18px;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.stat-card{background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.04);}
+.stat-card-icon{font-size:20px;margin-bottom:6px;}
+.stat-card-num{font-family:'DM Serif Display',serif;font-size:28px;line-height:1;}
+.stat-card-lbl{font-size:11px;color:#9ca3af;margin-top:3px;}
+
+.sec-title{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.see-all{font-size:12px;color:#0d9488;cursor:pointer;font-weight:500;}
+
+.child-card{background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.04);margin-bottom:9px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.child-avatar{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.child-info{flex:1;min-width:0;}
+.child-name{font-weight:600;font-size:14px;}
+.child-meta{font-size:11px;color:#9ca3af;margin-top:2px;}
+.child-prog{text-align:right;}
+.prog-ring{font-size:12px;font-weight:700;color:#0d9488;}
+
+.search-bar{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #e5e7eb;border-radius:12px;padding:10px 13px;margin-bottom:14px;}
+.search-bar input{border:none;outline:none;flex:1;font-family:inherit;font-size:13px;background:transparent;}
+
+.add-btn{width:100%;padding:13px;border-radius:16px;border:2px dashed #e5e7eb;background:transparent;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:#9ca3af;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:2px;}
+
+.obs-header{background:#fff;border-radius:16px;padding:15px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.obs-back{background:none;border:none;font-size:12px;color:#9ca3af;cursor:pointer;margin-bottom:8px;font-family:inherit;}
+.obs-name{font-family:'DM Serif Display',serif;font-size:20px;}
+.obs-meta{font-size:12px;color:#9ca3af;margin-top:2px;}
+.obs-parent-btn{font-size:11px;color:#0d9488;font-weight:700;background:#f0fdfa;border:none;border-radius:50px;padding:6px 12px;cursor:pointer;font-family:inherit;margin-top:8px;}
+.obs-qtabs{display:flex;gap:6px;margin-top:10px;overflow-x:auto;}
+.obs-qtabs::-webkit-scrollbar{display:none;}
+.q-tab{flex-shrink:0;padding:7px 13px;border-radius:50px;border:2px solid #e5e7eb;background:#fff;font-family:inherit;font-weight:700;font-size:11px;cursor:pointer;color:#9ca3af;}
+.q-tab.active{color:#fff;border-color:transparent;}
+.q-tab.q1.active{background:#6366f1;}.q-tab.q2.active{background:#f59e0b;}
+.q-tab.q3.active{background:#10b981;}.q-tab.q4.active{background:#ec4899;}
+
+.child-subnav{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;}
+.child-subnav::-webkit-scrollbar{display:none;}
+.sub-tab{flex-shrink:0;padding:8px 13px;border-radius:50px;border:2px solid #e5e7eb;background:#fff;font-family:inherit;font-weight:700;font-size:11px;cursor:pointer;color:#9ca3af;white-space:nowrap;}
+.sub-tab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
+.subtab-content{display:none;}
+.subtab-content.active{display:block;}
+
+.age-tabs{display:flex;gap:6px;margin-bottom:13px;overflow-x:auto;}
+.age-tabs::-webkit-scrollbar{display:none;}
+.age-tab{flex-shrink:0;padding:7px 13px;border-radius:50px;border:2px solid #e5e7eb;background:#fff;font-family:inherit;font-weight:700;font-size:11px;cursor:pointer;color:#9ca3af;}
+.age-tab.active{background:#0d9488;color:#fff;border-color:#0d9488;}
+
+.legend{display:flex;gap:11px;margin-bottom:13px;flex-wrap:wrap;}
+.leg-it{display:flex;align-items:center;gap:4px;font-size:11px;color:#9ca3af;}
+.leg-dot{width:17px;height:17px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;}
+
+.sect-card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #eee;}
+.sect-title{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;margin-bottom:10px;}
+.sect-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+
+.o-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #f5f5f5;}
+.o-item:last-child{border-bottom:none;}
+.o-text{flex:1;font-size:12.5px;line-height:1.4;}
+.o-hint{display:block;font-size:10.5px;color:#c1c1c1;margin-top:1px;}
+.r-btns{display:flex;gap:3px;flex-shrink:0;}
+.r-btn{width:28px;height:28px;border-radius:7px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.r-btn.r-yes{background:#10b981;border-color:#10b981;}
+.r-btn.r-partial{background:#f59e0b;border-color:#f59e0b;}
+.r-btn.r-no{background:#ef4444;border-color:#ef4444;}
+
+.summary-card{border-radius:16px;padding:17px;color:#fff;margin-bottom:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d44);}
+.sum-title{font-size:13px;font-weight:700;margin-bottom:13px;opacity:.9;}
+.sum-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.sum-lbl{font-size:10.5px;width:84px;flex-shrink:0;opacity:.78;}
+.sum-bg{flex:1;height:6px;background:rgba(255,255,255,.15);border-radius:50px;overflow:hidden;}
+.sum-fill{height:100%;border-radius:50px;background:rgba(255,255,255,.85);}
+.sum-pct{font-size:10.5px;font-weight:700;width:26px;text-align:right;opacity:.78;}
+
+.year-card{background:#fff;border-radius:16px;padding:15px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.year-title{font-size:13px;font-weight:700;margin-bottom:12px;}
+.y-row{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.y-lbl{font-size:10.5px;width:72px;flex-shrink:0;color:#9ca3af;font-weight:600;}
+.y-bars{flex:1;display:flex;gap:3px;align-items:flex-end;height:36px;}
+.y-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end;}
+.y-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;}
+.y-n{font-size:8px;color:#c1c1c1;font-weight:700;}
+.y-p{font-size:9px;font-weight:700;color:#9ca3af;}
+.y-leg{display:flex;gap:9px;margin-top:7px;flex-wrap:wrap;}
+.y-li{display:flex;align-items:center;gap:4px;font-size:9.5px;color:#9ca3af;}
+.y-ld{width:8px;height:8px;border-radius:2px;}
+
+.notes-card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.notes-lbl{font-size:12.5px;font-weight:700;margin-bottom:7px;}
+.notes-card textarea{width:100%;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:12.5px;resize:none;min-height:68px;outline:none;background:#fafafa;color:#1a1a2e;}
+.notes-card textarea:focus{border-color:#0d9488;background:#fff;}
+
+.act-btns{display:flex;gap:9px;margin-bottom:14px;}
+.act-btn{flex:1;padding:12px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-weight:600;font-size:13px;}
+.act-print{border:2px solid #e5e7eb;background:#fff;}
+.act-save{background:#1a1a2e;color:#fff;}
+
+.report-card{background:#fff;border-radius:16px;padding:15px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:13px;cursor:pointer;}
+.report-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.report-info{flex:1;}
+.report-name{font-weight:600;font-size:13.5px;}
+.report-meta{font-size:11px;color:#9ca3af;margin-top:2px;}
+
+.set-section{margin-bottom:18px;}
+.set-title{font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
+.set-item{background:#fff;border-radius:16px;padding:13px 15px;margin-bottom:7px;display:flex;align-items:center;gap:11px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.set-icon{font-size:18px;width:28px;text-align:center;}
+.set-info{flex:1;}
+.set-name{font-weight:600;font-size:13px;}
+.set-sub{font-size:11px;color:#9ca3af;}
+
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;}
+.modal-ov.open{display:flex;}
+.modal-sh{background:#fff;border-radius:22px 22px 0 0;padding:24px 20px 36px;width:100%;max-height:90vh;overflow-y:auto;max-width:640px;margin:0 auto;}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:#e5e7eb;margin:0 auto 18px;}
+.modal-title{font-family:'DM Serif Display',serif;font-size:21px;margin-bottom:3px;}
+.modal-sub{font-size:13px;color:#9ca3af;margin-bottom:20px;}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a2e;color:#fff;padding:11px 18px;border-radius:50px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:300;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.emo-picker{display:flex;gap:10px;margin-bottom:14px;}
+.emo-btn{flex:1;padding:16px 6px;border-radius:14px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;font-family:inherit;}
+.emo-btn .emo-ic{font-size:30px;display:block;margin-bottom:4px;}
+.emo-btn .emo-lb{font-size:10.5px;color:#9ca3af;font-weight:600;}
+.emo-btn.sel-happy{background:#d1fae5;border-color:#10b981;}
+.emo-btn.sel-neutral{background:#fef3c7;border-color:#f59e0b;}
+.emo-btn.sel-sad{background:#fee2e2;border-color:#ef4444;}
+
+.quick-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #f5f5f5;}
+.quick-lbl{flex:1;font-size:12.5px;font-weight:600;}
+
+.tag-chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;}
+.tag-chip{padding:5px 10px;border-radius:50px;border:2px solid #e5e7eb;font-size:11px;font-weight:600;color:#6b7280;background:#fff;cursor:pointer;}
+.tag-chip.sel{background:#0d9488;color:#fff;border-color:#0d9488;}
+
+.daily-card{background:#fff;border-radius:14px;padding:13px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.daily-date{font-size:11px;color:#9ca3af;font-weight:700;}
+.daily-note{font-size:13px;margin:6px 0;line-height:1.5;}
+.daily-photos{display:flex;gap:6px;overflow-x:auto;margin-top:8px;}
+.daily-photo{width:62px;height:62px;border-radius:9px;object-fit:cover;flex-shrink:0;cursor:pointer;}
+.daily-del{font-size:11px;color:#ef4444;background:none;border:none;cursor:pointer;font-family:inherit;margin-top:6px;}
+
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.photo-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:pointer;}
+
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:400;display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:100%;max-height:75vh;border-radius:10px;}
+.lightbox .lb-cap{color:#fff;font-size:13px;margin-top:12px;text-align:center;}
+.lightbox .lb-close{position:absolute;top:18px;right:18px;color:#fff;font-size:26px;background:none;border:none;cursor:pointer;}
+
+.star-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f5f5f5;}
+.star-lbl{font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:1px;}
+.star-btns{display:flex;gap:4px;}
+.star-btn{font-size:20px;cursor:pointer;color:#e5e7eb;background:none;border:none;}
+.star-btn.on{color:#f59e0b;}
+.star-level-txt{font-size:10px;color:#9ca3af;font-weight:400;}
+
+.alert-card{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px 14px;margin-bottom:9px;font-size:12.5px;color:#92400e;display:flex;gap:9px;align-items:flex-start;}
+.alert-card.positive{background:#f0fdf4;border-color:#bbf7d0;color:#166534;}
+
+.report-box{background:#fff;border-radius:16px;padding:18px;margin-top:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);font-size:13px;line-height:1.7;}
+.report-btns{display:flex;gap:8px;margin-top:10px;}
+
+.mic-btn{width:38px;height:38px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;font-size:16px;cursor:pointer;flex-shrink:0;}
+.mic-btn.recording{background:#ef4444;border-color:#ef4444;color:#fff;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+.strength-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;}
+.strength-chip{padding:7px 13px;border-radius:50px;background:linear-gradient(135deg,#fef3c7,#fde68a);font-size:12px;font-weight:700;color:#92400e;}
+
+.emo-map-row{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+.emo-map-lbl{width:90px;font-size:11.5px;font-weight:600;flex-shrink:0;}
+.emo-map-bg{flex:1;height:10px;background:#f3f4f6;border-radius:50px;overflow:hidden;}
+.emo-map-fill{height:100%;border-radius:50px;}
+
+.note-disclaimer{font-size:10.5px;color:#b0b0b0;margin-top:10px;line-height:1.5;}
+
+.meet-type-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.meet-type-chip{padding:7px 12px;border-radius:50px;border:2px solid #e5e7eb;font-size:11px;font-weight:600;color:#6b7280;background:#fff;cursor:pointer;}
+.meet-type-chip.sel{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+.meet-badge{display:inline-block;padding:3px 9px;border-radius:50px;font-size:10px;font-weight:700;background:#ede9fe;color:#7c3aed;margin-right:6px;}
+.msg-card{background:#fff;border-radius:14px;padding:13px;margin-bottom:9px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:3px solid #0d9488;}
+.msg-from-teacher{border-left-color:#0d9488;}
+.msg-from-parent{border-left-color:#ec4899;}
+.msg-date{font-size:10.5px;color:#9ca3af;font-weight:700;margin-bottom:4px;}
+.msg-text{font-size:13px;line-height:1.5;}
+.parent-section{margin-bottom:22px;}
+.parent-section-title{font-size:14px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.empty-hint{text-align:center;color:#c1c1c1;font-size:12px;padding:14px;}
+
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
+.method-card{background:#fff;border-radius:14px;padding:13px;border:2px solid #e5e7eb;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:all .15s;}
+.method-card.sel{border-color:#7c3aed;background:#f5f3ff;}
+.method-card-icon{font-size:24px;margin-bottom:5px;}
+.method-card-label{font-size:12.5px;font-weight:700;margin-bottom:3px;}
+.method-card-desc{font-size:10.5px;color:#9ca3af;line-height:1.4;}
+.method-intro-box{background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-radius:14px;padding:14px;margin-bottom:16px;font-size:13px;color:#5b21b6;line-height:1.6;display:none;}
+.method-intro-box.show{display:block;}
+
+.iv-category{margin-bottom:18px;}
+.iv-category-title{font-size:13px;font-weight:800;color:#7c3aed;margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+.iv-q-card{background:#fff;border-radius:13px;padding:12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.iv-q-text{font-size:13px;font-weight:600;margin-bottom:7px;}
+.iv-q-answer-row{display:flex;gap:7px;align-items:flex-start;}
+.iv-q-answer-row textarea{flex:1;border:2px solid #f0f0f0;border-radius:9px;padding:8px;font-family:inherit;font-size:12.5px;resize:none;min-height:44px;background:#fafafa;}
+.iv-q-answer-row textarea:focus{border-color:#7c3aed;background:#fff;outline:none;}
+
+.iv-session-card{background:#fff;border-radius:14px;padding:13px;margin-bottom:9px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;}
+.iv-session-date{font-size:12px;font-weight:700;}
+.iv-session-meta{font-size:11px;color:#9ca3af;margin-top:2px;}
+.iv-session-detail{display:none;margin-top:10px;border-top:1px solid #f5f5f5;padding-top:10px;}
+.iv-session-detail.open{display:block;}
+.iv-session-qa{margin-bottom:8px;}
+.iv-session-q{font-size:12px;font-weight:600;color:#6b7280;}
+.iv-session-a{font-size:13px;margin-top:2px;}
+
+@media print{.topbar,.bottom-nav,.obs-qtabs,.r-btns,.add-btn,.modal-ov,.age-tabs,.child-subnav{display:none!important;}.page{display:block!important;padding:0;}}
+</style>
+</head>
+<body>
+
+<div id="scr-landing" class="screen active">
+  <div class="land-wrap">
+    <div class="land-logo">Kinder<span>Track</span></div>
+    <p class="land-tag">Монголын цэцэрлэгийн багш нарт зориулсан<br><b>хүүхдийн хөгжлийн ажиглалтын платформ</b></p>
+
+    <div class="remembered-card" id="rememberedCard" style="display:none">
+      <div class="rem-avatar" id="remAvatar">Б</div>
+      <div class="rem-info">
+        <div class="rem-name" id="remName">—</div>
+        <div class="rem-email" id="remEmail">—</div>
+      </div>
+    </div>
+    <button class="btn-primary" id="continueBtn" style="display:none" onclick="continueAsUser()">Үргэлжлүүлэх →</button>
+    <div class="rem-switch" id="remSwitch" style="display:none" onclick="showAuth('login')">Өөр бүртгэлээр нэвтрэх</div>
+
+    <div id="defaultAuthBtns">
+      <button class="btn-primary" onclick="showAuth('register')">Үнэгүй эхлэх — 30 хоног</button>
+      <button class="btn-ghost" onclick="showAuth('login')">Нэвтрэх</button>
+    </div>
+
+    <div class="land-stats">
+      <div class="stat-it"><div class="stat-num">8</div><div class="stat-lbl">Хөгжлийн чиглэл</div></div>
+      <div class="stat-it"><div class="stat-num">4</div><div class="stat-lbl">Насны бүлэг</div></div>
+      <div class="stat-it"><div class="stat-num">4</div><div class="stat-lbl">Улирал</div></div>
+    </div>
+    <div class="install-hint" onclick="showInstallHelp()">📱 Утасны нүүрэн дээр апп болгож хадгалах →</div>
+  </div>
+</div>
+
+<div id="scr-auth" class="screen">
+  <div class="auth-card">
+    <button class="auth-back" onclick="showScreen('landing')">← Буцах</button>
+    <div id="form-login">
+      <div class="auth-title">Нэвтрэх</div>
+      <div class="auth-sub">Тавтай морил!</div>
+      <div id="login-err"></div>
+      <div class="f-group"><label class="f-label">И-мэйл</label><input class="f-input" type="email" id="li-email" placeholder="bagsh@kindertrack.mn"></div>
+      <div class="f-group"><label class="f-label">Нууц үг</label><input class="f-input" type="password" id="li-pass" placeholder="••••••••"></div>
+      <button class="btn-submit" onclick="doLogin()">Нэвтрэх</button>
+      <div class="auth-switch">Бүртгэл байхгүй юу? <a onclick="toggleAuth()">Бүртгүүлэх</a></div>
+    </div>
+    <div id="form-register" style="display:none">
+      <div class="auth-title">Бүртгүүлэх</div>
+      <div class="auth-sub">30 хоногийн үнэгүй туршилт</div>
+      <div id="reg-err"></div>
+      <div class="f-group"><label class="f-label">Бүтэн нэр</label><input class="f-input" type="text" id="rg-name" placeholder="Дорж Баатар"></div>
+      <div class="f-group"><label class="f-label">Цэцэрлэгийн нэр</label><input class="f-input" type="text" id="rg-kinder" placeholder="Нарны туяа цэцэрлэг"></div>
+      <div class="f-group"><label class="f-label">И-мэйл</label><input class="f-input" type="email" id="rg-email" placeholder="bagsh@email.mn"></div>
+      <div class="f-group"><label class="f-label">Нууц үг</label><input class="f-input" type="password" id="rg-pass" placeholder="••••••••"></div>
+      <button class="btn-submit" onclick="doRegister()">Бүртгүүлэх</button>
+      <div class="auth-switch">Бүртгэл байна уу? <a onclick="toggleAuth()">Нэвтрэх</a></div>
+    </div>
+  </div>
+</div>
+
+<div id="scr-app" class="screen">
+  <div class="topbar">
+    <div class="tb-logo">Kinder<span>Track</span></div>
+    <div class="tb-right">
+      <div class="trial-badge" id="trialBadge">30 хоног үлдсэн</div>
+      <div class="avatar" id="userAvatar" onclick="goPage('settings')">Б</div>
+    </div>
+  </div>
+  <div class="app-body">
+    <div class="page active" id="pg-dashboard">
+      <div class="page-title" id="dashGreet">Өглөөний мэнд 👋</div>
+      <div class="page-sub" id="dashSub">Цэцэрлэг</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-card-icon">👶</div><div class="stat-card-num" id="stChildren">0</div><div class="stat-card-lbl">Хүүхэд</div></div>
+        <div class="stat-card"><div class="stat-card-icon">📋</div><div class="stat-card-num" id="stObs">0</div><div class="stat-card-lbl">Ажиглалт</div></div>
+        <div class="stat-card"><div class="stat-card-icon">✅</div><div class="stat-card-num" id="stPct">0%</div><div class="stat-card-lbl">Гүйцэтгэл</div></div>
+        <div class="stat-card"><div class="stat-card-icon">📅</div><div class="stat-card-num">2025</div><div class="stat-card-lbl">Хичээлийн жил</div></div>
+      </div>
+      <div id="dashAlerts"></div>
+      <div class="sec-title">Хүүхдүүд <span class="see-all" onclick="goPage('children')">Бүгдийг харах →</span></div>
+      <div id="dashList"></div>
+    </div>
+
+    <div class="page" id="pg-children">
+      <div class="page-title">Хүүхдүүд</div>
+      <div class="page-sub" id="childCountSub">0 хүүхэд бүртгэлтэй</div>
+      <div class="search-bar"><span style="color:#d1d5db">🔍</span><input id="searchInp" placeholder="Хүүхдийн нэр хайх..." oninput="filterChildren(this.value)"></div>
+      <div id="childList"></div>
+      <button class="add-btn" onclick="openModal('modal-add')">＋ Хүүхэд нэмэх</button>
+    </div>
+
+    <div class="page" id="pg-observation">
+      <div class="obs-header">
+        <button class="obs-back" onclick="goPage('children')">← Буцах</button>
+        <div class="obs-name" id="obsName">—</div>
+        <div class="obs-meta" id="obsMeta">—</div>
+        <button class="obs-parent-btn" onclick="openParentView()">👨‍👩‍👧 Эцэг эхэд харуулах</button>
+        <div class="obs-qtabs" id="obsQtabs"></div>
+      </div>
+
+      <div class="child-subnav" id="childSubnav">
+        <button class="sub-tab active" data-tab="checklist" onclick="switchSubtab('checklist')">📋 Ажиглалт</button>
+        <button class="sub-tab" data-tab="daily" onclick="switchSubtab('daily')">📝 Өдөр тутмын</button>
+        <button class="sub-tab" data-tab="gallery" onclick="switchSubtab('gallery')">📸 Зураг</button>
+        <button class="sub-tab" data-tab="criteria" onclick="switchSubtab('criteria')">⭐ Шалгуур</button>
+        <button class="sub-tab" data-tab="report" onclick="switchSubtab('report')">📄 Тайлан</button>
+        <button class="sub-tab" data-tab="interview" onclick="switchSubtab('interview')">🗣️ Ярилцлага</button>
+        <button class="sub-tab" data-tab="parents" onclick="switchSubtab('parents')">👨‍👩‍👧 Эцэг эх</button>
+      </div>
+
+      <div class="subtab-content active" id="subtab-checklist">
+        <div class="legend">
+          <div class="leg-it"><div class="leg-dot" style="background:#d1fae5">✅</div>Чаддаг</div>
+          <div class="leg-it"><div class="leg-dot" style="background:#fef3c7">🔶</div>Хэсэгчлэн</div>
+          <div class="leg-it"><div class="leg-dot" style="background:#fee2e2">❌</div>Чаддаггүй</div>
+        </div>
+        <div class="age-tabs" id="obsAgeTabs"></div>
+        <div id="obsSections"></div>
+        <div class="summary-card"><div class="sum-title">📊 Дүн шинжилгээ</div><div id="sumRows"></div></div>
+        <div class="year-card"><div class="year-title">📈 Жилийн ахиц</div><div id="yearRows"></div>
+          <div class="y-leg">
+            <div class="y-li"><div class="y-ld" style="background:#6366f1"></div>I</div>
+            <div class="y-li"><div class="y-ld" style="background:#f59e0b"></div>II</div>
+            <div class="y-li"><div class="y-ld" style="background:#10b981"></div>III</div>
+            <div class="y-li"><div class="y-ld" style="background:#ec4899"></div>IV</div>
+          </div>
+        </div>
+        <div class="notes-card"><div class="notes-lbl">📝 Ажиглалт, тайлбар</div><textarea id="noteObs" placeholder="Хүүхдийн онцлог, ахиц дэвшил..."></textarea></div>
+        <div class="notes-card"><div class="notes-lbl">🎯 Дараагийн алхамууд</div><textarea id="noteNext" placeholder="Эцэг эхэд зөвлөх, дараагийн зорилго..."></textarea></div>
+        <div class="act-btns">
+          <button class="act-btn act-print" onclick="window.print()">🖨️ Хэвлэх</button>
+          <button class="act-btn act-save" onclick="saveObsNotes()">💾 Хадгалах</button>
+        </div>
+      </div>
+
+      <div class="subtab-content" id="subtab-daily"></div>
+      <div class="subtab-content" id="subtab-gallery"></div>
+      <div class="subtab-content" id="subtab-criteria"></div>
+      <div class="subtab-content" id="subtab-report"></div>
+      <div class="subtab-content" id="subtab-interview"></div>
+      <div class="subtab-content" id="subtab-parents"></div>
+    </div>
+
+    <div class="page" id="pg-reports">
+      <div class="page-title">Тайлангууд</div>
+      <div class="page-sub">Улирлын болон жилийн тайлан</div>
+      <div class="report-card" onclick="toast('Хүүхэд сонгож, тухайн хүүхдийн Тайлан таб руу орно уу')"><div class="report-icon" style="background:#dbeafe">📄</div><div class="report-info"><div class="report-name">Сарын / Улирлын тайлан</div><div class="report-meta">Хүүхэд бүрийн Тайлан табаас үүсгэнэ</div></div></div>
+      <div class="report-card" onclick="toast('Хүүхэд сонгож, тухайн хүүхдийн Зураг таб руу орно уу')"><div class="report-icon" style="background:#fce7f3">📸</div><div class="report-info"><div class="report-name">Фото портфолио</div><div class="report-meta">Хүүхэд бүрийн Зураг табаас харна</div></div></div>
+      <div class="report-card" onclick="toast('Удахгүй нэмэгдэнэ')"><div class="report-icon" style="background:#d1fae5">📊</div><div class="report-info"><div class="report-name">Бүх хүүхдийн нэгдсэн тайлан</div><div class="report-meta">Удахгүй нэмэгдэнэ</div></div></div>
+      <div id="reportsChildList" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="page" id="pg-settings">
+      <div class="page-title">Тохиргоо</div>
+      <div class="page-sub" id="setUserName">—</div>
+      <div class="set-section">
+        <div class="set-title">Бүртгэл</div>
+        <div class="set-item"><div class="set-icon">👤</div><div class="set-info"><div class="set-name" id="setName">—</div><div class="set-sub" id="setEmail">—</div></div></div>
+        <div class="set-item"><div class="set-icon">🏫</div><div class="set-info"><div class="set-name" id="setKinder">—</div><div class="set-sub">Байгууллагын мэдээлэл</div></div></div>
+      </div>
+      <div class="set-section">
+        <div class="set-title">Subscription</div>
+        <div class="set-item" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)"><div class="set-icon">⭐</div><div class="set-info"><div class="set-name">Үнэгүй туршилт</div><div class="set-sub">30 хоног үлдсэн</div></div></div>
+      </div>
+      <div class="set-section">
+        <div class="set-title">Төхөөрөмж хооронд дата шилжүүлэх</div>
+        <div class="set-item" onclick="exportData()"><div class="set-icon">📤</div><div class="set-info"><div class="set-name">Дата экспорт хийх</div><div class="set-sub">Файл татаж аваад нөгөө төхөөрөмж рүү явуулна</div></div></div>
+        <div class="set-item" onclick="document.getElementById('importFileInput').click()"><div class="set-icon">📥</div><div class="set-info"><div class="set-name">Дата импорт хийх</div><div class="set-sub">Өөр төхөөрөмжөөс ирсэн файлыг оруулна</div></div></div>
+        <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(event)">
+      </div>
+
+      <div class="set-section">
+        <div class="set-title">Апп</div>
+        <div class="set-item" onclick="showInstallHelp()"><div class="set-icon">📱</div><div class="set-info"><div class="set-name">Нүүрэн дээр хадгалах</div><div class="set-sub">Апп шиг ашиглах заавар</div></div></div>
+        <div class="set-item" onclick="toast('support@kindertrack.mn')"><div class="set-icon">💬</div><div class="set-info"><div class="set-name">Дэмжлэг авах</div><div class="set-sub">support@kindertrack.mn</div></div></div>
+        <div class="set-item" onclick="doLogout()"><div class="set-icon">🚪</div><div class="set-info"><div class="set-name" style="color:#ef4444">Гарах</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="goPage('dashboard')" id="nv-dashboard"><div class="nav-icon">🏠</div>Нүүр</button>
+    <button class="nav-item" onclick="goPage('children')" id="nv-children"><div class="nav-icon">👶</div>Хүүхдүүд</button>
+    <button class="nav-item" onclick="goPage('reports')" id="nv-reports"><div class="nav-icon">📊</div>Тайлан</button>
+    <button class="nav-item" onclick="goPage('settings')" id="nv-settings"><div class="nav-icon">⚙️</div>Тохиргоо</button>
+  </div>
+</div>
+
+<div class="modal-ov" id="modal-add">
+  <div class="modal-sh">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Хүүхэд нэмэх</div>
+    <div class="modal-sub">Шинэ хүүхдийн мэдээлэл</div>
+    <div class="f-group"><label class="f-label">Бүтэн нэр</label><input class="f-input" id="newName" placeholder="Болд Баатар"></div>
+    <div class="f-group"><label class="f-label">Насны бүлэг</label>
+      <select class="f-select" id="newAge">
+        <option value="2">🌱 2-3 нас</option><option value="3">🌿 3-4 нас</option>
+        <option value="4">🌸 4-5 нас</option><option value="5">🌳 5-6 нас</option>
+      </select>
+    </div>
+    <div class="f-group"><label class="f-label">Хүйс</label>
+      <select class="f-select" id="newGender"><option value="m">Хөвгүүн</option><option value="f">Охин</option></select>
+    </div>
+    <button class="btn-submit" onclick="addChild()">Нэмэх</button>
+    <button onclick="closeModal('modal-add')" style="width:100%;padding:11px;border:none;background:none;color:#9ca3af;font-family:inherit;font-size:13px;margin-top:6px;">Цуцлах</button>
+  </div>
+</div>
+
+<div class="modal-ov" id="modal-install">
+  <div class="modal-sh">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📱 Апп болгож хадгалах</div>
+    <div class="modal-sub">Утасны нүүрэн дээр дүрс үүсгэх</div>
+    <div style="font-size:13px;line-height:1.7;color:#374151;">
+      <b>📱 iPhone (Safari):</b><br>Доорх Share 􀈂 товч → "Add to Home Screen" сонгоно<br><br>
+      <b>🤖 Android (Chrome):</b><br>Баруун дээд ⋮ цэс → "Add to Home screen" сонгоно<br><br>
+      <b>💻 Компьютер (Chrome/Edge):</b><br>Хаягийн мөрний баруун талд ⊕ дүрс дээр дарна<br><br>
+      Үүний дараа KinderTrack апп таны нүүрэн дээр дүрстэй гарч ирнэ.
+    </div>
+    <button class="btn-submit" onclick="closeModal('modal-install')" style="margin-top:18px;">Ойлгосон</button>
+  </div>
+</div>
+
+<div class="modal-ov" id="modal-parent"><div class="modal-sh"></div></div>
+
+<div class="lightbox" id="lightboxEl"><button class="lb-close" onclick="closeLightbox()">✕</button><img id="lbImg"><div class="lb-cap" id="lbCap"></div></div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+var SECTIONS=[
+  {cls:'physical',icon:'🏃',label:'Бие бялдар'},{cls:'cognitive',icon:'🧠',label:'Танин мэдэхүй'},
+  {cls:'language',icon:'💬',label:'Хэл яриа'},{cls:'social',icon:'🤝',label:'Нийгэмшил'},
+  {cls:'emotional',icon:'💝',label:'Сэтгэл хөдлөл'},{cls:'music',icon:'🎵',label:'Хөгжим'},
+  {cls:'movement',icon:'🤸',label:'Хөдөлгөөн'},{cls:'health',icon:'🏥',label:'Эрүүл мэнд'}
+];
+var SEC_BORDER={physical:'#ef4444',cognitive:'#3b82f6',language:'#f59e0b',social:'#10b981',emotional:'#ec4899',music:'#8b5cf6',movement:'#06b6d4',health:'#22c55e'};
+var SEC_BG={physical:'#fee2e2',cognitive:'#dbeafe',language:'#fef3c7',social:'#d1fae5',emotional:'#fce7f3',music:'#ede9fe',movement:'#cffafe',health:'#dcfce7'};
+var QUARTERS=[{num:1,icon:'🍂',label:'I Улирал',cls:'q1',bar:'#6366f1'},{num:2,icon:'❄️',label:'II Улирал',cls:'q2',bar:'#f59e0b'},{num:3,icon:'🌸',label:'III Улирал',cls:'q3',bar:'#10b981'},{num:4,icon:'☀️',label:'IV Улирал',cls:'q4',bar:'#ec4899'}];
+var AGES=[{val:'2',label:'🌱 2-3 нас'},{val:'3',label:'🌿 3-4 нас'},{val:'4',label:'🌸 4-5 нас'},{val:'5',label:'🌳 5-6 нас'}];
+var EMOJIS=['🐻','🦁','🐯','🐼','🐨','🦊','🐸','🐧','🦋','🐬','🦄','🐙'];
+var CURRICULUM_TAGS=['Хэл яриа','Математик ойлголт','Урлаг','Хөгжим','Нийгэмшил','Хөдөлгөөн'];
+var DEV_CRITERIA=[{key:'communication',icon:'💬',label:'Харилцаа'},{key:'independence',icon:'🧍',label:'Бие даах чадвар'},{key:'cognition',icon:'🧠',label:'Танин мэдэхүй'},{key:'movement',icon:'🤸',label:'Хөдөлгөөн'},{key:'art',icon:'🎨',label:'Урлаг'}];
+var STAR_LEVELS={1:'Эхэлж байна',2:'Хөгжиж байна',3:'Тогтворжсон'};
+var STRENGTH_MAP={physical:'🏃 Хөдөлгөөнд авхаалжтай',cognitive:'🧠 Логик сэтгэлгээ сайн',language:'💬 Хэл ярианд гаргамгай',social:'🤝 Манлайлах чадвартай',emotional:'💝 Энэрэнгүй, мэдрэмжтэй',music:'🎵 Хөгжимд мэдрэмжтэй',movement:'🤸 Хөдөлгөөнд дуртай',health:'🏥 Эрүүл дадалтай'};
+var INTERVIEW_QUESTIONS={
+"2": {
+"Хэл яриа": [
+"Чиний нэр хэн бэ?",
+"Чи хэдэн настай вэ?",
+"Энэ юу вэ?",
+"Ямар өнгөтэй вэ?",
+"Ээжийгээ юу гэж дууддаг вэ?",
+"Аавыг юу гэж дууддаг вэ?",
+"Энэ амьтны нэр юу вэ?",
+"Чи ус уух уу?",
+"Чи өнөөдөр ирсэн үү?",
+"Энэ бөмбөг үү?"
+],
+"Танин мэдэхүй": [
+"Том нь аль вэ?",
+"Жижиг нь аль вэ?",
+"Улаан өнгийг заагаарай.",
+"Цэнхэр өнгийг олоорой.",
+"Нэгийг тоолоорой.",
+"Хоёрыг тоолоорой.",
+"Энэ хаана байдаг вэ?",
+"Энэ юу хийдэг вэ?",
+"Аль нь дугуй вэ?",
+"Аль нь дөрвөлжин вэ?"
+],
+"Нийгэмшихүй": [
+"Найзын чинь нэр хэн бэ?",
+"Хэнтэй тоглох дуртай вэ?",
+"Тоглоомоо өгч байсан уу?",
+"Баярлалаа гэж хэлдэг үү?",
+"Уучлаарай гэж хэлдэг үү?"
+]
+},
+"3": {
+"Хэл яриа": [
+"Өнөөдөр юу хийсэн бэ?",
+"Юу идсэн бэ?",
+"Хэнтэй тоглосон бэ?",
+"Хаашаа явсан бэ?",
+"Чиний дуртай тоглоом юу вэ?",
+"Яагаад дуртай вэ?",
+"Энэ зураг дээр юу болж байна?",
+"Өглөө юу хийдэг вэ?",
+"Орой юу хийдэг вэ?",
+"Найзынхаа тухай ярьж өгөөч."
+],
+"Танин мэдэхүй": [
+"1–5 хүртэл тоолоорой.",
+"Аль нь олон байна?",
+"Аль нь цөөн байна?",
+"Энэ ямар дүрс вэ?",
+"Ямар өнгө вэ?",
+"Энэ хаана ургадаг вэ?",
+"Энэ ямар амьтан бэ?",
+"Амьтан юу иддэг вэ?",
+"Бороо ороход юу болдог вэ?",
+"Өвөл ямар байдаг вэ?"
+],
+"Сэтгэл хөдлөл": [
+"Өнөөдөр баярласан уу?",
+"Юунд баярласан бэ?",
+"Юунд гомдсон бэ?",
+"Чамайг хэн инээлгэсэн бэ?",
+"Чи аз жаргалтай байна уу?"
+]
+},
+"4": {
+"Хэл яриа": [
+"Өнөөдөр хамгийн сонирхолтой зүйл юу байсан бэ?",
+"Яагаад тэгж бодсон бэ?",
+"Энэ үлгэрийн баатар хэн бэ?",
+"Тэр юу хийсэн бэ?",
+"Дараа нь юу болсон бэ?",
+"Хэрэв чи байсан бол яах байсан бэ?",
+"Найздаа хэрхэн туслах вэ?",
+"Чи юунд сайн бэ?",
+"Юу сурахыг хүсдэг вэ?",
+"Өөрийнхөө тухай ярьж өгөөч."
+],
+"Танин мэдэхүй": [
+"1–10 хүртэл тоолоорой.",
+"Аль нь урт вэ?",
+"Аль нь богино вэ?",
+"Хоёр дээр нэг нэмбэл хэд болох вэ?",
+"Дөрвөөс нэгийг хасвал хэд болох вэ?",
+"Өдөр шөнө хоёр юугаараа ялгаатай вэ?",
+"Яагаад нар манддаг вэ?",
+"Модонд юу ургадаг вэ?",
+"Ус юунд хэрэгтэй вэ?",
+"Яагаад гараа угаадаг вэ?"
+],
+"Нийгэмшихүй": [
+"Найзтайгаа маргалдсан бол яах вэ?",
+"Хэн нэгэн уйлж байвал яах вэ?",
+"Тоглоомоо хуваалцах хэрэгтэй юу?",
+"Яагаад хэрэгтэй вэ?",
+"Бусдад туслах дуртай юу?"
+]
+},
+"5": {
+"Хэл яриа ба логик": [
+"Хэрэв чи багш байсан бол юу хийх вэ?",
+"Хэрэв чи дарга байсан бол юу өөрчлөх вэ?",
+"Энэ үлгэрийн төгсгөлийг өөрөөр зохиогоорой.",
+"Чиний мөрөөдөл юу вэ?",
+"Том болоод ямар хүн болох вэ?",
+"Яагаад тэр мэргэжлийг сонгосон бэ?",
+"Чиний хамгийн бахархдаг зүйл юу вэ?",
+"Найз гэж ямар хүнийг хэлэх вэ?",
+"Сайн хүн гэж ямар хүнийг хэлэх вэ?",
+"Аз жаргал гэж юу вэ?"
+],
+"Шалтгаан үр дагавар": [
+"Бороо яагаад ордог вэ?",
+"Ургамал яагаад ургадаг вэ?",
+"Хүмүүс яагаад унтдаг вэ?",
+"Яагаад дүрэм хэрэгтэй вэ?",
+"Хэрэв дүрэм байхгүй бол юу болох вэ?"
+],
+"Бүтээлч сэтгэлгээ": [
+"Чи шинэ тоглоом зохиовол ямар байх вэ?",
+"Чи нисэж чаддаг бол хаашаа явах вэ?",
+"Амьтад ярьдаг бол юу гэж хэлэх вэ?",
+"Чи шидтэн байсан бол юу хийх вэ?",
+"Дэлхий дээр нэг зүйл өөрчилж чадвал юу өөрчлөх вэ?"
+],
+"Сэтгэл хөдлөл ба өөрийгөө ойлгох": [
+"Чамд ямар үед хамгийн сайхан санагддаг вэ?",
+"Юунаас айдаг вэ?",
+"Айдсаа хэрхэн давдаг вэ?",
+"Хэн чамд хамгийн их тусалдаг вэ?",
+"Өнөөдөр өөрөөрөө бахархсан зүйл юу байсан бэ?"
+]
+}
+};
+var METHOD_TIPS=[
+  {key:'puppet',icon:'🧸',label:'Хүүхэлдэйгээр',desc:'Хүүхэлдэй ашиглаж асуувал хүүхэд илүү нээлттэй хариулдаг',intro:'👋 Сайн уу! Намайг туслах баатар гэдэг. Чамаас зүйл асуумаар байна:'},
+  {key:'story',icon:'📖',label:'Түүхээр',desc:'Түүхэнд оруулж асуувал төсөөлөл сэргэдэг',intro:'📖 Нэг удаа сонин юм болсон гэж бодъё, чи бол түүний баатар. Хариулаач:'},
+  {key:'picture',icon:'🎨',label:'Зураг, картаар',desc:'Зураг харуулж асуувал идэвхтэй оролцдог',intro:'🎨 Энэ зургийг хамт харъя. Юу харж байгаагаа надад хэлж өгөөч:'},
+  {key:'direct',icon:'🎯',label:'Шууд, энгийн',desc:'Тоглоомын завсар чөлөөтэй ярианцар хэлбэрээр асуух',intro:'😊 Чамтай жаахан ярилцмаар байна:'}
+];
+var pendingMethod=null;
+
+
+var ITEMS={
+"2": {
+"1": {
+"physical": [
+[
+"Тэнцвэртэй алхдаг",
+"Шулуун зурваст тогтвортой алхана"
+],
+[
+"Хоёр гараараа бөмбөг барьдаг",
+"Дөрвөлжин хэлбэртэй зүйл барина"
+],
+[
+"Харандаа гартаа барьдаг",
+"Бүх алгаараа барьж зурна"
+]
+],
+"cognitive": [
+[
+"1-2 өнгө таньдаг",
+"Улаан, хөхийг ялгана"
+],
+[
+"Дугуй хэлбэр таньдаг",
+"Дугуй зүйлийг зааж чадна"
+],
+[
+"Танил зүйлийг олдог",
+"Тоглоом, хувцасаа таньж олно"
+]
+],
+"language": [
+[
+"1 үгээр хариулдаг",
+"\"Тийм\", \"Үгүй\" гэж хэлнэ"
+],
+[
+"Танил зүйлийн нэрийг хэлдэг",
+"Ээж, аав, нохой г.м"
+],
+[
+"Дуудлагаар дуудахад хариу үзүүлдэг",
+"Нэрээ дуудахад эргэж харна"
+]
+],
+"social": [
+[
+"Багштайгаа дотно болдог",
+"Багшийнхаа хажууд тайван байна"
+],
+[
+"Бусад хүүхдийг ажиглдаг",
+"Хажуугийн хүүхдийг сонирхож харна"
+],
+[
+"Энгийн мэндчилгээ хариулдаг",
+"Гар даллах, инээмсэглэх"
+]
+],
+"emotional": [
+[
+"Эцэг эхээсээ салахад уйлдаг",
+"Энэ насанд хэвийн үзэгдэл"
+],
+[
+"Тайвшруулахад хариу үзүүлдэг",
+"Тэвэрхэд тайвширна"
+],
+[
+"Дуртай тоглоомтойгоо тайвширдаг",
+"Тодорхой нэг зүйл барьж тайвширна"
+]
+],
+"music": [
+[
+"Хөгжимд анхаарал хандуулдаг",
+"Дуу гарахад чимээ зүгт эргэнэ"
+],
+[
+"Энгийн хэмнэлд биеэ хөдөлгөдөг",
+"Дуунд тааруулан халгидана"
+],
+[
+"Дуу сонссон үедээ тайвширдаг",
+"Тайван дуунд анхаарлаа хандуулна"
+]
+],
+"movement": [
+[
+"Дуурайж гар хөдөлгөдөг",
+"Багшийг дуурайж алга ташина"
+],
+[
+"Бяцхан алхаагаар хөдөлдөг",
+"2-3 алхам хийнэ"
+],
+[
+"Сандал дээр суудаг",
+"Тусламжтайгаар суудаг"
+]
+],
+"health": [
+[
+"Гараа угаахад зөвшөөрдөг",
+"Тусламжтайгаар угаалгад орно"
+],
+[
+"Хооллох үед халбага барих гэж оролддог",
+"Бие даан хооллох гэж хичээнэ"
+],
+[
+"Унтах цагтаа дасдаг",
+"Тогтсон цагт унтдаг болж эхэлнэ"
+]
+]
+},
+"2": {
+"physical": [
+[
+"Гүйж эхэлдэг",
+"Тогтвортой 5м гүйнэ"
+],
+[
+"Шатаар авирдаг",
+"Тусламжтайгаар нэг шат гишгэнэ"
+],
+[
+"Бөмбөг шидэж чаддаг",
+"Хоёр гараараа дөрвэн чиглэлд шиднэ"
+]
+],
+"cognitive": [
+[
+"2-3 өнгө таньдаг",
+"Улаан, хөх, шарыг ялгана"
+],
+[
+"Хэлбэрийг хооронд нь ялгадаг",
+"Дугуй, дөрвөлжинг ялгана"
+],
+[
+"1-2 хүртэл тоолдог",
+"Хуруугаараа заан тоолно"
+]
+],
+"language": [
+[
+"2 үгтэй өгүүлбэр хэлдэг",
+"\"Энэ юу\", \"Аав ир\""
+],
+[
+"10-аас дээш үг мэддэг",
+"Өдөр тутмын үг хэллэг хэлдэг"
+],
+[
+"Тушаал ойлгодог",
+"\"Ир\", \"Тавь\" гэхийг ойлгож хийнэ"
+]
+],
+"social": [
+[
+"Хажуугийн тоглоомд оролцдог",
+"Зэрэгцээ тоглоом тоглоно"
+],
+[
+"Тоглоом дуурайдаг",
+"Бусдын хийдгийг дуурайна"
+],
+[
+"Багшийн зааврыг дагадаг",
+"Энгийн зааварчилгааг биелүүлнэ"
+]
+],
+"emotional": [
+[
+"Сэтгэл хөдлөлөө нүүрэндээ илэрхийлдэг",
+"Баяр, уур царайнд тодорхой харагдана"
+],
+[
+"Тайвшрах хугацаа багасдаг",
+"Илүү хурдан тайвширдаг болсон"
+],
+[
+"Дуртай зүйлээ заадаг",
+"Хүсэж буй зүйлээ зааж үзүүлнэ"
+]
+],
+"music": [
+[
+"Алга ташихыг дуурайдаг",
+"Багшийг дуурайж алга ташина"
+],
+[
+"Хэмнэлтэй хөдөлгөөн хийдэг",
+"Дуунд тааруулан биеэ хөдөлгөнө"
+],
+[
+"Танил дуунд дурлдаг",
+"Сонссон дуугаа дахин сонсохыг хүснэ"
+]
+],
+"movement": [
+[
+"Тогтвортой гүйдэг",
+"Унагалгүй 5м гүйнэ"
+],
+[
+"Хоёр хөлөөрөө дэгддэг",
+"Жижиг үсрэлт хийнэ"
+],
+[
+"Бөмбөгийг хөлөөрөө түрдэг",
+"Энгийн түлхэх хөдөлгөөн хийнэ"
+]
+],
+"health": [
+[
+"Гараа бие даан угаах гэж оролддог",
+"Тусламж багатай угаана"
+],
+[
+"Халбага зөв барих гэж оролддог",
+"Бүтэн биш ч барина"
+],
+[
+"Хувцасаа тайлахад тусалдаг",
+"Малгай, гутлаа тайлж эхэлнэ"
+]
+]
+},
+"3": {
+"physical": [
+[
+"Хурдтай гүйдэг",
+"Зогсож, эргэж гүйж чаддаг"
+],
+[
+"Шатаар ганц ганцаар авирдаг",
+"Тусламжгүй авирах гэж оролддог"
+],
+[
+"Харандаагаар шугам татдаг",
+"Чиглэл барьж зурна"
+]
+],
+"cognitive": [
+[
+"3-4 өнгө таньдаг",
+"Улаан, хөх, шар, ногоон"
+],
+[
+"Хэлбэрийг тааруулдаг",
+"Адил хэлбэрийг хослуулна"
+],
+[
+"1-3 хүртэл тоолдог",
+"Тоог дагаж зүйл заана"
+]
+],
+"language": [
+[
+"2-3 үгтэй өгүүлбэр хэлдэг",
+"\"Би ус уумаар байна\""
+],
+[
+"30 гаруй үг хэрэглэдэг",
+"Өдөр тутмын харилцаанд хэрэглэнэ"
+],
+[
+"Асуултад үгээр хариулдаг",
+"\"Хэн\", \"Юу\" асуултад хариулна"
+]
+],
+"social": [
+[
+"Хамтарсан тоглоом эхэлдэг",
+"Богино хугацаагаар хамт тоглоно"
+],
+[
+"Тоглоом хуваалцах гэж оролддог",
+"Зарим үед бусдад өгдөг"
+],
+[
+"Багшийн анхаарал татах гэж оролддог",
+"Эерэг харилцаа эрэлхийлнэ"
+]
+],
+"emotional": [
+[
+"Сэтгэл хөдлөлөө үгээр илэрхийлэх гэж оролддог",
+"\"Би уурлаж байна\" гэх мэт"
+],
+[
+"Богино хугацаанд тайвширдаг",
+"1-2 минутад тайвширна"
+],
+[
+"Бахархах мэдрэмж илэрдэг",
+"Хийсэн зүйлээ үзүүлэхийг хүснэ"
+]
+],
+"music": [
+[
+"Дуу дагаж дуугардаг",
+"Богино үгсийг давтана"
+],
+[
+"Хэмнэлд алга ташдаг",
+"Энгийн хэмнэлд тааруулна"
+],
+[
+"Хөгжмийн зэмсэг сонирхдог",
+"Хонх, бөмбөр авч үзнэ"
+]
+],
+"movement": [
+[
+"Тэнцвэртэй зогсдог",
+"1 секунд нэг хөл дээр зогсоно"
+],
+[
+"Дугуй тоглоомд оролцдог",
+"Тойрог хөдөлгөөн дагана"
+],
+[
+"Гүйж тоглодог",
+"Хөдөлгөөнт тоглоомд идэвхтэй оролцоно"
+]
+],
+"health": [
+[
+"Гараа бие даан угаадаг",
+"Тогтмол угаах дадал суусан"
+],
+[
+"Хоолны хэрэгсэл барьдаг",
+"Халбага барьж идэх гэж оролддог"
+],
+[
+"Ариун цэврийн өрөөнд хэлдэг",
+"Хэрэгцээгээ илэрхийлж эхэлнэ"
+]
+]
+},
+"4": {
+"physical": [
+[
+"Гүйж, үсэрч чаддаг",
+"Хоёр хөлөөрөө үсэрч газардана"
+],
+[
+"Шат авирч буудаг",
+"Хоёр хөлөөрөө ээлжлэн гишгэнэ"
+],
+[
+"Хувцасаа өмсч тайлдаг",
+"Энгийн хувцас өмсч чаддаг"
+]
+],
+"cognitive": [
+[
+"Өнгө ялгадаг",
+"Улаан, хөх, шар, ногоон"
+],
+[
+"1-5 хүртэл тоолдог",
+"Тоог цээжлэн давтана"
+],
+[
+"Тоглоомын дүрд тоглодог",
+"Эмч, жолооч г.м дүр тоглоно"
+]
+],
+"language": [
+[
+"2-3 үгтэй өгүүлбэр хэлдэг",
+"\"Би ус уумаар байна\""
+],
+[
+"200-300 үг мэддэг",
+"Өдөр тутмын үгсийг ашиглана"
+],
+[
+"Асуулт асуудаг",
+"\"Энэ юу вэ?\", \"Яагаад?\""
+]
+],
+"social": [
+[
+"Бусад хүүхэдтэй тоглодог",
+"Хамтарсан тоглоомд шилждэг"
+],
+[
+"Тоглоом хуваалцдаг",
+"Бусдад тоглоомоо өгч чаддаг"
+],
+[
+"Дүрмийг дагадаг",
+"Энгийн тоглоомын дүрмийг ойлгоно"
+]
+],
+"emotional": [
+[
+"Мэдрэмжээ илэрхийлдэг",
+"Уур, баяр, гуниг"
+],
+[
+"Эцэг эхтэйгээ салах үед тайвширдаг",
+"Богино хугацаанд тайвширна"
+],
+[
+"Дуртай зүйлийн талаар ярьдаг",
+"Дуртай тоглоом, хоолоо хэлнэ"
+]
+],
+"music": [
+[
+"Дуу сонсоход анхаардаг",
+"Хөгжим гарахад хариу үйлдэл үзүүлнэ"
+],
+[
+"Алга ташиж чаддаг",
+"Хэмнэлд тааруулан алга ташина"
+],
+[
+"Энгийн дуу дагаж дуулдаг",
+"Богино үг, дуу дагана"
+]
+],
+"movement": [
+[
+"Хөгжмөөр хөдөлдөг",
+"Дуунд тааруулан бүжиглэнэ"
+],
+[
+"Бусдыг дуурайдаг",
+"Багшийн хөдөлгөөнийг дагана"
+],
+[
+"Гүйж тоглодог",
+"Идэвхтэй хөдөлгөөнт тоглоом тоглоно"
+]
+],
+"health": [
+[
+"Гар угаах дадалтай",
+"Тусламжтайгаар угаана"
+],
+[
+"Шүд угаах дадалтай",
+"Багштай хамт угаана"
+],
+[
+"Унтах дэглэмтэй",
+"Өдрийн амралт авдаг"
+]
+]
+}
+},
+"3": {
+"1": {
+"physical": [
+[
+"Тэнцвэрээ барих гэж оролддог",
+"Нэг хөл дээр түр зуур тогтоно"
+],
+[
+"Гурван дугуйт унаж эхэлдэг",
+"Тусламжтайгаар унана"
+],
+[
+"Бөмбөг шидэж барьдаг",
+"Хоёр гараараа барих гэж оролддог"
+]
+],
+"cognitive": [
+[
+"Том жижгийг ялгах гэж оролддог",
+"Хэмжээг харьцуулж үзнэ"
+],
+[
+"1-5 хүртэл тоолох гэж оролддог",
+"Дараалал бүрэн биш ч оролддог"
+],
+[
+"Ангилал хийх гэж оролддог",
+"Адил төрлийн зүйлсийг бөөгнөрүүлнэ"
+]
+],
+"language": [
+[
+"3-4 үгтэй өгүүлбэр хэлдэг",
+"Энгийн дараалалтай"
+],
+[
+"Нэрээ хэлдэг",
+"Зөвхөн нэрээрэй хэлнэ"
+],
+[
+"Юу хүсэж байгаагаа хэлдэг",
+"\"Би ... хүсч байна\" хэв шинж"
+]
+],
+"social": [
+[
+"Найзтай тоглохыг хүсдэг",
+"Хажуугийн хүүхдийг хайдаг"
+],
+[
+"Энгийн ээлж хүлээдэг",
+"Тусламжтайгаар ээлжээ хүлээнэ"
+],
+[
+"Тусламж хүсдэг",
+"Хэрэгцээгээ илэрхийлж туслалцаа гуйна"
+]
+],
+"emotional": [
+[
+"Мэдрэмжийг нэрлэх гэж оролддог",
+"\"Би уурлаж байна\" гэж хэлнэ"
+],
+[
+"Танихгүй орчинд болгоомжтой",
+"Шинэ нөхцөлд аажмаар дасна"
+],
+[
+"Зөвшөөрөл хайдаг",
+"Хийсэн зүйлээ багшид үзүүлнэ"
+]
+],
+"music": [
+[
+"Дуу таних гэж оролддог",
+"Танил дуугаа сонссоноо мэдэрнэ"
+],
+[
+"Алга ташдаг",
+"Хэмнэлд тааруулан алга ташина"
+],
+[
+"Дуу дагах гэж оролддог",
+"1-2 үгийг дагана"
+]
+],
+"movement": [
+[
+"Тэнцвэртэй алхдаг",
+"Шугам дагуу алхах гэж оролддог"
+],
+[
+"Бяцхан үсэрдэг",
+"Хоёр хөлөөрөө дэгдэх гэж оролддог"
+],
+[
+"Бусдыг дуурайдаг",
+"Хөдөлгөөнийг дуурайж хийнэ"
+]
+],
+"health": [
+[
+"Гараа угаах дадал бэхждэг",
+"Бага зэрэг тусламжтай угаана"
+],
+[
+"Хоолны хэрэгсэл барих гэж оролддог",
+"Халбага зөв биш ч барина"
+],
+[
+"Унтах горимд дасдаг",
+"Тогтсон цагт унтдаг"
+]
+]
+},
+"2": {
+"physical": [
+[
+"Нэг хөл дээр тэнцвэртэй зогсдог",
+"2 секунд гаруй зогсоно"
+],
+[
+"Гурван дугуйт унадаг",
+"Тогтвортой унана"
+],
+[
+"Хайч хэрэглэх гэж оролддог",
+"Энгийн зүсэлт хийнэ"
+]
+],
+"cognitive": [
+[
+"1-7 хүртэл тоолдог",
+"Дарааллыг алдаагүйгээр тоолно"
+],
+[
+"Том жижгийг ялгадаг",
+"Харьцуулж хэлж чаддаг"
+],
+[
+"Зургаас дутуу зүйлийг олох гэж оролддог",
+"Ялгааг анзаарна"
+]
+],
+"language": [
+[
+"4-5 үгтэй өгүүлбэр хэлдэг",
+"Нарийн утга илэрхийлнэ"
+],
+[
+"Нэр, овгоо хэлдэг",
+"Бүрэн нэрийг мэднэ"
+],
+[
+"Өнгөрсөн цагт ярих гэж оролддог",
+"\"Тоглосон\" гэх мэт"
+]
+],
+"social": [
+[
+"Найзтай тоглохыг хүсдэг",
+"Найзаа идэвхтэй хайдаг"
+],
+[
+"Ээлж дараалал сахих гэж оролддог",
+"Удалгүй ойлгоно"
+],
+[
+"Бусдад туслахыг хүсдэг",
+"Санаачилга гаргана"
+]
+],
+"emotional": [
+[
+"Бусдын мэдрэмжийг тааздаг",
+"Гунигласан найзаа тайвшруулна"
+],
+[
+"Уур хилэнгээ удирдах гэж оролддог",
+"Амьсгал авах г.м аргыг ашиглана"
+],
+[
+"Итгэлтэй байдал нэмэгддэг",
+"Шинэ зүйлийг туршиж үздэг"
+]
+],
+"music": [
+[
+"Дуу, аялгуу таньдаг",
+"Танил дуугаа мэдэнэ"
+],
+[
+"Хэмнэлд нийцүүлэн алга ташдаг",
+"Дуунд тааруулан алга ташина"
+],
+[
+"Дуу дагаж дуулдаг",
+"2-3 мөрт дуу дагана"
+]
+],
+"movement": [
+[
+"Хэмнэлтэй хөдөлгөөн хийдэг",
+"Дуунд тааруулан бүжиглэнэ"
+],
+[
+"2-3 алхамт хөдөлгөөн дагадаг",
+"Багшийн хөдөлгөөнийг дагана"
+],
+[
+"Бүлгийн тоглоомд оролцдог",
+"Хамтарсан бүжиг, тоглоом"
+]
+],
+"health": [
+[
+"Гар угаах дадалтай",
+"Хоолны өмнө, хойно угаана"
+],
+[
+"Шүд угаадаг",
+"Тусламжтайгаар угаана"
+],
+[
+"Эрүүл хоол таньдаг",
+"Жимс, хүнсний ногоог мэднэ"
+]
+]
+},
+"3": {
+"physical": [
+[
+"Хайч хэрэглэдэг",
+"Энгийн зүсэлт хийж чаддаг"
+],
+[
+"Хүний дүрс зурдаг",
+"Толгой, бие, мөч харагдана"
+],
+[
+"Гутлаа өмсдөг",
+"Тусламжгүйгээр өмсч чаддаг"
+]
+],
+"cognitive": [
+[
+"1-10 хүртэл тоолдог",
+"Дарааллыг алдалгүй тоолно"
+],
+[
+"Зургаас дутуу зүйлийг олдог",
+"Ялгааг тогтооно"
+],
+[
+"Ангилах чаддаг",
+"Амьтан, тээвэр г.м ангиллаар хийнэ"
+]
+],
+"language": [
+[
+"Үлгэр ярьж чаддаг",
+"Дарааллыг барьж ярина"
+],
+[
+"Өнгөрсөн цагт ярьдаг",
+"\"Тоглосон\", \"идсэн\" гэж хэлнэ"
+],
+[
+"Өнгө, хэлбэрийг тайлбарладаг",
+"\"Улаан том бөмбөг\" гэж хэлнэ"
+]
+],
+"social": [
+[
+"Танихгүй хүнтэй харьцдаг",
+"Аажмаар нээлттэй болно"
+],
+[
+"Тоглоомын дүрд оролцдог",
+"Нэр дэвшиж, дүрт ордог"
+],
+[
+"Найздаа сэтгэл хөдлөлийг тайлбарладаг",
+"\"Чи гунигласан байна\" гэж хэлнэ"
+]
+],
+"emotional": [
+[
+"Бахархалаа илэрхийлдэг",
+"\"Би хийсэн!\" гэж хэлнэ"
+],
+[
+"Айдаснаасаа ярьдаг",
+"Харанхуй, амьтнаас айдаг гэж хэлнэ"
+],
+[
+"Бусдыг тайвшруулдаг",
+"Уйлж буй найзаа тэвэрнэ"
+]
+],
+"music": [
+[
+"Хөгжмийн зэмсэг сонирхдог",
+"Хонх, бөмбөр г.м"
+],
+[
+"Хурдан удаан хэмнэл ялгадаг",
+"Хөгжмийн хурдыг мэдэрнэ"
+],
+[
+"Дуугаараа тоглодог",
+"Аяыг өөрөө гаргах гэж оролддог"
+]
+],
+"movement": [
+[
+"Биеийн тэнцвэрийг барьдаг",
+"Нэг хөл дээр тогтох гэж оролдоно"
+],
+[
+"Гарын хөдөлгөөнийг дагадаг",
+"Гарны дохио, хэлбэрийг дуурайна"
+],
+[
+"Шат буух, авирах чаддаг",
+"Хоёр хөлөөрөө ээлжлэн гишгэнэ"
+]
+],
+"health": [
+[
+"Унтах горимтой",
+"Өдрийн амралттай"
+],
+[
+"Ариун цэврийн өрөөг бие даан ашигладаг",
+"Тусламж хэрэгтэй үедээ хэлнэ"
+],
+[
+"Ханиах, найтаахдаа амаа таглана",
+"Сануулахад хийнэ"
+]
+]
+},
+"4": {
+"physical": [
+[
+"Бөмбөг зорилтот чиглэлд шиддэг",
+"Зорилтод чиглүүлнэ"
+],
+[
+"Нарийн шугам, тойрог зурдаг",
+"Гарын хөдөлгөөн тогтвортой"
+],
+[
+"Хувцасны товч онгойлгодог",
+"Энгийн товчийг онгойлгоно"
+]
+],
+"cognitive": [
+[
+"Зургийн дарааллыг тааруулдаг",
+"3 зурагт үйл явдлыг эрэмбэлнэ"
+],
+[
+"Нэмэлт тоймыг ойлгодог",
+"Хоёр зүйлийг нэгтгэхэд хэд болохыг мэднэ"
+],
+[
+"Том жижгийг харьцуулж ялгадаг",
+"Гурван хэмжээг эрэмбэлнэ"
+]
+],
+"language": [
+[
+"Нэр, овгоо бүрэн хэлдэг",
+"Бүрэн нэрийг мэднэ"
+],
+[
+"500 гаруй үг мэддэг",
+"Янз бүрийн нөхцөл байдалд хэрэглэнэ"
+],
+[
+"Хоёр тушаалыг дараалан биелүүлдэг",
+"\"Аваад тавь\" гэхэд хоёуланг нь хийнэ"
+]
+],
+"social": [
+[
+"Ээлж дараалал сахидаг",
+"Удалгүй ойлгоно"
+],
+[
+"Бусдад туслахыг хүсдэг",
+"Санаачилга гаргана"
+],
+[
+"Маргаан гарахад туслалцаа хүсдэг",
+"Багшаас тусламж гуйна"
+]
+],
+"emotional": [
+[
+"Уур хилэнгээ удирддаг",
+"Амьсгал авах г.м аргыг ашиглана"
+],
+[
+"Бусдын мэдрэмжийг тааздаг",
+"Гунигласан найзаа тайвшруулна"
+],
+[
+"Шинэ зүйл туршихдаа итгэлтэй болдог",
+"Танихгүй тоглоомд оролцоно"
+]
+],
+"music": [
+[
+"Дуу дагаж дуулдаг",
+"2-3 мөрт дуу дагана"
+],
+[
+"Хэмнэлд нийцүүлэн алга ташдаг",
+"Дуунд тааруулан алга ташина"
+],
+[
+"Хөгжмийн зэмсэг ялгадаг",
+"Хонх, бөмбөрийн дуу ялгана"
+]
+],
+"movement": [
+[
+"Бүлгийн тоглоомд оролцдог",
+"Хамтарсан бүжиг, тоглоом"
+],
+[
+"Хэмнэлтэй хөдөлгөөн хийдэг",
+"Дуунд тааруулан бүжиглэнэ"
+],
+[
+"2-3 алхамт хөдөлгөөн дагадаг",
+"Багшийн хөдөлгөөнийг дагана"
+]
+],
+"health": [
+[
+"Эрүүл хоол таньдаг",
+"Жимс, хүнсний ногоог мэднэ"
+],
+[
+"Шүд угаадаг",
+"Тусламжтайгаар угаана"
+],
+[
+"Гар угаах дадалтай",
+"Хоолны өмнө, хойно угаана"
+]
+]
+}
+},
+"4": {
+"1": {
+"physical": [
+[
+"Нэг хөл дээр түр зуур үсэрдэг",
+"2-3 удаа дараалан"
+],
+[
+"Гараараа тоглоом барих гэж оролддог",
+"Бөмбөг барих гэж оролддог"
+],
+[
+"Гутлын уяа сонирхдог",
+"Залах гэж оролддог"
+]
+],
+"cognitive": [
+[
+"Үсэг сонирхдог",
+"Зарим үсгийг таних гэж оролддог"
+],
+[
+"Эрэмбэлэх гэж оролддог",
+"Том-жижгийг эрэмбэлж үзнэ"
+],
+[
+"1-15 хүртэл тоолдог",
+"Заримдаа дараалал алдана"
+]
+],
+"language": [
+[
+"Нарийн өгүүлбэр хэлэх гэж оролддог",
+"3-4 үгийг холбож хэлнэ"
+],
+[
+"Дуу шүлэг сонирхдог",
+"Богино шүлгийг сонирхож сонсдог"
+],
+[
+"Тайлбар хийх гэж оролддог",
+"Зургийг товч тайлбарлана"
+]
+],
+"social": [
+[
+"Бүлгийн тоглоомд оролцох гэж оролддог",
+"Хэсэг хугацаанд оролцоно"
+],
+[
+"Маргаан гарахад багшийг дуудна",
+"Туслалцаа хүсдэг"
+],
+[
+"Найзуудаа нэрлэх гэж оролддог",
+"2-3 найзынхаа нэрийг мэднэ"
+]
+],
+"emotional": [
+[
+"Бие даан шийдвэр гаргах гэж оролддог",
+"Энгийн сонголт хийнэ"
+],
+[
+"Алдаагаа хүлээх гэж оролддог",
+"Зарим тохиолдолд хүлээнэ"
+],
+[
+"Тэвчээртэй хүлээх гэж оролддог",
+"Богино хугацаанд хүлээнэ"
+]
+],
+"music": [
+[
+"Дуу дуулах гэж оролддог",
+"Богино дуунуудыг дуусгах гэж оролддог"
+],
+[
+"Хэмнэлийг таних гэж оролддог",
+"Хурдан, удаан хэмнэл ялгах гэж оролддог"
+],
+[
+"Хөгжмийн зэмсэг тоглох гэж оролддог",
+"Бөмбөр, хонх г.м зэмсэг тоглоно"
+]
+],
+"movement": [
+[
+"Хэмнэлтэй бүжиг хийх гэж оролддог",
+"Дуунд тааруулан бүжиглэх гэж оролддог"
+],
+[
+"3-4 алхамт хөдөлгөөн дагах гэж оролддог",
+"Дарааллыг санах гэж оролддог"
+],
+[
+"Бүлгээр хөдлөх гэж оролддог",
+"Найзуудтайгаа хамт бүжиглэх гэж оролддог"
+]
+],
+"health": [
+[
+"Гар угаах дадал бэхжих гэж байна",
+"Бие даан угаах гэж оролддог"
+],
+[
+"Шүдний эрүүл ахуй сонирхдог",
+"Багштай хамт угаана"
+],
+[
+"Эрүүл хоолны ойлголт авч эхэлдэг",
+"Эрүүл, эрүүл бус хоол ялгах гэж оролддог"
+]
+]
+},
+"2": {
+"physical": [
+[
+"Нэг хөл дээр үсэрдэг",
+"5-аас дээш удаа дараалан"
+],
+[
+"Гараараа тоглоом барьдаг",
+"Бөмбөг, дэгдээхэй"
+],
+[
+"Гутлын уяаг заладаг",
+"Бие даан залах чаддаг"
+]
+],
+"cognitive": [
+[
+"Үсэг таньж эхэлдэг",
+"Нэрийнхээ үсгийг таньдаг"
+],
+[
+"Эрэмбэлэх чаддаг",
+"Том-жижгийн дарааллаар байрлуулна"
+],
+[
+"1-20 хүртэл тоолдог",
+"Алдалгүй дарааллана"
+]
+],
+"language": [
+[
+"Нарийн өгүүлбэр байгуулдаг",
+"Нийлмэл өгүүлбэр хэлнэ"
+],
+[
+"Нэрийн нөхцөл хэрэглэдэг",
+"Грамматик зөв хэрэглэнэ"
+],
+[
+"Дуу шүлэг цээжилдэг",
+"Богино шүлгийг бүрэн давтана"
+]
+],
+"social": [
+[
+"Бүлгийн тоглоомд оролцдог",
+"Хамтарсан тоглоом зохиона"
+],
+[
+"Маргааныг шийдвэрлэдэг",
+"Ярьж тохиролцоно"
+],
+[
+"Найзуудаа нэрлэдэг",
+"Ойр найзуудаа мэднэ"
+]
+],
+"emotional": [
+[
+"Бие даан шийдвэр гаргадаг",
+"Энгийн сонголт хийнэ"
+],
+[
+"Алдаагаа хүлээдэг",
+"\"Би буруу хийсэн\" гэж хэлнэ"
+],
+[
+"Тэвчээртэй хүлээдэг",
+"Дараагаа хүлээж чаддаг"
+]
+],
+"music": [
+[
+"Дуу бүрэн дуулдаг",
+"Богино дуунуудыг дуусгана"
+],
+[
+"Хэмнэлийг таньдаг",
+"Хурдан, удаан хэмнэл ялгана"
+],
+[
+"Хөгжмийн зэмсэг хэрэглэдэг",
+"Бөмбөр, хонх г.м зэмсэг тоглоно"
+]
+],
+"movement": [
+[
+"Хэмнэлтэй бүжиг хийдэг",
+"Дуунд тааруулан бүжиглэнэ"
+],
+[
+"4-5 алхамт хөдөлгөөн дагадаг",
+"Дарааллыг санаж гүйцэтгэнэ"
+],
+[
+"Бүлгээр хөдөлдөг",
+"Найзуудтайгаа хамт бүжиглэнэ"
+]
+],
+"health": [
+[
+"Гар угаах дадал бэхжсэн",
+"Бие даан угаана"
+],
+[
+"Шүдний эрүүл ахуй сахидаг",
+"Бие даан шүд угаана"
+],
+[
+"Эрүүл хоолны ойлголттой",
+"Эрүүл, эрүүл бус хоол ялгана"
+]
+]
+},
+"3": {
+"physical": [
+[
+"Хайчаар зүсдэг",
+"Шулуун шугамыг зүснэ"
+],
+[
+"Гар бөмбөг тоглодог",
+"Хүснэгтийн тоглоомд оролцоно"
+],
+[
+"Нарийн зураас зурдаг",
+"Гарын чичиргээ багасна"
+]
+],
+"cognitive": [
+[
+"Шалтгаан үр дагаврыг ойлгодог",
+"Яагаад болсон бэ гэдгийг тайлбарлана"
+],
+[
+"Адилхан биш зүйлийг олдог",
+"5 зурагнаас нэгийг ялгана"
+],
+[
+"Зүүн, баруун ялгадаг",
+"Зааж хэлж чаддаг"
+]
+],
+"language": [
+[
+"Тайлбар хийж чаддаг",
+"Зургийн утгыг өгүүлнэ"
+],
+[
+"Дуулж, яруу найргаар ярьдаг",
+"Хэмнэл хэлбэрийг дагана"
+],
+[
+"Хоёр хэлт үгс мэддэг",
+"Монгол, орос эсвэл өөр хэлний үг"
+]
+],
+"social": [
+[
+"Дүрд тоглодог",
+"Нийгмийн дүрийг дуурайна"
+],
+[
+"Бусдын дүрмийг хүлээн зөвшөөрдөг",
+"Найзынхаа санаатай тохирно"
+],
+[
+"Шинэ хүүхэдтэй танилцдаг",
+"Өөрийгөө танилцуулна"
+]
+],
+"emotional": [
+[
+"Санаагаа илэрхийлдэг",
+"Дургүй зүйлээ тайван хэлнэ"
+],
+[
+"Магтаал хүлээн авдаг",
+"\"Баярлалаа\" гэж хэлнэ"
+],
+[
+"Бусдыг урамшуулдаг",
+"Найзыгаа дэмждэг үг хэлнэ"
+]
+],
+"music": [
+[
+"Дуугаа чанга, чимээгүй дуулдаг",
+"Чимээний хэмжээг зохицуулна"
+],
+[
+"Дуунд зориулж хөдөлгөөн зохиодог",
+"Өөрөө хөдөлгөөн гаргана"
+],
+[
+"Хэмнэлийг биеэр илэрхийлдэг",
+"Алга таших, хөл цохих зэргээр хэмнэл барьна"
+]
+],
+"movement": [
+[
+"Биеийн тэнцвэрийг сайн барьдаг",
+"Нэг хөл дээр удаан тогтоно"
+],
+[
+"Уян хатан хөдөлгөөн хийдэг",
+"Тонголзох, хажуу хэлбийх г.м"
+],
+[
+"Хөдөлгөөнөөр сэтгэл хөдлөлийг илэрхийлдэг",
+"Баяр, гуниг г.м-г бүжгээр илэрхийлнэ"
+]
+],
+"health": [
+[
+"Биеийн байдлаа хэлдэг",
+"Өвдөж байгаагаа хэлж чадна"
+],
+[
+"Аюул занал таньдаг",
+"Халуун, хурц г.м аюулаас зайлна"
+],
+[
+"Биеийн дасгал хийх дуртай",
+"Гүйх, үсрэх, тоглох дуртай"
+]
+]
+},
+"4": {
+"physical": [
+[
+"Нарийн блок барьдаг",
+"Жижиг блокоор өндөр барилга барьна"
+],
+[
+"Нэрийн үсгийг зурдаг",
+"Үсэгний хэлбэрийг дуурайна"
+],
+[
+"Хайчаар нарийн хэлбэр зүсдэг",
+"Муруй шугамыг зүсэх гэж оролддог"
+]
+],
+"cognitive": [
+[
+"Цаг улирлыг мэддэг",
+"Өвөл, хавар, зун, намрыг нэрлэнэ"
+],
+[
+"Үг унших оролдлого хийдэг",
+"Үсгийг нийлүүлэх гэж оролдоно"
+],
+[
+"Нарийн ангилал хийдэг",
+"3+ шалгуураар ангилна"
+]
+],
+"language": [
+[
+"800-1000 үг мэддэг",
+"Их баялаг үгийн сантай"
+],
+[
+"Учир шалтгаан холбож ярьдаг",
+"\"Учир нь\" гэж ашиглана"
+],
+[
+"Богино түүх ярьдаг",
+"Эхлэл, төгсгөлтэй ярина"
+]
+],
+"social": [
+[
+"Бусдын дүрмийг хүлээн зөвшөөрдөг",
+"Найзынхаа санаатай тохирно"
+],
+[
+"Багийн зорилго руу хамтран ажилладаг",
+"Нийтлэг зорилго барина"
+],
+[
+"Шинэ хүүхдэд тусладаг",
+"Шинэ ирсэн хүүхдийг хүлээж авна"
+]
+],
+"emotional": [
+[
+"Алдаагаа хүлээж засдаг",
+"Дахин оролдоно"
+],
+[
+"Бусдын мэдрэмжийг ойлгож тусладаг",
+"Эмпатийн анхны илрэл"
+],
+[
+"Урам зориг авдаг",
+"Магтаалд эерэгээр хариу үзүүлнэ"
+]
+],
+"music": [
+[
+"Дуунд зориулж хөдөлгөөн зохиодог",
+"Өөрөө хөдөлгөөн гаргана"
+],
+[
+"Хэмнэлийг биеэр илэрхийлдэг",
+"Алга таших, хөл цохих зэргээр хэмнэл барьна"
+],
+[
+"Хөгжмийн зэмсгийн дуу ялгадаг",
+"3+ зэмсгийн дууг ялгана"
+]
+],
+"movement": [
+[
+"Хөдөлгөөнөөр сэтгэл хөдлөлийг илэрхийлдэг",
+"Баяр, гуниг г.м-г бүжгээр илэрхийлнэ"
+],
+[
+"Нарийн тэнцвэр шаардсан хөдөлгөөн хийдэг",
+"Гүүр алхах гэх мэт"
+],
+[
+"Хамтарсан бүжиг зохиодог",
+"Найзтайгаа алхам зохионо"
+]
+],
+"health": [
+[
+"Аюул заналаас зайлсхийдэг",
+"Бие даан анхаарал тавьдаг"
+],
+[
+"Биеийн дасгал тогтмол хийдэг",
+"Өдөр тутмын дадал болсон"
+],
+[
+"Эрүүл бус зуршлаас зайлсхийдэг",
+"Хортой зүйл идэхгүй гэж мэднэ"
+]
+]
+}
+},
+"5": {
+"1": {
+"physical": [
+[
+"Шулуун шугам дагуу алхах гэж оролддог",
+"Тэнцвэрээ хадгалах гэж оролддог"
+],
+[
+"Уяа залах гэж оролддог",
+"Бүтэн биш ч оролддог"
+],
+[
+"Хоол идэх хэрэгсэл барих гэж оролддог",
+"Халбага, сэрээ барина"
+]
+],
+"cognitive": [
+[
+"Тоо тэмдэгт сонирхдог",
+"1-10 хүртэл таних гэж оролддог"
+],
+[
+"Үсэг бичих гэж оролддог",
+"Нэрийн анхны үсгийг бичих гэж оролддог"
+],
+[
+"Цаг хугацааны ойлголт авч эхэлдэг",
+"Өчигдөр, өнөөдрийг ялгах гэж оролддог"
+]
+],
+"language": [
+[
+"Дүгнэлт хийх гэж оролддог",
+"\"Учир нь\" гэж эхлэх гэж оролддог"
+],
+[
+"Бусдад тайлбарлах гэж оролддог",
+"Энгийн тайлбар хийнэ"
+],
+[
+"500-700 үг хэрэглэдэг",
+"Олон нөхцөлд хэрэглэнэ"
+]
+],
+"social": [
+[
+"Удирдагч байр сонирхдог",
+"Тоглоом санаачлах гэж оролддог"
+],
+[
+"Дүрмийг ойлгох гэж оролддог",
+"Тоглоомын дүрмийг сонирхдог"
+],
+[
+"Насанд хүрэгчидтэй харилцах гэж оролддог",
+"Зохистой харилцааг дагах гэж оролддог"
+]
+],
+"emotional": [
+[
+"Бие даасан байдал нэмэгддэг",
+"Зарим даалгаврыг өөрөө хийнэ"
+],
+[
+"Сургуульд бэлтгэгдэж байна",
+"Дүрэм дагах сонирхолтой"
+],
+[
+"Бусдын мэдрэмжид анхаарал хандуулдаг",
+"Хэн нэгэн гуниглахад анзаарна"
+]
+],
+"music": [
+[
+"Дуу бүтнээр дуулах гэж оролддог",
+"Цээжилсэн дуугаа дуулна"
+],
+[
+"Хэмнэл, аялгуу ялгах гэж оролддог",
+"Хурдан удаан хэмнэлийг мэдэрнэ"
+],
+[
+"Хөгжмийн зэмсэг тоглох сонирхолтой",
+"Энгийн зэмсэг сонирхдог"
+]
+],
+"movement": [
+[
+"Нарийн бүжгийн хөдөлгөөн дагах гэж оролддог",
+"Тусгай алхамыг дуурайна"
+],
+[
+"4-5 алхамт дарааллыг санах гэж оролддог",
+"Хөдөлгөөний дарааллыг цээжлэх гэж оролддог"
+],
+[
+"Бусдад хөдөлгөөн заах гэж оролддог",
+"Найздаа алхам үзүүлэх гэж оролддог"
+]
+],
+"health": [
+[
+"Эрүүл ахуйн дадал хэвшиж байна",
+"Бие даан арчилгаа хийх гэж оролддог"
+],
+[
+"Эрүүл хоол сонгох гэж оролддог",
+"Эрүүл, эрүүл бус хоолыг ялгах гэж оролддог"
+],
+[
+"Аюулгүй байдлын дүрэм сонирхдог",
+"Энгийн дүрмийг дагах гэж оролддог"
+]
+]
+},
+"2": {
+"physical": [
+[
+"Тэнцвэртэй явж чаддаг",
+"Нарийн шугаман дагуу алхана"
+],
+[
+"Уяа зална",
+"Бие даан гутлын уяаг зална"
+],
+[
+"Хоол идэх хэрэгсэл хэрэглэдэг",
+"Халбага, сэрээ зөв барина"
+]
+],
+"cognitive": [
+[
+"Нэмэх хасахын ойлголттой",
+"1-5 хүртэл нэмэж хасдаг"
+],
+[
+"Үсэг бичиж эхэлдэг",
+"Нэрийн үсгийг бичнэ"
+],
+[
+"Цаг хугацааг ойлгодог",
+"Өчигдөр, өнөөдөр, маргааш"
+]
+],
+"language": [
+[
+"Нарийн дүгнэлт хийдэг",
+"\"Учир нь...\", \"Тийм болохоор...\""
+],
+[
+"Бусдад тайлбарлаж чаддаг",
+"Ойлгомжтой тайлбарлана"
+],
+[
+"1000+ үг мэддэг",
+"Баялаг үгийн сантай"
+]
+],
+"social": [
+[
+"Удирдагч болж чаддаг",
+"Тоглоом зохион байгуулна"
+],
+[
+"Дүрмийг дагадаг",
+"Тоглоомын дүрмийг хүндэтгэнэ"
+],
+[
+"Насанд хүрэгчидтэй харилцдаг",
+"Зохих ёсоор харилцана"
+]
+],
+"emotional": [
+[
+"Бие даасан байдлыг харуулдаг",
+"Даалгаврыг өөрөө гүйцэтгэнэ"
+],
+[
+"Сургуульд бэлэн байдал",
+"Дүрэм, даалгавар хүлээж авна"
+],
+[
+"Бусдын мэдрэмжид нөлөөлдөг",
+"Эмпати харуулна"
+]
+],
+"music": [
+[
+"Дуу бүтэн дуулдаг",
+"Олон дуу цээжилсэн байна"
+],
+[
+"Хэмнэл, аялгуу ялгадаг",
+"Хөгжмийн онцлогийг мэдэрнэ"
+],
+[
+"Хөгжмийн зэмсэг хэрэглэдэг",
+"Энгийн зэмсэг тоглох чадвартай"
+]
+],
+"movement": [
+[
+"Нарийн бүжгийн хөдөлгөөн хийдэг",
+"Тусгай бүжгийн алхамыг дагана"
+],
+[
+"6+ алхамт дарааллыг санадаг",
+"Хөдөлгөөний дарааллыг цээжилнэ"
+],
+[
+"Бусдад хөдөлгөөн заадаг",
+"Найзуудад алхам заах чадвартай"
+]
+],
+"health": [
+[
+"Эрүүл ахуйн дадал бэхжсэн",
+"Бие даан арчилгаа хийнэ"
+],
+[
+"Эрүүл хоол сонгодог",
+"Эрүүл хоолны ач холбогдлыг ойлгоно"
+],
+[
+"Аюулгүй байдлын дүрэм мэднэ",
+"Гэмтлээс урьдчилан сэргийлэх мэдлэгтэй"
+]
+]
+},
+"3": {
+"physical": [
+[
+"Нарийн оёдол, наалт хийдэг",
+"Энгийн гар урлал хийнэ"
+],
+[
+"Бөмбөг хөлдөө хүлээн авдаг",
+"Хөлөөрөө барьж чаддаг"
+],
+[
+"Гар бичгийн дасгал хийдэг",
+"Цагаан толгойн үсэг бичнэ"
+]
+],
+"cognitive": [
+[
+"Сар, долоо хоногийн нэр мэддэг",
+"Дарааллыг нэрлэнэ"
+],
+[
+"Тэгш, сондгой тоог мэддэг",
+"2, 4, 6 тэгш гэдгийг ойлгоно"
+],
+[
+"Хэмжих ойлголттой",
+"Урт, богино, хүнд, хөнгөн ялгана"
+]
+],
+"language": [
+[
+"Үгийн эхний үсгийг таньдаг",
+"Фонетик мэдлэгтэй"
+],
+[
+"Богино өгүүллэг бичдэг",
+"Хэдэн үгтэй өгүүлэг бичнэ"
+],
+[
+"Харилцан яриа удирддаг",
+"Асуух, хариулах, дараалах"
+]
+],
+"social": [
+[
+"Найздаа тусладаг",
+"Хэрэгтэй үед дэмжлэг үзүүлнэ"
+],
+[
+"Бүлгийн шийдвэрт оролцдог",
+"Хамтын санал хүсэлтэд нэгддэг"
+],
+[
+"Өөрийгөө танилцуулдаг",
+"Нэр, нас, сонирхлоо хэлнэ"
+]
+],
+"emotional": [
+[
+"Сэтгэл хөдлөлийг нэрлэдэг",
+"Баяр, гуниг, айдас г.м нэрлэнэ"
+],
+[
+"Урам зориг өндөртэй",
+"Хэцүү даалгаврыг тэвчиж хийнэ"
+],
+[
+"Шударга байхыг эрхэмлэдэг",
+"Тоглоомын дүрмийг хүндэтгэнэ"
+]
+],
+"music": [
+[
+"Хөгжим сонсоод сэтгэл хөдлөлийг илэрхийлдэг",
+"Ямар мэдрэмж төрүүлэхийг хэлнэ"
+],
+[
+"Дуундаа үг зохиодог",
+"Өөрийн үгтэй дуу зохиох гэж оролдоно"
+],
+[
+"Хөгжмийн онолын энгийн ойлголттой",
+"Ноот, хэмнэлийн тухай мэднэ"
+]
+],
+"movement": [
+[
+"Биеийн тэнцвэр, уян хатан байдал сайн",
+"Янз бүрийн хөдөлгөөн гүйцэтгэнэ"
+],
+[
+"Хөдөлгөөнөөр дүр гаргадаг",
+"Амьтан, дүр дуурайлган хөдөлнө"
+],
+[
+"Хөдөлгөөний эрч хүчийг зохицуулдаг",
+"Хүчтэй, зөөлөн хөдөлгөөн ялгана"
+]
+],
+"health": [
+[
+"Биеийн байдлаа тайлбарлаж чадна",
+"Өвдөж буй хэсгийг тодорхой заана"
+],
+[
+"Нойр амралтынхаа горимыг мэднэ",
+"Хэзээ унтах, бодох ёстойг ойлгоно"
+],
+[
+"Эрүүл мэндийн дадал бие даан хийдэг",
+"Үдийн амрал, бие засах г.м"
+]
+]
+},
+"4": {
+"physical": [
+[
+"Гар бичгийн нарийн дасгал хийдэг",
+"Үсгийг шулуунаар бичнэ"
+],
+[
+"Нарийн зүсэлт хийдэг",
+"Хайчаар нарийн дүрс зүснэ"
+],
+[
+"Спорт хэрэгсэл бариа эзэмшдэг",
+"Бариа, цохиур барих чадвартай"
+]
+],
+"cognitive": [
+[
+"10 хүртэл тоолж бичдэг",
+"Тоог зөв бичнэ"
+],
+[
+"Нэмэх хасах бодлого бодож чаддаг",
+"Бодит жишээн дээр шийднэ"
+],
+[
+"Сургуулийн бэлтгэлд бэлэн",
+"Үсэг, тоо хослуулж ажиллана"
+]
+],
+"language": [
+[
+"Тайлбар толь мэтээр ярьдаг",
+"\"Энэ гэдэг нь...\" гэж тайлбарлана"
+],
+[
+"Уулзалт удирддаг",
+"Бүлгийн ярианд тэргүүлэх үүрэг гүйцэтгэнэ"
+],
+[
+"Нарийн өгүүллэг найруулдаг",
+"Эхлэл-явц-төгсгөлтэй өгүүллэг"
+]
+],
+"social": [
+[
+"Бусдыг урамшуулж дэмждэг",
+"Манлайллын шинж тэмдэг харагдана"
+],
+[
+"Багийн зорилгод хувь нэмэр оруулдаг",
+"Хариуцлага хүлээх чадвартай"
+],
+[
+"Зөрчил зохицуулах чадвартай",
+"Хоёр талыг сонсож шийдэл олно"
+]
+],
+"emotional": [
+[
+"Сэтгэл хөдлөлөө зохистой удирддаг",
+"Бухимдлаа зохистой аргаар тайлдаг"
+],
+[
+"Бусдад туслахдаа дуртай",
+"Санаачлагатай тусалдаг"
+],
+[
+"Бие даасан, өөртөө итгэлтэй",
+"Шинэ орчинд тайван байдаг"
+]
+],
+"music": [
+[
+"Хөгжмийн зэмсэг тоглох чадвар бэхжсэн",
+"Нэгээс олон зэмсэг танина"
+],
+[
+"Аялгуу зохиох гэж оролддог",
+"Өөрийн энгийн аялгуу зохионо"
+],
+[
+"Хамтарсан хөгжимд оролцдог",
+"Бүлгийн дуулалт, тоглолтод оролцоно"
+]
+],
+"movement": [
+[
+"Нарийн зохион байгуулалттай хөдөлгөөн хийдэг",
+"Бүжгийн дараалал бүрэн гүйцэтгэнэ"
+],
+[
+"Спортын энгийн дүрэм мэддэг",
+"Багийн тоглоомын дүрмийг дагана"
+],
+[
+"Бие бялдрын тэсвэр сайжирсан",
+"Уртасгасан хугацаанд идэвхтэй байна"
+]
+],
+"health": [
+[
+"Эрүүл амьдралын дадал тогтворжсон",
+"Өдөр тутамдаа хэрэгжүүлнэ"
+],
+[
+"Аюулгүй байдлын дүрмийг бүрэн дагадаг",
+"Орчны аюулаас сэргийлдэг"
+],
+[
+"Сургуульд бэлэн эрүүл мэндийн төлөвтэй",
+"Бие бялдар, сэтгэл зүй хоёулаа бэлэн"
+]
+]
+}
+}
+};
+
+var DB={user:null,children:[],ratings:{},notes:{},dailyLogs:{},devCriteria:{},parentFeedback:{},parentMessages:{},parentMeetings:{},interviews:{}};
+var cur={childId:null,q:1,age:'2'};
+var pendingPhotos=[],pendingSkills={social:null,language:null,creativity:null,movement:null},pendingEmotion=null,pendingTags=[];
+var recognizing=false,recognition=null;
+var pendingMeetType=null;
+
+function $(id){return document.getElementById(id);}
+function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});$('scr-'+id).classList.add('active');}
+function showAuth(type){showScreen('auth');if(type==='register'){$('form-login').style.display='none';$('form-register').style.display='block';}else{$('form-login').style.display='block';$('form-register').style.display='none';}}
+function toggleAuth(){var l=$('form-login'),r=$('form-register');if(l.style.display==='none'){l.style.display='block';r.style.display='none';}else{l.style.display='none';r.style.display='block';}}
+function toast(msg){var t=$('toastEl');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+function openModal(id){$(id).classList.add('open');}
+function closeModal(id){$(id).classList.remove('open');}
+function showInstallHelp(){openModal('modal-install');}
+
+function checkRememberedUser(){
+  if(DB.user){
+    $('remName').textContent=DB.user.name;
+    $('remEmail').textContent=DB.user.email;
+    $('remAvatar').textContent=DB.user.name?DB.user.name[0]:'Б';
+    $('rememberedCard').style.display='flex';
+    $('continueBtn').style.display='block';
+    $('remSwitch').style.display='block';
+    $('defaultAuthBtns').style.display='none';
+  }
+}
+function continueAsUser(){enterApp();}
+
+function saveDB(){localStorage.setItem('kt_db',JSON.stringify(DB));}
+function loadDB(){
+  try{var d=localStorage.getItem('kt_db');if(d)DB=JSON.parse(d);}catch(e){}
+  if(!DB.dailyLogs)DB.dailyLogs={};
+  if(!DB.devCriteria)DB.devCriteria={};
+  if(!DB.parentFeedback)DB.parentFeedback={};
+  if(!DB.parentMessages)DB.parentMessages={};
+  if(!DB.parentMeetings)DB.parentMeetings={};
+  if(!DB.interviews)DB.interviews={};
+  if(!DB.children)DB.children=[];
+  if(!DB.ratings)DB.ratings={};
+  if(!DB.notes)DB.notes={};
+}
+
+function doLogin(){
+  var email=$('li-email').value.trim(),pass=$('li-pass').value;
+  if(!email||!pass){$('login-err').innerHTML='<div class="err-msg">Бүх талбарыг бөглөнө үү</div>';return;}
+  loadDB();
+  if(!DB.user){DB.user={name:'Багш',email:email,kinder:'Цэцэрлэг'};saveDB();}
+  enterApp();
+}
+function doRegister(){
+  var name=$('rg-name').value.trim(),kinder=$('rg-kinder').value.trim(),email=$('rg-email').value.trim(),pass=$('rg-pass').value;
+  if(!name||!kinder||!email||!pass){$('reg-err').innerHTML='<div class="err-msg">Бүх талбарыг бөглөнө үү</div>';return;}
+  DB.user={name:name,email:email,kinder:kinder};
+  saveDB();
+  enterApp();
+}
+function doLogout(){
+  showScreen('landing');
+  checkRememberedUser();
+}
+function enterApp(){
+  $('dashSub').textContent=DB.user.kinder||'Цэцэрлэг';
+  $('userAvatar').textContent=DB.user.name?DB.user.name[0]:'Б';
+  $('setName').textContent=DB.user.name;$('setEmail').textContent=DB.user.email;$('setKinder').textContent=DB.user.kinder;
+  $('setUserName').textContent=DB.user.name;
+  var h=new Date().getHours(),g=h<12?'Өглөөний мэнд 👋':h<17?'Өдрийн мэнд ☀️':'Оройн мэнд 🌙';
+  $('dashGreet').textContent=g+', '+DB.user.name+'!';
+  showScreen('app');renderDashboard();
+}
+
+function goPage(p){
+  document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
+  $('pg-'+p).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(x){x.classList.remove('active');});
+  var nb=$('nv-'+p);if(nb)nb.classList.add('active');
+  if(p==='dashboard')renderDashboard();
+  if(p==='children')renderChildren();
+  if(p==='reports')renderReportsPage();
+}
+
+function addChild(){
+  var name=$('newName').value.trim();
+  if(!name){toast('Нэр оруулна уу');return;}
+  var child={id:'c'+Date.now(),name:name,age:$('newAge').value,gender:$('newGender').value,emoji:EMOJIS[DB.children.length%EMOJIS.length],created:new Date().toISOString().split('T')[0]};
+  DB.children.push(child);saveDB();
+  closeModal('modal-add');$('newName').value='';
+  toast(name+' нэмэгдлээ ✓');
+  renderChildren();renderDashboard();
+}
+function filterChildren(q){
+  var items=$('childList').querySelectorAll('.child-card');
+  items.forEach(function(c){c.style.display=c.dataset.name.toLowerCase().indexOf(q.toLowerCase())>=0?'flex':'none';});
+}
+var BGS=['#fce7f3','#dbeafe','#dcfce7','#fef3c7','#ede9fe','#cffafe','#fee2e2','#fef9c3'];
+function ageLabel(age){var a=AGES.filter(function(x){return x.val===age;})[0];return a?a.label:'';}
+function makeChildCard(child,idx){
+  var card=document.createElement('div');card.className='child-card';
+  card.innerHTML='<div class="child-avatar" style="background:'+BGS[idx%BGS.length]+'">'+child.emoji+'</div>'+
+    '<div class="child-info"><div class="child-name">'+child.name+'</div><div class="child-meta">'+ageLabel(child.age)+' • '+child.created+'</div></div>'+
+    '<div class="child-prog"><div class="prog-ring">'+getProgress(child.id)+'%</div></div>';
+  card.dataset.name=child.name;
+  card.onclick=function(){openObs(child);};
+  return card;
+}
+function getProgress(cid){
+  var r=DB.ratings[cid];if(!r)return 0;
+  var total=0,done=0;
+  Object.keys(r).forEach(function(q){Object.keys(r[q]).forEach(function(age){
+    SECTIONS.forEach(function(sec){var items=((ITEMS[age]||{})[q]||{})[sec.cls]||[];total+=items.length;
+      var rs=(r[q][age]||{})[sec.cls]||{};done+=Object.keys(rs).length;});
+  });});
+  return total?Math.round(done/total*100):0;
+}
+function renderDashboard(){
+  $('stChildren').textContent=DB.children.length;
+  var total=0;
+  Object.keys(DB.ratings).forEach(function(cid){Object.keys(DB.ratings[cid]).forEach(function(q){Object.keys(DB.ratings[cid][q]).forEach(function(age){
+    SECTIONS.forEach(function(sec){var rs=(DB.ratings[cid][q][age]||{})[sec.cls]||{};total+=Object.keys(rs).length;});});});});
+  $('stObs').textContent=total;
+  var pct=DB.children.length?Math.round(total/(DB.children.length*44)*100):0;
+  $('stPct').textContent=Math.min(pct,100)+'%';
+  var list=$('dashList');list.innerHTML='';
+  if(!DB.children.length){
+    list.innerHTML='<div style="text-align:center;padding:28px;color:#9ca3af;font-size:13px;">Хүүхэд бүртгэлгүй байна<br><br><button onclick="goPage(\'children\')" style="padding:9px 18px;border-radius:10px;border:none;background:#0d9488;color:#fff;cursor:pointer;font-family:inherit;font-weight:600;">+ Хүүхэд нэмэх</button></div>';
+  } else {
+    DB.children.slice(0,4).forEach(function(c,i){list.appendChild(makeChildCard(c,i));});
+  }
+  renderDashAlerts();
+}
+function renderChildren(){
+  $('childCountSub').textContent=DB.children.length+' хүүхэд бүртгэлтэй';
+  var list=$('childList');list.innerHTML='';
+  DB.children.forEach(function(c,i){list.appendChild(makeChildCard(c,i));});
+}
+function renderReportsPage(){
+  var w=$('reportsChildList');w.innerHTML='';
+  if(!DB.children.length)return;
+  var title=document.createElement('div');title.className='sec-title';title.textContent='Хүүхэд сонгох';w.appendChild(title);
+  DB.children.forEach(function(c){
+    var row=document.createElement('div');row.className='child-card';
+    row.innerHTML='<div class="child-avatar" style="background:#f0fdfa">'+c.emoji+'</div><div class="child-info"><div class="child-name">'+c.name+'</div><div class="child-meta">'+ageLabel(c.age)+'</div></div>';
+    row.onclick=function(){openObs(c);switchSubtab('report');};
+    w.appendChild(row);
+  });
+}
+
+function openObs(child){
+  cur.childId=child.id;cur.q=1;cur.age=child.age;
+  $('obsName').textContent=child.name;
+  $('obsMeta').textContent=ageLabel(child.age)+' • 2025-2026';
+  buildQTabs();buildAgeTabs();buildSections();buildSummary();buildYearChart();loadNotes();
+  switchSubtab('checklist');
+  goPage('observation');
+}
+function buildQTabs(){
+  var w=$('obsQtabs');w.innerHTML='';
+  QUARTERS.forEach(function(q){
+    var b=document.createElement('button');b.className='q-tab '+q.cls+(cur.q===q.num?' active':'');
+    b.textContent=q.icon+' '+q.label;
+    b.onclick=function(){cur.q=q.num;buildQTabs();buildSections();buildSummary();buildYearChart();loadNotes();refreshActiveSubtab();};
+    w.appendChild(b);
+  });
+}
+function buildAgeTabs(){
+  var w=$('obsAgeTabs');w.innerHTML='';
+  AGES.forEach(function(a){
+    var b=document.createElement('button');b.className='age-tab'+(cur.age===a.val?' active':'');
+    b.textContent=a.label;
+    b.onclick=function(){cur.age=a.val;buildAgeTabs();buildSections();buildSummary();buildYearChart();refreshActiveSubtab();};
+    w.appendChild(b);
+  });
+}
+function getR(cid,q,age,sec,idx){return ((((DB.ratings[cid]||{})[q]||{})[age]||{})[sec]||{})[idx]||null;}
+function setR(cid,q,age,sec,idx,val){
+  if(!DB.ratings[cid])DB.ratings[cid]={};if(!DB.ratings[cid][q])DB.ratings[cid][q]={};
+  if(!DB.ratings[cid][q][age])DB.ratings[cid][q][age]={};if(!DB.ratings[cid][q][age][sec])DB.ratings[cid][q][age][sec]={};
+  DB.ratings[cid][q][age][sec][idx]=val;
+}
+function buildSections(){
+  var w=$('obsSections');w.innerHTML='';
+  var ageItems=((ITEMS[cur.age]||{})[cur.q])||{};
+  SECTIONS.forEach(function(sec){
+    var card=document.createElement('div');card.className='sect-card';card.style.borderLeftColor=SEC_BORDER[sec.cls];
+    var title=document.createElement('div');title.className='sect-title';
+    title.innerHTML='<div class="sect-icon" style="background:'+SEC_BG[sec.cls]+'">'+sec.icon+'</div>'+sec.label;
+    card.appendChild(title);
+    var items=ageItems[sec.cls]||[];
+    items.forEach(function(item,idx){
+      var row=document.createElement('div');row.className='o-item';
+      row.innerHTML='<div class="o-text">'+item[0]+'<span class="o-hint">'+item[1]+'</span></div>';
+      var rg=document.createElement('div');rg.className='r-btns';
+      var c=getR(cur.childId,cur.q,cur.age,sec.cls,idx);
+      ['yes','partial','no'].forEach(function(type){
+        var emoji=type==='yes'?'✅':type==='partial'?'🔶':'❌';
+        var rb=document.createElement('button');rb.className='r-btn'+(c===type?' r-'+type:'');rb.textContent=emoji;
+        rb.onclick=function(){
+          setR(cur.childId,cur.q,cur.age,sec.cls,idx,type);saveDB();
+          var btns=this.parentElement.querySelectorAll('.r-btn');btns.forEach(function(b){b.className='r-btn';});
+          this.className='r-btn r-'+type;
+          buildSummary();buildYearChart();
+        };
+        rg.appendChild(rb);
+      });
+      row.appendChild(rg);card.appendChild(row);
+    });
+    w.appendChild(card);
+  });
+}
+function getScore(cid,q,age,sec){
+  var items=((ITEMS[age]||{})[q]||{})[sec]||[];if(!items.length)return 0;
+  var r=(((DB.ratings[cid]||{})[q]||{})[age]||{})[sec]||{};
+  var score=0;items.forEach(function(_,i){if(r[i]==='yes')score+=1;else if(r[i]==='partial')score+=0.5;});
+  return Math.round(score/items.length*100);
+}
+function buildSummary(){
+  var rows=$('sumRows');rows.innerHTML='';
+  SECTIONS.forEach(function(sec){
+    var pct=getScore(cur.childId,cur.q,cur.age,sec.cls);
+    var row=document.createElement('div');row.className='sum-row';
+    row.innerHTML='<span class="sum-lbl">'+sec.icon+' '+sec.label+'</span><div class="sum-bg"><div class="sum-fill" style="width:'+pct+'%"></div></div><span class="sum-pct">'+pct+'%</span>';
+    rows.appendChild(row);
+  });
+}
+function buildYearChart(){
+  var w=$('yearRows');w.innerHTML='';
+  SECTIONS.forEach(function(sec){
+    var row=document.createElement('div');row.className='y-row';
+    row.innerHTML='<div class="y-lbl">'+sec.icon+' '+sec.label+'</div>';
+    var bars=document.createElement('div');bars.className='y-bars';
+    QUARTERS.forEach(function(q){
+      var pct=getScore(cur.childId,q.num,cur.age,sec.cls);
+      var r=(((DB.ratings[cur.childId]||{})[q.num]||{})[cur.age]||{})[sec.cls]||{};
+      var hasData=Object.keys(r).length>0;
+      var wrap=document.createElement('div');wrap.className='y-wrap';
+      wrap.innerHTML='<div class="y-p">'+(hasData?pct+'%':'-')+'</div><div class="y-bar" style="background:'+q.bar+';height:'+(hasData?Math.max(pct*0.34,4):4)+'px"></div><div class="y-n">'+q.num+'</div>';
+      bars.appendChild(wrap);
+    });
+    row.appendChild(bars);w.appendChild(row);
+  });
+}
+function loadNotes(){
+  var key=cur.childId+'_'+cur.q;var n=DB.notes[key]||{obs:'',next:''};
+  $('noteObs').value=n.obs;$('noteNext').value=n.next;
+}
+function saveObsNotes(){
+  var key=cur.childId+'_'+cur.q;
+  DB.notes[key]={obs:$('noteObs').value,next:$('noteNext').value};saveDB();
+  toast('Хадгалагдлаа ✓');
+}
+
+function switchSubtab(name){
+  document.querySelectorAll('.subtab-content').forEach(function(c){c.classList.remove('active');});
+  $('subtab-'+name).classList.add('active');
+  document.querySelectorAll('.sub-tab').forEach(function(b){b.classList.remove('active');});
+  var btn=document.querySelector('.sub-tab[data-tab="'+name+'"]');if(btn)btn.classList.add('active');
+  if(name==='daily')renderDailyTab();
+  if(name==='gallery')renderGalleryTab();
+  if(name==='criteria')renderCriteriaTab();
+  if(name==='report')renderReportTab();
+  if(name==='interview')renderInterviewTab();
+  if(name==='parents')renderParentsTab();
+}
+function refreshActiveSubtab(){
+  var active=document.querySelector('.sub-tab.active');
+  if(active)switchSubtab(active.dataset.tab);
+}
+
+function buildQuickRow(key,label){
+  var row=document.createElement('div');row.className='quick-row';
+  var lbl=document.createElement('div');lbl.className='quick-lbl';lbl.textContent=label;
+  var rg=document.createElement('div');rg.className='r-btns';
+  ['yes','partial','no'].forEach(function(type){
+    var emoji=type==='yes'?'✅':type==='partial'?'🔶':'❌';
+    var rb=document.createElement('button');rb.className='r-btn';rb.textContent=emoji;
+    rb.onclick=function(){
+      pendingSkills[key]=type;
+      var btns=this.parentElement.querySelectorAll('.r-btn');btns.forEach(function(b){b.className='r-btn';});
+      this.className='r-btn r-'+type;
+    };
+    rg.appendChild(rb);
+  });
+  row.appendChild(lbl);row.appendChild(rg);
+  return row;
+}
+
+function renderDailyTab(){
+  var w=$('subtab-daily');w.innerHTML='';
+  pendingPhotos=[];pendingSkills={social:null,language:null,creativity:null,movement:null};pendingEmotion=null;pendingTags=[];
+
+  var form=document.createElement('div');form.className='daily-card';
+  var dateLbl=document.createElement('div');dateLbl.className='notes-lbl';dateLbl.textContent='📅 Огноо';
+  form.appendChild(dateLbl);
+  var dateInput=document.createElement('input');dateInput.type='date';dateInput.id='dailyDateInput';
+  dateInput.value=new Date().toISOString().split('T')[0];
+  dateInput.style.cssText='width:100%;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:13px;background:#fafafa;color:#1a1a2e;margin-bottom:12px;';
+  form.appendChild(dateInput);
+
+  var lbl1=document.createElement('div');lbl1.className='notes-lbl';lbl1.textContent='😊 Тухайн өдрийн сэтгэл хөдлөл';
+  form.appendChild(lbl1);
+
+  var emoPicker=document.createElement('div');emoPicker.className='emo-picker';emoPicker.id='emoPicker';
+  [['happy','😊','Аз жаргалтай'],['neutral','😐','Тайван'],['sad','😢','Түгшүүртэй']].forEach(function(e){
+    var btn=document.createElement('button');btn.className='emo-btn';btn.dataset.e=e[0];
+    btn.innerHTML='<span class="emo-ic">'+e[1]+'</span><span class="emo-lb">'+e[2]+'</span>';
+    btn.onclick=function(){
+      pendingEmotion=e[0];
+      emoPicker.querySelectorAll('.emo-btn').forEach(function(b){b.className='emo-btn';});
+      btn.className='emo-btn sel-'+e[0];
+    };
+    emoPicker.appendChild(btn);
+  });
+  form.appendChild(emoPicker);
+
+  form.appendChild(buildQuickRow('social','🤝 Нийгэмших чадвар'));
+  form.appendChild(buildQuickRow('language','💬 Хэл ярианы хөгжил'));
+  form.appendChild(buildQuickRow('creativity','🎨 Бүтээлч байдал'));
+  form.appendChild(buildQuickRow('movement','🏃 Хөдөлгөөний хөгжил'));
+
+  var tagLbl=document.createElement('div');tagLbl.className='notes-lbl';tagLbl.style.marginTop='10px';tagLbl.textContent='🏷️ Холбоотой чиглэл';
+  form.appendChild(tagLbl);
+  var tagWrap=document.createElement('div');tagWrap.className='tag-chips';
+  CURRICULUM_TAGS.forEach(function(t){
+    var chip=document.createElement('div');chip.className='tag-chip';chip.textContent=t;
+    chip.onclick=function(){
+      var i=pendingTags.indexOf(t);
+      if(i>=0){pendingTags.splice(i,1);chip.classList.remove('sel');}
+      else{pendingTags.push(t);chip.classList.add('sel');}
+    };
+    tagWrap.appendChild(chip);
+  });
+  form.appendChild(tagWrap);
+
+  var noteLbl=document.createElement('div');noteLbl.className='notes-lbl';noteLbl.style.marginTop='10px';noteLbl.textContent='📝 Тэмдэглэл';
+  form.appendChild(noteLbl);
+  var noteRow=document.createElement('div');noteRow.style.cssText='display:flex;gap:8px;align-items:flex-start;';
+  var ta=document.createElement('textarea');ta.id='dailyNoteInput';ta.placeholder='Жишээ: Өнөөдөр Бат найздаа тоглоомоо сайн дураараа өгч хамтарч тоглосон.';
+  ta.style.cssText='flex:1;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:12.5px;min-height:70px;resize:none;background:#fafafa;';
+  var micBtn=document.createElement('button');micBtn.className='mic-btn';micBtn.id='micBtn';micBtn.textContent='🎤';
+  micBtn.onclick=function(){toggleVoice();};
+  noteRow.appendChild(ta);noteRow.appendChild(micBtn);
+  form.appendChild(noteRow);
+
+  var photoLbl=document.createElement('div');photoLbl.className='notes-lbl';photoLbl.style.marginTop='10px';photoLbl.textContent='📸 Зураг хавсаргах';
+  form.appendChild(photoLbl);
+  var photoInput=document.createElement('input');photoInput.type='file';photoInput.accept='image/*';photoInput.multiple=true;
+  photoInput.style.fontSize='12px';photoInput.style.marginBottom='8px';
+  photoInput.onchange=function(ev){handlePhotoSelect(ev);};
+  form.appendChild(photoInput);
+  var pendingRow=document.createElement('div');pendingRow.className='daily-photos';pendingRow.id='pendingPhotosRow';
+  form.appendChild(pendingRow);
+
+  var saveBtn=document.createElement('button');saveBtn.className='btn-submit';saveBtn.style.marginTop='12px';saveBtn.textContent='Хадгалах';
+  saveBtn.onclick=function(){saveDailyLog();};
+  form.appendChild(saveBtn);
+
+  w.appendChild(form);
+
+  var hist=document.createElement('div');hist.style.marginTop='16px';
+  var histTitle=document.createElement('div');histTitle.className='sec-title';histTitle.textContent='Өмнөх тэмдэглэлүүд';
+  hist.appendChild(histTitle);
+  var logs=(DB.dailyLogs[cur.childId]||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+  if(!logs.length){
+    var empty=document.createElement('div');empty.style.cssText='text-align:center;color:#9ca3af;font-size:12.5px;padding:16px;';
+    empty.textContent='Тэмдэглэл байхгүй байна';hist.appendChild(empty);
+  } else {
+    var emoMap={happy:'😊',neutral:'😐',sad:'😢'};
+    logs.forEach(function(log){
+      var card=document.createElement('div');card.className='daily-card';
+      var dateDiv=document.createElement('div');dateDiv.className='daily-date';dateDiv.textContent=log.date+' '+(emoMap[log.emotion]||'');
+      card.appendChild(dateDiv);
+      var skillsDiv=document.createElement('div');skillsDiv.style.margin='5px 0';
+      [['social','🤝'],['language','💬'],['creativity','🎨'],['movement','🏃']].forEach(function(s){
+        var v=log[s[0]];
+        if(v){var ic=v==='yes'?'✅':v==='partial'?'🔶':'❌';var sp=document.createElement('span');sp.style.cssText='margin-right:6px;font-size:12px;';sp.textContent=s[1]+ic;skillsDiv.appendChild(sp);}
+      });
+      card.appendChild(skillsDiv);
+      if(log.note){var noteDiv=document.createElement('div');noteDiv.className='daily-note';noteDiv.textContent=log.note;card.appendChild(noteDiv);}
+      if(log.domains&&log.domains.length){
+        var tagsDiv=document.createElement('div');tagsDiv.className='tag-chips';tagsDiv.style.marginTop='4px';
+        log.domains.forEach(function(t){var c=document.createElement('span');c.className='tag-chip sel';c.style.cssText='cursor:default;font-size:10px;padding:3px 8px;';c.textContent=t;tagsDiv.appendChild(c);});
+        card.appendChild(tagsDiv);
+      }
+      if(log.photos&&log.photos.length){
+        var prow=document.createElement('div');prow.className='daily-photos';
+        log.photos.forEach(function(p){
+          var img=document.createElement('img');img.className='daily-photo';img.src=p;
+          img.onclick=function(){openLightbox(p,log.date+(log.note?' • '+log.note:''));};
+          prow.appendChild(img);
+        });
+        card.appendChild(prow);
+      }
+      var delBtn=document.createElement('button');delBtn.className='daily-del';delBtn.textContent='🗑️ Устгах';
+      delBtn.onclick=function(){deleteDailyLog(log.id);};
+      card.appendChild(delBtn);
+      hist.appendChild(card);
+    });
+  }
+  w.appendChild(hist);
+}
+
+function handlePhotoSelect(ev){
+  var files=ev.target.files;
+  for(var i=0;i<files.length;i++){
+    resizeImage(files[i],function(dataUrl){pendingPhotos.push(dataUrl);renderPendingPhotos();});
+  }
+}
+function resizeImage(file,cb){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var maxDim=480,w=img.width,h=img.height;
+      if(w>h){if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}}else{if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}}
+      var canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      cb(canvas.toDataURL('image/jpeg',0.6));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function renderPendingPhotos(){
+  var row=$('pendingPhotosRow');if(!row)return;row.innerHTML='';
+  pendingPhotos.forEach(function(p,i){
+    var img=document.createElement('img');img.className='daily-photo';img.src=p;
+    img.title='Хасах';
+    img.onclick=function(){pendingPhotos.splice(i,1);renderPendingPhotos();};
+    row.appendChild(img);
+  });
+}
+function saveDailyLog(){
+  var noteEl=$('dailyNoteInput');var note=noteEl?noteEl.value.trim():'';
+  if(!pendingEmotion&&!note&&!pendingPhotos.length){toast('Дор хаяж нэг зүйл бөглөнө үү');return;}
+  var dateEl=$('dailyDateInput');var chosenDate=dateEl&&dateEl.value?dateEl.value:new Date().toISOString().split('T')[0];
+  var entry={id:'d'+Date.now(),date:chosenDate,emotion:pendingEmotion,
+    social:pendingSkills.social,language:pendingSkills.language,creativity:pendingSkills.creativity,movement:pendingSkills.movement,
+    domains:pendingTags.slice(),note:note,photos:pendingPhotos.slice()};
+  if(!DB.dailyLogs[cur.childId])DB.dailyLogs[cur.childId]=[];
+  DB.dailyLogs[cur.childId].push(entry);
+  try{saveDB();}catch(e){toast('Санах ой дүүрсэн байна, хуучин зургуудыг устгана уу');return;}
+  toast('Тэмдэглэл хадгалагдлаа ✓');
+  renderDailyTab();
+}
+function deleteDailyLog(id){
+  DB.dailyLogs[cur.childId]=(DB.dailyLogs[cur.childId]||[]).filter(function(l){return l.id!==id;});
+  saveDB();renderDailyTab();
+}
+
+function openLightbox(src,cap){$('lbImg').src=src;$('lbCap').textContent=cap||'';$('lightboxEl').classList.add('open');}
+function closeLightbox(){$('lightboxEl').classList.remove('open');}
+
+function renderGalleryTab(){
+  var w=$('subtab-gallery');w.innerHTML='';
+  var logs=(DB.dailyLogs[cur.childId]||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+  var photos=[];
+  logs.forEach(function(l){(l.photos||[]).forEach(function(p){photos.push({src:p,date:l.date,note:l.note});});});
+  if(!photos.length){
+    w.innerHTML='<div style="text-align:center;color:#9ca3af;font-size:13px;padding:30px;">Зураг байхгүй байна<br><br>"Өдөр тутмын" таб дотроос зураг нэмж эхлээрэй 📸</div>';
+    return;
+  }
+  var grid=document.createElement('div');grid.className='photo-grid';
+  photos.forEach(function(p){
+    var img=document.createElement('img');img.src=p.src;
+    img.onclick=function(){openLightbox(p.src,p.date+(p.note?' • '+p.note:''));};
+    grid.appendChild(img);
+  });
+  w.appendChild(grid);
+}
+
+function renderCriteriaTab(){
+  var w=$('subtab-criteria');w.innerHTML='';
+  var info=document.createElement('div');info.style.cssText='font-size:12px;color:#9ca3af;margin-bottom:14px;';
+  info.textContent=cur.q+'-р улирлын хөгжлийн шалгуур үнэлгээ (Финландын загвар)';
+  w.appendChild(info);
+  var card=document.createElement('div');card.className='daily-card';
+  if(!DB.devCriteria[cur.childId])DB.devCriteria[cur.childId]={};
+  if(!DB.devCriteria[cur.childId][cur.q])DB.devCriteria[cur.childId][cur.q]={};
+  var data=DB.devCriteria[cur.childId][cur.q];
+  DEV_CRITERIA.forEach(function(dc){
+    var row=document.createElement('div');row.className='star-row';
+    var lvl=data[dc.key]||0;
+    var lblDiv=document.createElement('div');lblDiv.className='star-lbl';
+    lblDiv.innerHTML=dc.icon+' '+dc.label+'<span class="star-level-txt">'+(STAR_LEVELS[lvl]||'Тодорхойгүй')+'</span>';
+    var starsDiv=document.createElement('div');starsDiv.className='star-btns';
+    [1,2,3].forEach(function(n){
+      var sb=document.createElement('button');sb.className='star-btn'+(n<=lvl?' on':'');sb.textContent='★';
+      sb.onclick=function(){setStar(dc.key,n);};
+      starsDiv.appendChild(sb);
+    });
+    row.appendChild(lblDiv);row.appendChild(starsDiv);
+    card.appendChild(row);
+  });
+  w.appendChild(card);
+  var note=document.createElement('div');note.className='note-disclaimer';
+  note.textContent='⭐ Эхэлж байна  ⭐⭐ Хөгжиж байна  ⭐⭐⭐ Тогтворжсон';
+  w.appendChild(note);
+}
+function setStar(key,n){
+  if(!DB.devCriteria[cur.childId])DB.devCriteria[cur.childId]={};
+  if(!DB.devCriteria[cur.childId][cur.q])DB.devCriteria[cur.childId][cur.q]={};
+  var cur_val=DB.devCriteria[cur.childId][cur.q][key]||0;
+  DB.devCriteria[cur.childId][cur.q][key]=(cur_val===n)?0:n;
+  saveDB();renderCriteriaTab();
+}
+
+function computeStrengths(childId){
+  var out=[];
+  SECTIONS.forEach(function(sec){
+    var pct=getScore(childId,cur.q,cur.age,sec.cls);
+    if(pct>=70)out.push({cls:sec.cls,pct:pct});
+  });
+  out.sort(function(a,b){return b.pct-a.pct;});
+  return out.slice(0,3).map(function(o){return STRENGTH_MAP[o.cls];});
+}
+function computeEmotionMap(childId){
+  var logs=(DB.dailyLogs[childId]||[]);
+  var cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
+  var cutoffStr=cutoff.toISOString().split('T')[0];
+  var recent=logs.filter(function(l){return l.date>=cutoffStr&&l.emotion;});
+  var counts={happy:0,neutral:0,sad:0};
+  recent.forEach(function(l){counts[l.emotion]=(counts[l.emotion]||0)+1;});
+  var total=recent.length;
+  return {happy:total?Math.round(counts.happy/total*100):0,neutral:total?Math.round(counts.neutral/total*100):0,sad:total?Math.round(counts.sad/total*100):0,total:total};
+}
+function computeAlertsForChild(childId,name){
+  var alerts=[];
+  var logs=DB.dailyLogs[childId]||[];
+  var today=new Date();
+  CURRICULUM_TAGS.forEach(function(tag){
+    var has=logs.some(function(l){return (l.domains||[]).indexOf(tag)>=0;});
+    if(!has)return;
+    var lastDate=null;
+    logs.forEach(function(l){if((l.domains||[]).indexOf(tag)>=0){if(!lastDate||l.date>lastDate)lastDate=l.date;}});
+    if(lastDate){
+      var diffDays=Math.floor((today-new Date(lastDate))/86400000);
+      if(diffDays>=21)alerts.push({type:'warn',text:name+': сүүлийн 3 долоо хоногт "'+tag+'"-тай холбоотой тэмдэглэл бүртгэгдээгүй байна.'});
+    }
+  });
+  if(cur.q>1){
+    SECTIONS.forEach(function(sec){
+      var now=getScore(childId,cur.q,cur.age,sec.cls);
+      var prev=getScore(childId,cur.q-1,cur.age,sec.cls);
+      if(prev>0&&now-prev>=20)alerts.push({type:'good',text:name+': "'+sec.label+'" чиглэлээр өмнөх улирлаас тогтворлон сайжирчээ 🎉'});
+    });
+  }
+  return alerts;
+}
+function renderDashAlerts(){
+  var box=$('dashAlerts');if(!box)return;
+  var all=[];
+  DB.children.forEach(function(c){all=all.concat(computeAlertsForChild(c.id,c.name));});
+  if(!all.length){box.innerHTML='';return;}
+  box.innerHTML='';
+  var title=document.createElement('div');title.className='sec-title';title.textContent='🔔 Анхааруулга';box.appendChild(title);
+  all.slice(0,4).forEach(function(a){
+    var div=document.createElement('div');div.className='alert-card'+(a.type==='good'?' positive':'');
+    div.innerHTML='<span>'+(a.type==='good'?'✨':'⚠️')+'</span><span>'+a.text+'</span>';
+    box.appendChild(div);
+  });
+}
+
+function generateReport(scope){
+  var childId=cur.childId;
+  var child=DB.children.filter(function(c){return c.id===childId;})[0];
+  var logs=DB.dailyLogs[childId]||[];
+  var rangeDays=scope==='month'?30:90;
+  var cutoff=new Date();cutoff.setDate(cutoff.getDate()-rangeDays);
+  var cutoffStr=cutoff.toISOString().split('T')[0];
+  var recent=logs.filter(function(l){return l.date>=cutoffStr;});
+  var tagCounts={};
+  CURRICULUM_TAGS.forEach(function(t){tagCounts[t]=0;});
+  recent.forEach(function(l){(l.domains||[]).forEach(function(t){tagCounts[t]=(tagCounts[t]||0)+1;});});
+  var emo=computeEmotionMap(childId);
+  var strengths=computeStrengths(childId);
+  var periodLabel=scope==='month'?'сарын':'улирлын';
+
+  var lines=[];
+  lines.push((child?child.name:'Хүүхэд')+'-ийн '+periodLabel+' тайлан');
+  lines.push('');
+  lines.push('Энэ хугацаанд нийт '+recent.length+' тэмдэглэл бүртгэгдсэн.');
+  if(emo.total){
+    lines.push('Сэтгэл хөдлөлийн байдал: аз жаргалтай '+emo.happy+'%, тайван '+emo.neutral+'%, түгшүүртэй '+emo.sad+'%.');
+  }
+  var topTags=Object.keys(tagCounts).filter(function(t){return tagCounts[t]>0;}).sort(function(a,b){return tagCounts[b]-tagCounts[a];});
+  if(topTags.length){
+    lines.push('Хамгийн их анхаарал хандуулсан чиглэл: '+topTags.slice(0,2).join(', ')+'.');
+  }
+  if(strengths.length){
+    lines.push('Хүүхдийн илэрсэн хүчтэй талууд: '+strengths.join(', ')+'.');
+  } else {
+    lines.push('Одоогоор тодорхой хүчтэй тал гарч ирээгүй байна, ажиглалтыг үргэлжлүүлнэ үү.');
+  }
+  var weakTags=CURRICULUM_TAGS.filter(function(t){return tagCounts[t]===0;});
+  if(weakTags.length){
+    lines.push('Анхаарал хандуулах шаардлагатай чиглэл: '+weakTags.slice(0,2).join(', ')+'.');
+  }
+  lines.push('');
+  lines.push('* Энэ тайлан нь багшийн өдөр тутмын тэмдэглэл дээр үндэслэн автоматаар нэгтгэгдсэн дата-аналитик тайлан бөгөөд бодит хиймэл оюун ухаан ашиглаагүй болно.');
+
+  return lines.join('\n');
+}
+function renderReportTab(){
+  var w=$('subtab-report');w.innerHTML='';
+  var strengths=computeStrengths(cur.childId);
+  if(strengths.length){
+    var sc=document.createElement('div');
+    var t=document.createElement('div');t.className='sec-title';t.textContent='🌱 Илэрсэн хүчтэй тал';sc.appendChild(t);
+    var chips=document.createElement('div');chips.className='strength-chips';
+    strengths.forEach(function(s){var c=document.createElement('div');c.className='strength-chip';c.textContent=s;chips.appendChild(c);});
+    sc.appendChild(chips);w.appendChild(sc);
+  }
+  var emo=computeEmotionMap(cur.childId);
+  if(emo.total){
+    var ec=document.createElement('div');
+    var t2=document.createElement('div');t2.className='sec-title';t2.textContent='📊 Сэтгэл хөдлөлийн газрын зураг (30 хоног)';ec.appendChild(t2);
+    [['Аз жаргалтай',emo.happy,'#10b981'],['Тайван',emo.neutral,'#f59e0b'],['Түгшүүртэй',emo.sad,'#ef4444']].forEach(function(r){
+      var row=document.createElement('div');row.className='emo-map-row';
+      row.innerHTML='<div class="emo-map-lbl">'+r[0]+'</div><div class="emo-map-bg"><div class="emo-map-fill" style="width:'+r[1]+'%;background:'+r[2]+'"></div></div><div style="font-size:11px;font-weight:700;width:32px;text-align:right">'+r[1]+'%</div>';
+      ec.appendChild(row);
+    });
+    w.appendChild(ec);
+  }
+  var btnRow=document.createElement('div');btnRow.className='report-btns';
+  var b1=document.createElement('button');b1.className='act-btn act-save';b1.style.flex='1';b1.textContent='📄 Сарын тайлан';b1.onclick=function(){showReport('month');};
+  var b2=document.createElement('button');b2.className='act-btn act-print';b2.style.flex='1';b2.textContent='📄 Улирлын тайлан';b2.onclick=function(){showReport('quarter');};
+  btnRow.appendChild(b1);btnRow.appendChild(b2);
+  w.appendChild(btnRow);
+  var box=document.createElement('div');box.id='reportOutput';w.appendChild(box);
+}
+function showReport(scope){
+  var text=generateReport(scope);
+  var box=$('reportOutput');box.innerHTML='';
+  var rb=document.createElement('div');rb.className='report-box';rb.id='reportText';rb.textContent=text;
+  box.appendChild(rb);
+  var btns=document.createElement('div');btns.className='report-btns';
+  var copyBtn=document.createElement('button');copyBtn.className='act-btn act-print';copyBtn.textContent='📋 Хуулах';
+  copyBtn.onclick=function(){copyReport(text);};
+  var printBtn=document.createElement('button');printBtn.className='act-btn act-save';printBtn.textContent='🖨️ Хэвлэх';
+  printBtn.onclick=function(){window.print();};
+  btns.appendChild(copyBtn);btns.appendChild(printBtn);
+  box.appendChild(btns);
+}
+function copyReport(text){
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){toast('Хуулагдлаа ✓');}).catch(function(){toast('Хуулж чадсангуй');});}
+  else{toast('Хуулж чадсангуй');}
+}
+
+/* ═══════ ЯРИЛЦЛАГЫН ТЭМДЭГЛЭЛ ТАБ ═══════ */
+var pendingIvTags=[];
+function renderInterviewTab(){
+  var w=$('subtab-interview');w.innerHTML='';
+  var child=DB.children.filter(function(c){return c.id===cur.childId;})[0];
+  if(!child)return;
+  pendingMethod=null;pendingIvTags=[];
+
+  /* Арга сонгох карт */
+  var title=document.createElement('div');title.className='sec-title';title.textContent='🎭 Ярилцлагын арга сонгох';
+  w.appendChild(title);
+  var grid=document.createElement('div');grid.className='method-grid';
+  var introBox=document.createElement('div');introBox.className='method-intro-box';introBox.id='methodIntroBox';
+
+  METHOD_TIPS.forEach(function(m){
+    var card=document.createElement('div');card.className='method-card';
+    card.innerHTML='<div class="method-card-icon">'+m.icon+'</div><div class="method-card-label">'+m.label+'</div><div class="method-card-desc">'+m.desc+'</div>';
+    card.onclick=function(){
+      pendingMethod=m.key;
+      grid.querySelectorAll('.method-card').forEach(function(c){c.classList.remove('sel');});
+      card.classList.add('sel');
+      introBox.textContent=m.intro;
+      introBox.classList.add('show');
+    };
+    grid.appendChild(card);
+  });
+  w.appendChild(grid);
+  w.appendChild(introBox);
+
+  /* Асуултын банк — лавлагаа, товшиход тэмдэглэл рүү орно */
+  var qTitle=document.createElement('div');qTitle.className='sec-title';qTitle.textContent='💡 '+ageLabel(cur.age)+' — Асуух санаанууд';
+  w.appendChild(qTitle);
+  var qHint=document.createElement('div');qHint.style.cssText='font-size:11.5px;color:#9ca3af;margin-bottom:10px;';
+  qHint.textContent='Асуултан дээр товшиход доорх тэмдэглэлд автоматаар орно';
+  w.appendChild(qHint);
+
+  var categories=INTERVIEW_QUESTIONS[cur.age]||{};
+  Object.keys(categories).forEach(function(catName){
+    var catBox=document.createElement('div');catBox.className='iv-category';
+    var catTitle=document.createElement('div');catTitle.className='iv-category-title';catTitle.textContent='📁 '+catName;
+    catBox.appendChild(catTitle);
+    var chipsWrap=document.createElement('div');chipsWrap.className='tag-chips';
+    categories[catName].forEach(function(q){
+      var chip=document.createElement('div');chip.className='tag-chip';chip.textContent=q;
+      chip.style.cssText='cursor:pointer;font-size:11.5px;';
+      chip.onclick=function(){
+        var ta=$('ivNoteInput');
+        ta.value=(ta.value?ta.value+'\n':'')+'❓ '+q+'\n💬 ';
+        ta.focus();
+        if(pendingIvTags.indexOf(catName)<0){pendingIvTags.push(catName);renderIvTagBar();}
+      };
+      chipsWrap.appendChild(chip);
+    });
+    catBox.appendChild(chipsWrap);
+    w.appendChild(catBox);
+  });
+
+  /* Ярилцлагын тэмдэглэл — чөлөөт бичих хэсэг */
+  var noteTitle=document.createElement('div');noteTitle.className='sec-title';noteTitle.textContent='📝 Ярилцлагын тэмдэглэл';
+  w.appendChild(noteTitle);
+  var ivDateInput=document.createElement('input');ivDateInput.type='date';ivDateInput.id='ivDateInput';
+  ivDateInput.value=new Date().toISOString().split('T')[0];
+  ivDateInput.style.cssText='width:100%;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:13px;background:#fafafa;color:#1a1a2e;margin-bottom:10px;';
+  w.appendChild(ivDateInput);
+  var ivTagBar=document.createElement('div');ivTagBar.className='tag-chips';ivTagBar.id='ivTagBar';
+  w.appendChild(ivTagBar);
+
+  var noteCard=document.createElement('div');noteCard.className='daily-card';
+  var noteRow=document.createElement('div');noteRow.style.cssText='display:flex;gap:8px;align-items:flex-start;';
+  var ta=document.createElement('textarea');ta.id='ivNoteInput';
+  ta.placeholder='Хүүхэдтэй ярилцсан агуулга, сонирхолтой хариулт, ажиглалтаа чөлөөтэй бичнэ үү...';
+  ta.style.cssText='flex:1;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:12.5px;min-height:110px;resize:none;background:#fafafa;';
+  var micBtn=document.createElement('button');micBtn.className='mic-btn';micBtn.id='ivMicBtn';micBtn.textContent='🎤';
+  micBtn.onclick=function(){toggleVoiceFor(ta,micBtn);};
+  noteRow.appendChild(ta);noteRow.appendChild(micBtn);
+  noteCard.appendChild(noteRow);
+  w.appendChild(noteCard);
+
+  var saveBtn=document.createElement('button');saveBtn.className='btn-submit';saveBtn.style.marginTop='10px';saveBtn.style.marginBottom='20px';
+  saveBtn.textContent='💾 Тэмдэглэл хадгалах';
+  saveBtn.onclick=function(){saveInterviewNote();};
+  w.appendChild(saveBtn);
+
+  /* Өмнөх ярилцлагын тэмдэглэлүүд */
+  var histTitle=document.createElement('div');histTitle.className='sec-title';histTitle.textContent='🗂️ Өмнөх тэмдэглэлүүд';
+  w.appendChild(histTitle);
+  var sessions=(DB.interviews[cur.childId]||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+  if(!sessions.length){
+    var empty=document.createElement('div');empty.className='empty-hint';empty.textContent='Ярилцлагын тэмдэглэл одоогоор байхгүй байна';
+    w.appendChild(empty);
+  } else {
+    sessions.forEach(function(s){
+      var card=document.createElement('div');card.className='daily-card';
+      var methodInfo=METHOD_TIPS.filter(function(m){return m.key===s.method;})[0];
+      var dateDiv=document.createElement('div');dateDiv.className='daily-date';
+      dateDiv.textContent=s.date+' '+(methodInfo?methodInfo.icon+' '+methodInfo.label:'');
+      card.appendChild(dateDiv);
+      if(s.tags&&s.tags.length){
+        var tagsDiv=document.createElement('div');tagsDiv.className='tag-chips';tagsDiv.style.marginTop='4px';
+        s.tags.forEach(function(t){var c=document.createElement('span');c.className='tag-chip sel';c.style.cssText='cursor:default;font-size:10px;padding:3px 8px;';c.textContent=t;tagsDiv.appendChild(c);});
+        card.appendChild(tagsDiv);
+      }
+      var noteDiv=document.createElement('div');noteDiv.className='daily-note';noteDiv.style.whiteSpace='pre-wrap';noteDiv.textContent=s.note;
+      card.appendChild(noteDiv);
+      var delBtn=document.createElement('button');delBtn.className='daily-del';delBtn.textContent='🗑️ Устгах';
+      delBtn.onclick=function(){deleteInterviewNote(s.id);};
+      card.appendChild(delBtn);
+      w.appendChild(card);
+    });
+  }
+}
+
+function renderIvTagBar(){
+  var bar=$('ivTagBar');if(!bar)return;
+  bar.innerHTML='';
+  pendingIvTags.forEach(function(t){
+    var chip=document.createElement('span');chip.className='tag-chip sel';chip.style.cssText='cursor:default;font-size:10.5px;';chip.textContent=t;
+    bar.appendChild(chip);
+  });
+}
+
+function toggleVoiceFor(targetTa,btn){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('Энэ төхөөрөмж дуу хоолойн оруулга дэмжихгүй байна');return;}
+  var rec=new SR();
+  rec.lang='mn-MN';rec.continuous=false;rec.interimResults=false;
+  rec.onstart=function(){btn.classList.add('recording');};
+  rec.onend=function(){btn.classList.remove('recording');};
+  rec.onerror=function(){btn.classList.remove('recording');toast('Дуу хоолой таньж чадсангүй, гараар бичнэ үү');};
+  rec.onresult=function(e){
+    var txt=e.results[0][0].transcript;
+    targetTa.value=(targetTa.value?targetTa.value+' ':'')+txt;
+  };
+  try{rec.start();}catch(e){toast('Дуу хоолойн оруулгыг эхлүүлж чадсангүй');}
+}
+
+function saveInterviewNote(){
+  var ta=$('ivNoteInput');var note=ta?ta.value.trim():'';
+  if(!note){toast('Тэмдэглэлийн агуулга бичнэ үү');return;}
+  var dateEl=$('ivDateInput');var chosenDate=dateEl&&dateEl.value?dateEl.value:new Date().toISOString().split('T')[0];
+  if(!DB.interviews[cur.childId])DB.interviews[cur.childId]=[];
+  DB.interviews[cur.childId].push({
+    id:'iv'+Date.now(),date:chosenDate,
+    ageGroup:cur.age,method:pendingMethod,tags:pendingIvTags.slice(),note:note
+  });
+  try{saveDB();}catch(e){toast('Санах ой дүүрсэн байна');return;}
+  toast('Тэмдэглэл хадгалагдлаа ✓');
+  renderInterviewTab();
+}
+function deleteInterviewNote(id){
+  DB.interviews[cur.childId]=(DB.interviews[cur.childId]||[]).filter(function(s){return s.id!==id;});
+  saveDB();renderInterviewTab();
+}
+
+/* ═══════ ЭЦЭГ ЭХТЭЙ ХАРИЛЦАХ ТАБ ═══════ */
+var MEET_TYPES=[{key:'meeting',icon:'🤝',label:'Уулзалт'},{key:'call',icon:'📞',label:'Утасны яриа'},{key:'note',icon:'✉️',label:'Бичгийн зурвас'},{key:'other',icon:'💬',label:'Бусад'}];
+
+function renderParentsTab(){
+  var w=$('subtab-parents');w.innerHTML='';
+  var child=DB.children.filter(function(c){return c.id===cur.childId;})[0];
+  if(!child)return;
+
+  /* 1) Сар/улирлын тойм мэдээ — эцэг эхэд зориулсан найрсаг хэлбэр */
+  var sec1=document.createElement('div');sec1.className='parent-section';
+  sec1.innerHTML='<div class="parent-section-title">📄 Сар/улирлын тойм мэдээ</div>';
+  var btnRow=document.createElement('div');btnRow.className='report-btns';
+  var mBtn=document.createElement('button');mBtn.className='act-btn act-save';mBtn.style.flex='1';mBtn.textContent='📨 Сарын тойм бэлдэх';
+  mBtn.onclick=function(){showParentSummary('month');};
+  var qBtn=document.createElement('button');qBtn.className='act-btn act-print';qBtn.style.flex='1';qBtn.textContent='📨 Улирлын тойм бэлдэх';
+  qBtn.onclick=function(){showParentSummary('quarter');};
+  btnRow.appendChild(mBtn);btnRow.appendChild(qBtn);
+  sec1.appendChild(btnRow);
+  var sumOut=document.createElement('div');sumOut.id='parentSummaryOutput';sec1.appendChild(sumOut);
+  w.appendChild(sec1);
+
+  /* 2) Богино зурвас бичих */
+  var sec2=document.createElement('div');sec2.className='parent-section';
+  sec2.innerHTML='<div class="parent-section-title">✉️ Эцэг эхэд зурвас бичих</div>';
+  var msgForm=document.createElement('div');msgForm.className='daily-card';
+  var msgTa=document.createElement('textarea');msgTa.id='parentMsgInput';msgTa.placeholder='Жишээ: Сайн байна уу! Өнөөдөр '+child.name+' маш сайн идэвхтэй өдөр өнгөрөв.';
+  msgTa.style.cssText='width:100%;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:13px;min-height:64px;resize:none;background:#fafafa;';
+  msgForm.appendChild(msgTa);
+  var msgBtn=document.createElement('button');msgBtn.className='btn-submit';msgBtn.style.marginTop='8px';msgBtn.textContent='Илгээх';
+  msgBtn.onclick=function(){sendParentMessage();};
+  msgForm.appendChild(msgBtn);
+  sec2.appendChild(msgForm);
+  var msgHist=document.createElement('div');msgHist.style.marginTop='10px';
+  var sentMsgs=(DB.parentMessages[cur.childId]||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+  if(!sentMsgs.length){msgHist.innerHTML='<div class="empty-hint">Илгээсэн зурвас байхгүй байна</div>';}
+  else{
+    sentMsgs.forEach(function(m){
+      var c=document.createElement('div');c.className='msg-card msg-from-teacher';
+      c.innerHTML='<div class="msg-date">'+m.date+' • Багшаас</div><div class="msg-text">'+m.text+'</div>';
+      msgHist.appendChild(c);
+    });
+  }
+  sec2.appendChild(msgHist);
+  w.appendChild(sec2);
+
+  /* 3) Уулзалт, ярилцлагын тэмдэглэл */
+  var sec3=document.createElement('div');sec3.className='parent-section';
+  sec3.innerHTML='<div class="parent-section-title">🗓️ Уулзалт, ярилцлагын тэмдэглэл</div>';
+  var meetForm=document.createElement('div');meetForm.className='daily-card';
+  pendingMeetType=null;
+  var meetDateInput=document.createElement('input');meetDateInput.type='date';meetDateInput.id='meetDateInput';
+  meetDateInput.value=new Date().toISOString().split('T')[0];
+  meetDateInput.style.cssText='width:100%;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:13px;background:#fafafa;color:#1a1a2e;margin-bottom:10px;';
+  meetForm.appendChild(meetDateInput);
+  var typeRow=document.createElement('div');typeRow.className='meet-type-row';typeRow.id='meetTypeRow';
+  MEET_TYPES.forEach(function(t){
+    var chip=document.createElement('div');chip.className='meet-type-chip';chip.textContent=t.icon+' '+t.label;
+    chip.onclick=function(){
+      pendingMeetType=t.key;
+      typeRow.querySelectorAll('.meet-type-chip').forEach(function(c){c.classList.remove('sel');});
+      chip.classList.add('sel');
+    };
+    typeRow.appendChild(chip);
+  });
+  meetForm.appendChild(typeRow);
+  var meetTa=document.createElement('textarea');meetTa.id='meetNoteInput';meetTa.placeholder='Уулзалт, ярилцлагын агуулга, тохиролцсон зүйл...';
+  meetTa.style.cssText='width:100%;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:13px;min-height:64px;resize:none;background:#fafafa;';
+  meetForm.appendChild(meetTa);
+  var meetBtn=document.createElement('button');meetBtn.className='btn-submit';meetBtn.style.marginTop='8px';meetBtn.textContent='Тэмдэглэл хадгалах';
+  meetBtn.onclick=function(){saveParentMeeting();};
+  meetForm.appendChild(meetBtn);
+  sec3.appendChild(meetForm);
+
+  var meetHist=document.createElement('div');meetHist.style.marginTop='10px';
+  var meets=(DB.parentMeetings[cur.childId]||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+  if(!meets.length){meetHist.innerHTML='<div class="empty-hint">Тэмдэглэл байхгүй байна</div>';}
+  else{
+    meets.forEach(function(m){
+      var typeInfo=MEET_TYPES.filter(function(t){return t.key===m.type;})[0]||{icon:'💬',label:'Бусад'};
+      var c=document.createElement('div');c.className='daily-card';
+      c.innerHTML='<div class="daily-date">'+m.date+'</div><span class="meet-badge">'+typeInfo.icon+' '+typeInfo.label+'</span><div class="daily-note" style="margin-top:6px">'+m.note+'</div>';
+      var delBtn=document.createElement('button');delBtn.className='daily-del';delBtn.textContent='🗑️ Устгах';
+      delBtn.onclick=function(){deleteParentMeeting(m.id);};
+      c.appendChild(delBtn);
+      meetHist.appendChild(c);
+    });
+  }
+  sec3.appendChild(meetHist);
+  w.appendChild(sec3);
+
+  /* 4) Эцэг эхийн санал хүсэлтийн түүх */
+  var sec4=document.createElement('div');sec4.className='parent-section';
+  sec4.innerHTML='<div class="parent-section-title">💬 Эцэг эхийн санал хүсэлтийн түүх</div>';
+  var fbList=(DB.parentFeedback[cur.childId]||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+  if(!fbList.length){
+    var emptyFb=document.createElement('div');emptyFb.className='empty-hint';
+    emptyFb.textContent='Санал хүсэлт одоогоор байхгүй байна. "Эцэг эхэд харуулах" горимоор санал авах боломжтой.';
+    sec4.appendChild(emptyFb);
+  } else {
+    fbList.forEach(function(fb){
+      var c=document.createElement('div');c.className='msg-card msg-from-parent';
+      c.innerHTML='<div class="msg-date">'+fb.date+' • Эцэг эхээс</div><div class="msg-text">'+fb.text+'</div>';
+      sec4.appendChild(c);
+    });
+  }
+  w.appendChild(sec4);
+}
+
+function sendParentMessage(){
+  var ta=$('parentMsgInput');var text=ta?ta.value.trim():'';
+  if(!text){toast('Зурвасын агуулга бичнэ үү');return;}
+  if(!DB.parentMessages[cur.childId])DB.parentMessages[cur.childId]=[];
+  DB.parentMessages[cur.childId].push({id:'m'+Date.now(),date:new Date().toISOString().split('T')[0],text:text});
+  try{saveDB();}catch(e){toast('Санах ой дүүрсэн байна');return;}
+  toast('Зурвас хадгалагдлаа ✓');
+  renderParentsTab();
+}
+function saveParentMeeting(){
+  var ta=$('meetNoteInput');var note=ta?ta.value.trim():'';
+  if(!pendingMeetType){toast('Уулзалтын төрлийг сонгоно уу');return;}
+  if(!note){toast('Тэмдэглэлийн агуулга бичнэ үү');return;}
+  var dateEl=$('meetDateInput');var chosenDate=dateEl&&dateEl.value?dateEl.value:new Date().toISOString().split('T')[0];
+  if(!DB.parentMeetings[cur.childId])DB.parentMeetings[cur.childId]=[];
+  DB.parentMeetings[cur.childId].push({id:'mt'+Date.now(),date:chosenDate,type:pendingMeetType,note:note});
+  try{saveDB();}catch(e){toast('Санах ой дүүрсэн байна');return;}
+  toast('Тэмдэглэл хадгалагдлаа ✓');
+  renderParentsTab();
+}
+function deleteParentMeeting(id){
+  DB.parentMeetings[cur.childId]=(DB.parentMeetings[cur.childId]||[]).filter(function(m){return m.id!==id;});
+  saveDB();renderParentsTab();
+}
+
+function generateParentFriendlySummary(scope){
+  var childId=cur.childId;
+  var child=DB.children.filter(function(c){return c.id===childId;})[0];
+  var logs=DB.dailyLogs[childId]||[];
+  var rangeDays=scope==='month'?30:90;
+  var cutoff=new Date();cutoff.setDate(cutoff.getDate()-rangeDays);
+  var cutoffStr=cutoff.toISOString().split('T')[0];
+  var recent=logs.filter(function(l){return l.date>=cutoffStr;});
+  var emo=computeEmotionMap(childId);
+  var strengths=computeStrengths(childId);
+  var periodLabel=scope==='month'?'сарын':'улирлын';
+  var teacherName=DB.user?DB.user.name:'Багш';
+
+  var lines=[];
+  lines.push('Сайн байна уу, эрхэм эцэг, эх ээ!');
+  lines.push('');
+  lines.push((child?child.name:'Таны хүүхэд')+'-ийн '+periodLabel+' тухай дараах сайхан мэдээг хүргэж байна:');
+  lines.push('');
+  if(emo.total){
+    lines.push('🙂 Энэ хугацаанд '+child.name+' ихэвчлэн '+(emo.happy>=emo.neutral&&emo.happy>=emo.sad?'аз жаргалтай, хөгжилдөж':'тайван, тогтвортой сэтгэл хөдлөлтэй')+' байсан байна ('+emo.happy+'% аз жаргалтай).');
+  }
+  if(strengths.length){
+    lines.push('🌱 '+child.name+'-ийн илэрсэн давуу тал: '+strengths.join(', ')+'.');
+  }
+  lines.push('📋 Нийт '+recent.length+' удаагийн ажиглалт хийгдсэн.');
+  lines.push('');
+  lines.push('Гэртээ ч энэ чиглэлээр дэмжиж өгвөл маш сайн байх болно. Асуух зүйл байвал чөлөөтэй бичээрэй 😊');
+  lines.push('');
+  lines.push('Хүндэтгэсэн, '+teacherName+' багш');
+
+  return lines.join('\n');
+}
+function showParentSummary(scope){
+  var text=generateParentFriendlySummary(scope);
+  var box=$('parentSummaryOutput');box.innerHTML='';
+  var rb=document.createElement('div');rb.className='report-box';rb.textContent=text;
+  box.appendChild(rb);
+  var btns=document.createElement('div');btns.className='report-btns';
+  var copyBtn=document.createElement('button');copyBtn.className='act-btn act-print';copyBtn.textContent='📋 Хуулах';
+  copyBtn.onclick=function(){copyReport(text);};
+  btns.appendChild(copyBtn);
+  box.appendChild(btns);
+}
+
+function toggleVoice(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('Энэ төхөөрөмж дуу хоолойн оруулга дэмжихгүй байна');return;}
+  if(recognizing){if(recognition)recognition.stop();return;}
+  recognition=new SR();
+  recognition.lang='mn-MN';recognition.continuous=false;recognition.interimResults=false;
+  recognition.onstart=function(){recognizing=true;var mb=$('micBtn');if(mb)mb.classList.add('recording');};
+  recognition.onend=function(){recognizing=false;var mb=$('micBtn');if(mb)mb.classList.remove('recording');};
+  recognition.onerror=function(){recognizing=false;var mb=$('micBtn');if(mb)mb.classList.remove('recording');toast('Дуу хоолой таньж чадсангуй, гараар бичнэ үү');};
+  recognition.onresult=function(e){
+    var txt=e.results[0][0].transcript;
+    var ta=$('dailyNoteInput');if(ta)ta.value=(ta.value?ta.value+' ':'')+txt;
+  };
+  try{recognition.start();}catch(e){toast('Дуу хоолойн оруулгыг эхлүүлж чадсангүй');}
+}
+
+function openParentView(){
+  var child=DB.children.filter(function(c){return c.id===cur.childId;})[0];
+  if(!child)return;
+  var logs=(DB.dailyLogs[cur.childId]||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,5);
+  var sh=document.querySelector('#modal-parent .modal-sh');sh.innerHTML='';
+  sh.appendChild(elFromHTML('<div class="modal-handle"></div>'));
+  sh.appendChild(elFromHTML('<div class="modal-title">👨‍👩‍👧 '+child.name+'</div>'));
+  sh.appendChild(elFromHTML('<div class="modal-sub">Эцэг эхэд харуулах горим</div>'));
+  if(!logs.length){
+    sh.appendChild(elFromHTML('<div style="text-align:center;color:#9ca3af;padding:20px;font-size:13px;">Тэмдэглэл одоогоор байхгүй байна</div>'));
+  }
+  var emoMap={happy:'😊',neutral:'😐',sad:'😢'};
+  logs.forEach(function(l){
+    var card=document.createElement('div');card.className='daily-card';
+    var d=document.createElement('div');d.className='daily-date';d.textContent=l.date+' '+(emoMap[l.emotion]||'');card.appendChild(d);
+    if(l.note){var n=document.createElement('div');n.className='daily-note';n.textContent=l.note;card.appendChild(n);}
+    if(l.photos&&l.photos.length){
+      var prow=document.createElement('div');prow.className='daily-photos';
+      l.photos.forEach(function(p){var img=document.createElement('img');img.className='daily-photo';img.src=p;prow.appendChild(img);});
+      card.appendChild(prow);
+    }
+    sh.appendChild(card);
+  });
+  var fbLbl=document.createElement('div');fbLbl.className='notes-lbl';fbLbl.style.marginTop='14px';fbLbl.textContent='💬 Санал хүсэлт үлдээх';
+  sh.appendChild(fbLbl);
+  var fbTa=document.createElement('textarea');fbTa.id='parentFeedbackInput';fbTa.placeholder='Эцэг эхийн санал, хүсэлт...';
+  fbTa.style.cssText='width:100%;border:2px solid #f0f0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:13px;min-height:70px;resize:none;background:#fafafa;';
+  sh.appendChild(fbTa);
+  var subBtn=document.createElement('button');subBtn.className='btn-submit';subBtn.style.marginTop='10px';subBtn.textContent='Илгээх';
+  subBtn.onclick=function(){submitParentFeedback();};
+  sh.appendChild(subBtn);
+  var closeBtn=document.createElement('button');closeBtn.textContent='Хаах';
+  closeBtn.style.cssText='width:100%;padding:11px;border:none;background:none;color:#9ca3af;font-family:inherit;font-size:13px;margin-top:6px;';
+  closeBtn.onclick=function(){closeModal('modal-parent');};
+  sh.appendChild(closeBtn);
+  openModal('modal-parent');
+}
+function elFromHTML(html){var d=document.createElement('div');d.innerHTML=html;return d.firstChild;}
+function submitParentFeedback(){
+  var ta=$('parentFeedbackInput');var text=ta?ta.value.trim():'';
+  if(!text)return;
+  if(!DB.parentFeedback[cur.childId])DB.parentFeedback[cur.childId]=[];
+  DB.parentFeedback[cur.childId].push({date:new Date().toISOString().split('T')[0],text:text});
+  saveDB();toast('Санал хадгалагдлаа ✓');
+  closeModal('modal-parent');
+}
+
+function exportData(){
+  var dataStr=JSON.stringify(DB,null,2);
+  var blob=new Blob([dataStr],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var dateStr=new Date().toISOString().split('T')[0];
+  a.href=url;a.download='kindertrack_'+dateStr+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Файл татагдлаа ✓ Telegram/имэйлээр илгээгээрэй');
+}
+function importData(ev){
+  var file=ev.target.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var imported;
+    try{imported=JSON.parse(e.target.result);}catch(err){toast('Файл уншиж чадсангүй, JSON формат биш байна');return;}
+    if(!imported||!imported.children){toast('Файлын агуулга буруу байна');return;}
+    showImportConfirm(imported);
+  };
+  reader.readAsText(file);
+  ev.target.value='';
+}
+function showImportConfirm(imported){
+  var sh=document.querySelector('#modal-parent .modal-sh');sh.innerHTML='';
+  sh.appendChild(elFromHTML('<div class="modal-handle"></div>'));
+  sh.appendChild(elFromHTML('<div class="modal-title">📥 Дата импорт</div>'));
+  sh.appendChild(elFromHTML('<div class="modal-sub">Энэ төхөөрөмж дээрх дата солих уу, нэгтгэх үү?</div>'));
+  var info=document.createElement('div');info.style.cssText='font-size:13px;color:#374151;line-height:1.7;margin-bottom:16px;';
+  info.innerHTML='Импорт хийх файлд <b>'+(imported.children?imported.children.length:0)+'</b> хүүхэд байна.<br>Энэ төхөөрөмж дээр одоо <b>'+DB.children.length+'</b> хүүхэд бүртгэлтэй байна.';
+  sh.appendChild(info);
+
+  var mergeBtn=document.createElement('button');mergeBtn.className='btn-submit';mergeBtn.textContent='🔗 Нэгтгэх (хоёр дата хадгална)';
+  mergeBtn.onclick=function(){mergeImportedData(imported);};
+  sh.appendChild(mergeBtn);
+
+  var replaceBtn=document.createElement('button');replaceBtn.className='btn-submit';replaceBtn.style.background='#ef4444';replaceBtn.style.marginTop='8px';
+  replaceBtn.textContent='♻️ Бүрэн солих (одоогийн дата устана)';
+  replaceBtn.onclick=function(){replaceImportedData(imported);};
+  sh.appendChild(replaceBtn);
+
+  var cancelBtn=document.createElement('button');cancelBtn.textContent='Цуцлах';
+  cancelBtn.style.cssText='width:100%;padding:11px;border:none;background:none;color:#9ca3af;font-family:inherit;font-size:13px;margin-top:6px;';
+  cancelBtn.onclick=function(){closeModal('modal-parent');};
+  sh.appendChild(cancelBtn);
+
+  openModal('modal-parent');
+}
+function mergeImportedData(imported){
+  var existingIds={};
+  DB.children.forEach(function(c){existingIds[c.id]=true;});
+  (imported.children||[]).forEach(function(c){if(!existingIds[c.id])DB.children.push(c);});
+  Object.keys(imported.ratings||{}).forEach(function(cid){
+    if(!DB.ratings[cid])DB.ratings[cid]=imported.ratings[cid];
+    else{
+      Object.keys(imported.ratings[cid]).forEach(function(q){
+        if(!DB.ratings[cid][q])DB.ratings[cid][q]=imported.ratings[cid][q];
+        else Object.keys(imported.ratings[cid][q]).forEach(function(age){
+          if(!DB.ratings[cid][q][age])DB.ratings[cid][q][age]=imported.ratings[cid][q][age];
+          else Object.keys(imported.ratings[cid][q][age]).forEach(function(sec){
+            DB.ratings[cid][q][age][sec]=Object.assign({},DB.ratings[cid][q][age][sec]||{},imported.ratings[cid][q][age][sec]);
+          });
+        });
+      });
+    }
+  });
+  Object.keys(imported.notes||{}).forEach(function(k){if(!DB.notes[k])DB.notes[k]=imported.notes[k];});
+  Object.keys(imported.dailyLogs||{}).forEach(function(cid){
+    if(!DB.dailyLogs[cid])DB.dailyLogs[cid]=imported.dailyLogs[cid];
+    else{
+      var existingLogIds={};DB.dailyLogs[cid].forEach(function(l){existingLogIds[l.id]=true;});
+      imported.dailyLogs[cid].forEach(function(l){if(!existingLogIds[l.id])DB.dailyLogs[cid].push(l);});
+    }
+  });
+  Object.keys(imported.devCriteria||{}).forEach(function(cid){
+    if(!DB.devCriteria[cid])DB.devCriteria[cid]=imported.devCriteria[cid];
+    else Object.keys(imported.devCriteria[cid]).forEach(function(q){
+      DB.devCriteria[cid][q]=Object.assign({},DB.devCriteria[cid][q]||{},imported.devCriteria[cid][q]);
+    });
+  });
+  Object.keys(imported.parentFeedback||{}).forEach(function(cid){
+    if(!DB.parentFeedback[cid])DB.parentFeedback[cid]=imported.parentFeedback[cid];
+    else DB.parentFeedback[cid]=DB.parentFeedback[cid].concat(imported.parentFeedback[cid]);
+  });
+  try{saveDB();}catch(e){toast('Санах ой дүүрсэн байна');return;}
+  closeModal('modal-parent');
+  toast('Дата нэгтгэгдлээ ✓');
+  renderDashboard();
+}
+function replaceImportedData(imported){
+  DB=imported;
+  if(!DB.dailyLogs)DB.dailyLogs={};
+  if(!DB.devCriteria)DB.devCriteria={};
+  if(!DB.parentFeedback)DB.parentFeedback={};
+  try{saveDB();}catch(e){toast('Санах ой дүүрсэн байна');return;}
+  closeModal('modal-parent');
+  toast('Дата сольсон ✓');
+  if(DB.user)enterApp();else showScreen('landing');
+}
+
+loadDB();
+checkRememberedUser();
+</script>
+</body>
+</html>
