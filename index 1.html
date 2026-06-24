@@ -623,9 +623,59 @@ var ktSB=window.supabase.createClient(KT_SUPABASE_URL,KT_SUPABASE_KEY);
 
 /* Supabase profiles мөрийг DB.user рүү буулгах */
 function ktApplyProfile(prof){
+  ktUid=prof.id;
   DB.user={id:prof.id,name:prof.name,email:prof.email,phone:prof.phone,kinder:prof.kinder,
     activated:prof.activated,trialStart:prof.trial_start,trialEnd:prof.trial_end,plan:prof.plan};
   saveDB();
+}
+
+/* ===== Үүл синк (app_data хүснэгт) ===== */
+var ktUid=null;            // нэвтэрсэн хэрэглэгчийн id
+var ktReady=false;         // эхний pull дуустал push хийхгүй
+var ktPushTimer=null;
+var KT_DATA_FIELDS=['children','ratings','notes','dailyLogs','devCriteria','parentFeedback','parentMessages','parentMeetings','interviews'];
+
+function ktExtractData(){
+  var o={};KT_DATA_FIELDS.forEach(function(k){o[k]=DB[k];});return o;
+}
+function ktApplyData(d){
+  if(!d)return;
+  KT_DATA_FIELDS.forEach(function(k){ if(d[k]!==undefined) DB[k]=d[k]; });
+}
+/* Үүл рүү хадгалах (debounce) */
+function ktSchedulePush(){
+  if(!ktReady||!ktUid)return;
+  clearTimeout(ktPushTimer);
+  ktPushTimer=setTimeout(ktPushData,1200);
+}
+async function ktPushData(){
+  if(!ktUid)return;
+  try{
+    await ktSB.from('app_data').upsert({user_id:ktUid,data:ktExtractData(),updated_at:new Date().toISOString()});
+  }catch(e){console.error('cloud push',e);}
+}
+/* Үүлээс татах / анхны шилжүүлэлт */
+async function ktPullData(uid){
+  ktReady=false;
+  try{
+    var res=await ktSB.from('app_data').select('data').eq('user_id',uid).maybeSingle();
+    if(res.error){console.error('cloud pull',res.error);}
+    if(res.data&&res.data.data){
+      // Үүлд дата байна → үүл нь эх сурвалж
+      ktApplyData(res.data.data);
+      DB._owner=uid; saveDBLocal();
+    }else{
+      // Үүлд байхгүй → энэ хэрэглэгчийн локал дата мөн бол шилжүүлнэ, эс бол цэвэрхэн эхэлнэ
+      var mine = (DB._owner===uid) && DB.children && DB.children.length>0;
+      if(!mine){
+        KT_DATA_FIELDS.forEach(function(k){ DB[k]=Array.isArray(DB[k])?[]:{}; });
+        DB.children=[];
+      }
+      DB._owner=uid; saveDBLocal();
+      await ktPushData(); // үүлд мөр үүсгэнэ
+    }
+  }catch(e){console.error('pull fail (offline?)',e);}
+  ktReady=true;
 }
 /* Дансны дугаар хуулах */
 function ktCopy(t){
@@ -858,7 +908,8 @@ function continueAsUser(){
   enterApp();
 }
 
-function saveDB(){localStorage.setItem('kt_db',JSON.stringify(DB));}
+function saveDBLocal(){try{localStorage.setItem('kt_db',JSON.stringify(DB));}catch(e){}}
+function saveDB(){ if(ktUid)DB._owner=ktUid; saveDBLocal(); ktSchedulePush(); }
 function loadDB(){
   try{var d=localStorage.getItem('kt_db');if(d)DB=JSON.parse(d);}catch(e){}
   if(!DB.dailyLogs)DB.dailyLogs={};
@@ -889,6 +940,7 @@ async function doLogin(){
   var prof=await ktEnsureProfile();
   if(!prof){$('login-err').innerHTML='<div class="err-msg">Профайл уншихад алдаа гарлаа</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+(ktLastErr||'тодорхойгүй')+'</div>';return;}
   ktApplyProfile(prof);
+  await ktPullData(prof.id);
   $('login-err').innerHTML='';
   enterApp();
 }
@@ -912,16 +964,18 @@ async function doRegister(){
   var prof=await ktEnsureProfile({name:name,kinder:kinder,phone:phone});
   if(!prof){$('reg-err').innerHTML='<div class="err-msg">Профайл үүсгэхэд алдаа гарлаа</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+(ktLastErr||'profiles хүснэгт үүсгэсэн SQL ажилласан эсэхээ шалгаарай')+'</div>';return;}
   ktApplyProfile(prof);
+  await ktPullData(prof.id);
   $('reg-err').innerHTML='';
   enterApp();
 }
 /* Trial дууссаны дараа төлбөр төлсний дараа дахин шалгах */
 async function recheckProfile(){
   var prof=await ktEnsureProfile();
-  if(prof){ktApplyProfile(prof);enterApp();}
+  if(prof){ktApplyProfile(prof);await ktPullData(prof.id);enterApp();}
 }
 async function doLogout(){
   try{await ktSB.auth.signOut();}catch(e){}
+  ktReady=false; ktUid=null; clearTimeout(ktPushTimer);
   DB.user=null;
   showScreen('landing');
   if($('rememberedCard'))$('rememberedCard').style.display='none';
@@ -2038,7 +2092,7 @@ loadDB();
     var s=await ktSB.auth.getSession();
     if(s&&s.data&&s.data.session){
       var prof=await ktEnsureProfile();
-      if(prof){ktApplyProfile(prof);enterApp();return;}
+      if(prof){ktApplyProfile(prof);await ktPullData(prof.id);enterApp();return;}
     }
   }catch(e){console.error('session restore',e);}
   showScreen('landing');
