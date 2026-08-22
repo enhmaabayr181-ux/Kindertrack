@@ -1,1 +1,0 @@
-Trigger Vercel redeploy for KinderTrack production.
