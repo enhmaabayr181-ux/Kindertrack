@@ -2473,7 +2473,6 @@ async function ktForgotPass(){
     '• <b>Спам / Junk / Promotions</b> хавтсаа заавал шалгана уу.<br>'+
     '• Холбоос <b>1 цагийн дотор</b> хүчинтэй.<br>'+
     '• Ирэхэд 1-5 минут зарцуулж болно.<br>'+
-    '• Холбоос дарахад «This site can\'t be reached» гарвал админд хэлнэ үү — серверийн тохиргоо засах шаардлагатай.<br>'+
     '• Ирэхгүй бол админд хандаж и-мэйлээ зөв бүртгэгдсэн эсэхийг шалгуулна уу.'+
     '</div>';
 }
@@ -2587,14 +2586,6 @@ async function saveProfile(){
   PROF.saving=false;
   if(btn){btn.disabled=false;btn.textContent='Хадгалах';}
 }
-function ktGoLogin(email,reset){
-  showAuth('login');
-  setTimeout(function(){
-    var e=$('li-email'); if(e)e.value=email||'';
-    if(reset){ if(typeof ktForgotPass==='function')ktForgotPass(); }
-    else { var p=$('li-pass'); if(p)p.focus(); }
-  },80);
-}
 async function doLogin(){
   var email=$('li-email').value.trim(),pass=$('li-pass').value;
   if(!email||!pass){$('login-err').innerHTML='<div class="err-msg">Бүх талбарыг бөглөнө үү</div>';return;}
@@ -2627,15 +2618,8 @@ async function doRegister(){
   var res=await ktSB.auth.signUp({email:email,password:pass});
   if(res.error){
     var m=res.error.message||'';
-    if(/registered|exists/i.test(m)){
-      var qe=JSON.stringify(email);
-      $('reg-err').innerHTML='<div class="err-msg">Энэ и-мэйл аль хэдийн бүртгэлтэй байна.</div>'+
-        '<div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:12px;padding:12px;margin-top:8px;font-size:12.5px;color:#0f766e;line-height:1.6;text-align:left;">Та өмнө нь бүртгүүлсэн байна. Доорхоос сонгоно уу:</div>'+
-        '<button type="button" onclick="ktGoLogin('+qe+',false)" class="ks-btn ks-btn--primary" style="margin-top:10px;">Нэвтрэх</button>'+
-        '<button type="button" onclick="ktGoLogin('+qe+',true)" class="ks-btn ks-btn--secondary" style="margin-top:8px;">Нууц үгээ мартсан — сэргээх</button>';
-      return;
-    }
-    $('reg-err').innerHTML='<div class="err-msg">'+ktEsc(m)+'</div>';return;
+    var msg=/registered|exists/i.test(m)?'Энэ и-мэйл бүртгэлтэй байна. Нэвтэрнэ үү.':m;
+    $('reg-err').innerHTML='<div class="err-msg">'+msg+'</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+m+'</div>';return;
   }
   if(!res.data.session){
     // И-мэйл баталгаажуулалт асаалттай байна
@@ -5832,12 +5816,7 @@ function plInit(){
   if(!p.years)p.years={};
   if(!p.annualMatrix)p.annualMatrix={schoolYear:yrSchoolYear?yrSchoolYear():'',kinder:'',group:'',classType:'single',ages:['4'],preparedBy:'',approvedBy:'',status:'draft',version:1,updatedAt:'',rows:[]};
   if(!p.annualMatrix.rows)p.annualMatrix.rows=[];
-  if(!p.annualMatrix.ages||!p.annualMatrix.ages.length){
-    var _d=plDetectAges&&plDetectAges();
-    p.annualMatrix.ages=(_d&&_d.ages.length)?_d.ages.slice():['4'];
-    if(_d&&_d.ages.length>1)p.annualMatrix.classType='mixed';
-    p.annualMatrix.agesAuto=true;
-  }
+  if(!p.annualMatrix.ages||!p.annualMatrix.ages.length)p.annualMatrix.ages=['4'];
   return p;
 }
 function plToday(){return getLocalDateKey();}
@@ -5907,7 +5886,7 @@ function plSetStatus(kind,key,st){
 }
 function plIsWeekend(ds){var w=plParse(ds).getDay();return w===0||w===6;}
 /* ---- Навигаци ---- */
-function openPlanner(){PL.tab='year';PL.view='home';PL.date=plToday();PL.ym=plYM();PL.ws=plWeekStart(plToday());goPage('planner');}
+function openPlanner(){PL.tab='year';PL.view='home';PL.yearMode='home';PL.date=plToday();PL.ym=plYM();PL.ws=plWeekStart(plToday());goPage('planner');}
 function plSetTab(t){PL.tab=t;PL.view=(t==='day'?'day':(t==='week'?'week':'home'));PL.ai='';if(t==='day')PL.date=PL.date||plToday();if(t==='week')PL.ws=PL.ws||plWeekStart(plToday());if(t==='month'){var mm=parseInt((PL.ym||plYM()).slice(5),10);if(YR_MONTHS.indexOf(String(mm))<0)PL.ym=(PL.year||yrSchoolYear()).slice(0,4)+'-09';}renderPlannerPage();}
 function plOpenDay(ds){PL.date=ds;PL.view='day';PL.ai='';renderPlannerPage();}
 function plOpenWeek(ws){PL.ws=ws||plWeekStart(PL.date||plToday());PL.wd=0;PL.view='week';renderPlannerPage();}
@@ -6045,11 +6024,21 @@ function plTplToDay(id,demo){
   saveDB();toast('Өдрийн төлөвлөгөөнд нэмэгдлээ ✓');PL.view='day';PL.date=PL.date||plToday();renderPlannerPage();
 }
 /* ---- AI төлөвлөгөө ---- */
+function plDayAIContext(ds){
+  ds=ds||PL.date||plToday();var d=plDay(ds),ws=plWeekStart(ds),w=plWeekSudInit(ws),ym=plWeekMonthKey(ws),m=plMonth(ym),wi=plMonthWeekStarts(ym).indexOf(ws);
+  var main=d.theme||w.mainTheme||m.theme||'',sub=d.subTheme||w.subTheme||((m.sub||[])[wi>=0?wi:plWeekIndexInMonth(ws)])||w.theme||'';
+  var items=(w.sud||[]).slice(),linked={};(d.acts||[]).forEach(function(a){if(a.sourceWeekSudId)linked[a.sourceWeekSudId]=1;});
+  var selected=items.filter(function(s){return linked[s.id];});if(selected.length)items=selected;items=items.slice(0,10);
+  var domains=[];items.forEach(function(s){if(s.dir&&domains.indexOf(s.dir)<0)domains.push(s.dir);});
+  var sudText=items.map(function(s){return '- '+(s.code?s.code+' — ':'')+(s.text||'')+(s.age?' ('+s.age+' нас)':'')+(s.kind?' ['+({main:'үндсэн',link:'уялдах',repeat:'давтан'}[s.kind]||s.kind)+']':'');}).join('\n');
+  return {mainTheme:main,subTheme:sub,sud:items,sudText:sudText,domains:domains,age:d.age&&d.age!=='Холимог'?d.age:((d.selectedAges||w.selectedAges||plAnnualMatrix().ages||[])[0]||cur.age||'4'),selectedAges:(d.selectedAges||w.selectedAges||plAnnualMatrix().ages||[]).slice()};
+}
 function plOpenAI(){
-  PL.aiForm={age:cur.age||'4',theme:'',dur:'15-20 мин',domains:[],place:'Дотор',mat:'',count:'4'};
+  var c=plDayAIContext(PL.date||plToday());
+  PL.aiForm={age:c.age||cur.age||'4',theme:c.subTheme||c.mainTheme||'',mainTheme:c.mainTheme||'',subTheme:c.subTheme||'',sudText:c.sudText||'',selectedAges:c.selectedAges||[],dur:'15-20 мин',domains:c.domains||[],place:'Дотор',mat:'',count:'4'};
   PL.aiOut='';PL.aiLocal=false;PL.view='aigen';renderPlannerPage();
 }
-function plAiSet(k,v){PL.aiForm[k]=v;}
+function plAiSet(k,v){PL.aiForm[k]=v;if(k==='theme'&&PL.aiForm.subTheme)PL.aiForm.subTheme=v;}
 function plAiDomain(cls){
   var a=PL.aiForm.domains||[];var i=a.indexOf(cls);
   if(i>=0)a.splice(i,1);else a.push(cls);
@@ -6080,10 +6069,12 @@ async function plAiGen(){
   var f=PL.aiForm;
   PL.busy=true;PL.aiOut='';renderPlannerPage();
   var doms=(f.domains||[]).map(function(d){return ktSecLabel(d);}).join(', ')||'бүх чиглэл';
-  var prompt='Цэцэрлэгийн '+ageLabel(f.age||'4')+' насны бүлэгт "'+(f.theme||'ерөнхий')+'" сэдвээр '+
+  var prompt='Цэцэрлэгийн '+((f.selectedAges||[]).length>1?(f.selectedAges.join(', ')+' насны холимог бүлэгт'):ageLabel(f.age||'4')+' насны бүлэгт')+' '+
+    'сарын гол сэдэв "'+(f.mainTheme||f.theme||'ерөнхий')+'", 7 хоногийн дэд сэдэв "'+(f.theme||f.subTheme||'ерөнхий')+'"-ийн хүрээнд '+
     (f.count||'4')+' үйл ажиллагаа бүхий төлөвлөгөө боловсруул.\n'+
     'Суралцахуйн чиглэл: '+doms+'. Орчин: '+(f.place||'Дотор')+'. Нэг үйл ажиллагааны хугацаа: '+(f.dur||'15-20 мин')+'.'+
     (f.mat?' Байгаа материал: '+f.mat+'.':'')+'\n\n'+
+    (f.sudText?'ЗӨВХӨН ДАРААХ БАТЛАГДСАН СҮД-ийг ашигла. Шинэ СҮД код, үр дүн зохиож болохгүй:\n'+f.sudText+'\n\n':'')+
     'Формат:\n**Зорилго**\n(2-3 цэг)\n\nДараа нь үйл ажиллагаа бүрд:\n**N. Нэр**\nЧиглэл: / Хугацаа: / Материал: / Зорилго:\nАлхмууд: (3-4 дугаарласан)\nБагшийн асуулт: / Ажиглалтын асуулт: / Үнэлгээ:\n'+
     'Товч, практик, хэрэглэхэд бэлэн бич.';
   try{
@@ -6569,21 +6560,7 @@ function plClearMonthDistribution(ym){
 function plCreateWeeksFromMonth(ym){
   ym=ym||(PL.ym||plYM());var m=plMonth(ym),weeks=plMonthWeekStarts(ym),added=0;
   if(!(m.sud||[]).length){toast('Эхлээд жилийн төлөвлөгөөнөөс сарын СҮД татна уу');return;}
-  // 7 хоногийн дугаартай СҮД тухайн долоо хоногт, дугааргүйг нь 4 долоо хоногт ЖИГД тараана
-  var noWeek=m.sud.filter(function(s){return !s.week;});
-  var spread={1:[],2:[],3:[],4:[]};
-  (function(){
-    var byDir={},order=[];
-    noWeek.forEach(function(s){var k=(s.level||'')+'|'+(s.age||'')+'|'+(s.dir||'');
-      if(!byDir[k]){byDir[k]=[];order.push(k);}byDir[k].push(s);});
-    var mixed=[],done=false;
-    while(!done){done=true;order.forEach(function(k){if(byDir[k].length){mixed.push(byDir[k].shift());done=false;}});}
-    var n=mixed.length,base=Math.floor(n/4),rem=n%4,idx=0;
-    for(var wi2=1;wi2<=4;wi2++){var cnt=base+(wi2<=rem?1:0);
-      for(var i2=0;i2<cnt&&idx<n;i2++,idx++)spread[wi2].push(mixed[idx]);}
-  })();
-  weeks.forEach(function(ws,wi){var w=plWeekSudInit(ws),weekNo=wi+1,
-    items=m.sud.filter(function(s){return Number(s.week)===weekNo;}).concat(spread[weekNo]||[]),taken={};(w.sud||[]).forEach(function(s){taken[s.srcId]=1;});items.forEach(function(s){if(taken[s.id])return;w.sud.push({id:'ws'+Date.now()+(added++),srcId:s.id,sourceId:s.sourceId||s.id,kind:s.kind||'main',code:s.code||'',text:s.text||'',dir:s.dir||'',level:s.level||'',age:s.age||'',area:s.area||'',subArea:s.subArea||'',sourceVersion:s.sourceVersion||1,teacherEdited:false});});if(!w.group)w.group=plAnnualMatrix().group||'';if(!w.age)w.age=plAnnualMatrix().classType==='mixed'?'Холимог':(plAnnualMatrix().ages[0]||'');w.classType=plAnnualMatrix().classType;w.selectedAges=(plAnnualMatrix().ages||[]).slice();w.monthPlanId=ym;w.lastSyncedAt=new Date().toISOString();});
+  weeks.forEach(function(ws,wi){var w=plWeekSudInit(ws),weekNo=wi+1,items=m.sud.filter(function(s){return !s.week||Number(s.week)===weekNo;}),taken={};(w.sud||[]).forEach(function(s){taken[s.srcId]=1;});items.forEach(function(s){if(taken[s.id])return;w.sud.push({id:'ws'+Date.now()+(added++),srcId:s.id,sourceId:s.sourceId||s.id,kind:s.kind||'main',code:s.code||'',text:s.text||'',dir:s.dir||'',level:s.level||'',age:s.age||'',area:s.area||'',subArea:s.subArea||'',sourceVersion:s.sourceVersion||1,teacherEdited:false});});if(!w.group)w.group=plAnnualMatrix().group||'';if(!w.age)w.age=plAnnualMatrix().classType==='mixed'?'Холимог':(plAnnualMatrix().ages[0]||'');w.classType=plAnnualMatrix().classType;w.selectedAges=(plAnnualMatrix().ages||[]).slice();w.mainTheme=m.theme||'';w.subTheme=(m.sub||[])[wi]||'';w.theme=w.subTheme||w.mainTheme;w.themeSource=m.aiThemeSource||'month';w.monthPlanId=ym;w.lastSyncedAt=new Date().toISOString();});
   saveDB();toast(added?added+' СҮД 7 хоногийн төлөвлөгөөнүүдэд орлоо ✓':'Шинээр нэмэх СҮД алга');renderPlannerPage();
 }
 function plDistributionHtml(ym){
@@ -6685,9 +6662,10 @@ function plWeekSudHtml(ws){
 }
 
 function plCreateDaysFromWeek(ws){
-  ws=ws||PL.ws||plWeekStart(plToday());var w=plWeekSudInit(ws),items=(w.sud||[]),made=0;
+  ws=ws||PL.ws||plWeekStart(plToday());var w=plWeekSudInit(ws),items=(w.sud||[]),made=0,ym=plWeekMonthKey(ws),m=plMonth(ym),wi=plMonthWeekStarts(ym).indexOf(ws);
   if(!items.length){toast('Эхлээд сарын СҮД-ээс энэ 7 хоногт сонгоно уу');return;}
-  [0,1,2,3,4].forEach(function(di){var ds=plAddDays(ws,di),d=plDay(ds);if(!d.theme)d.theme=w.theme||'';if(!d.group)d.group=w.group||plAnnualMatrix().group||'';if(!d.age)d.age=w.classType==='mixed'?'Холимог':(w.age||'');if(!d.objective)d.objective=w.goals||items.map(function(s){return (s.code?s.code+' ':'')+s.text;}).join('\n');d.classType=w.classType||plAnnualMatrix().classType;d.selectedAges=(w.selectedAges||plAnnualMatrix().ages||[]).slice();d.weekPlanId=ws;d.sourceVersion=plAnnualMatrix().version||1;d.lastSyncedAt=new Date().toISOString();var src=items[di%items.length],exists=(d.acts||[]).some(function(a){return a.sourceWeekSudId===src.id;});if(!exists){d.acts.push({id:'a'+Date.now()+di+Math.floor(Math.random()*999),title:(w.theme||src.subArea||src.area||'Суралцах үйл ажиллагаа')+' — '+PL_WD[plParse(ds).getDay()],start:'',end:'',dur:'15-20 мин',type:'Үндсэн үйл ажиллагаа',dir:src.dir||'',outcomeIdx:'',a79:'',goal:(src.code?src.code+' ':'')+(src.text||''),result:src.text||'',mat:'',prep:'',steps:'1. Хамтын эхлэл\n2. Насны онцлогт тохируулан гүйцэтгэх\n3. Хамтран ярилцаж дүгнэх',prompts:'Чи юу анзаарав? Яаж хийсэн бэ?',obsQ:(src.age?src.age+' настай хүүхдийн ':'')+'оролцоо, ахицыг ажиглана.',assess:'Ажиглалт',place:'Дотор',teacher:(DB.user&&DB.user.name)||'',safety:'',adapt:d.classType==='mixed'?'Нас бүрийн СҮД, оролцоо, дэмжлэгийг ялган тохируулна.':'',age:src.age||d.age,kind:src.kind||'main',sourceWeekSudId:src.id,sourceId:src.sourceId||src.id,done:false,relatedObservationIds:[],teacherEdited:false});made++;}});
+  var main=w.mainTheme||m.theme||'',sub=w.subTheme||((m.sub||[])[wi>=0?wi:plWeekIndexInMonth(ws)])||w.theme||'';
+  [0,1,2,3,4].forEach(function(di){var ds=plAddDays(ws,di),d=plDay(ds);if(!d.theme||d.themeSource==='month-ai')d.theme=main;if(!d.subTheme||d.themeSource==='month-ai')d.subTheme=sub;d.themeSource=m.aiThemeSource||'month';if(!d.group)d.group=w.group||plAnnualMatrix().group||'';if(!d.age)d.age=w.classType==='mixed'?'Холимог':(w.age||'');if(!d.objective)d.objective=w.goals||items.map(function(s){return (s.code?s.code+' ':'')+s.text;}).join('\n');d.classType=w.classType||plAnnualMatrix().classType;d.selectedAges=(w.selectedAges||plAnnualMatrix().ages||[]).slice();d.weekPlanId=ws;d.sourceVersion=plAnnualMatrix().version||1;d.lastSyncedAt=new Date().toISOString();var src=items[di%items.length],exists=(d.acts||[]).some(function(a){return a.sourceWeekSudId===src.id;});if(!exists){d.acts.push({id:'a'+Date.now()+di+Math.floor(Math.random()*999),title:(sub||main||src.subArea||src.area||'Суралцах үйл ажиллагаа')+' — '+PL_WD[plParse(ds).getDay()],start:'',end:'',dur:'15-20 мин',type:'Үндсэн үйл ажиллагаа',dir:src.dir||'',outcomeIdx:'',a79:'',goal:(src.code?src.code+' ':'')+(src.text||''),result:src.text||'',mat:'',prep:'',steps:'1. Хамтын эхлэл\n2. Насны онцлогт тохируулан гүйцэтгэх\n3. Хамтран ярилцаж дүгнэх',prompts:'Чи юу анзаарав? Яаж хийсэн бэ?',obsQ:(src.age?src.age+' настай хүүхдийн ':'')+'оролцоо, ахицыг ажиглана.',assess:'Ажиглалт',place:'Дотор',teacher:(DB.user&&DB.user.name)||'',safety:'',adapt:d.classType==='mixed'?'Нас бүрийн СҮД, оролцоо, дэмжлэгийг ялган тохируулна.':'',age:src.age||d.age,kind:src.kind||'main',sourceWeekSudId:src.id,sourceId:src.sourceId||src.id,done:false,relatedObservationIds:[],teacherEdited:false});made++;}});
   saveDB();toast(made?made+' өдрийн төлөвлөгөө үүслээ ✓':'Өдрийн төлөвлөгөөнүүд аль хэдийн үүссэн байна');renderPlannerPage();
 }
 function plWeekHtml(){
@@ -6705,8 +6683,10 @@ function plWeekHtml(){
       '<div class="pl-two" style="margin-top:11px;">'+
         '<div><label style="'+plLabel()+'" for="plWGrp">Бүлэг</label><input id="plWGrp" style="'+plInput()+'" value="'+ktEsc(w.group||'')+'" oninput="plWeekSet(\'group\',this.value)"></div>'+
         '<div><label style="'+plLabel()+'" for="plWAge">Нас</label><select id="plWAge" style="'+plInput()+'" onchange="plWeekSet(\'age\',this.value)"><option value="">—</option>'+plAgeOpts(w.age)+'</select></div></div>'+
-      '<label style="'+plLabel()+'" for="plWTh">Гол сэдэв</label>'+
-      '<input id="plWTh" style="'+plInput()+'" placeholder="Жишээ: Намрын ургац" value="'+ktEsc(w.theme||'')+'" oninput="plWeekSet(\'theme\',this.value)">'+
+      '<label style="'+plLabel()+'" for="plWMainTh">Сарын гол сэдэв</label>'+
+      '<input id="plWMainTh" style="'+plInput()+'" placeholder="Сарын төлөвлөгөөнөөс татагдана" value="'+ktEsc(w.mainTheme||'')+'" oninput="plWeekSet(\'mainTheme\',this.value)">'+
+      '<label style="'+plLabel()+'" for="plWTh">7 хоногийн дэд сэдэв</label>'+
+      '<input id="plWTh" style="'+plInput()+'" placeholder="Жишээ: Намрын ургац" value="'+ktEsc(w.subTheme||w.theme||'')+'" oninput="plWeekSet(\'subTheme\',this.value);plWeekSet(\'theme\',this.value)">'+
       '<label style="'+plLabel()+'" for="plWG">7 хоногийн зорилго</label>'+
       '<textarea id="plWG" style="'+plInput()+'height:74px;" oninput="plWeekSet(\'goals\',this.value)">'+ktEsc(w.goals||'')+'</textarea>'+
       '<label style="'+plLabel()+'">Суралцахуйн чиглэл</label>'+
@@ -6745,77 +6725,7 @@ function plCsvKey(s){return (s||'').replace(/^\uFEFF/,'').trim().toLowerCase().r
 function plParseAnnualCsv(text,fileId,fileName){var rows=plCsvRows(text);if(rows.length<2)return [];var h=rows.shift().map(plCsvKey);function col(names){for(var i=0;i<h.length;i++)if(names.indexOf(h[i])>=0)return i;return -1;}var MON=['9','10','11','12','1','2','3','4','5'];var mcols={};MON.forEach(function(mm){var idx=col([mm+' сар',mm+'сар',mm]);if(idx>=0)mcols[mm]=idx;});var ti=col(['сүд','сүд нэр','суралцахуйн үр дүн','text']),ci=col(['сүд код','код','code']),di=col(['суралцахуйн чиглэл','хөгжлийн чиглэл','чиглэл','direction','domain']),ki=col(['сүд төрөл','төрөл','type','kind']),li=col(['уялдаа','уялдах']),fi=col(['давтамж']),ai=col(['дэд ай','ай']),
 lvi=col(['түвшин','level']),mi=col(['сар','month']);if(ti<0)return [];var out=[],hasGrid=Object.keys(mcols).length>0;rows.forEach(function(r,n){var txt=(r[ti]||'').trim();if(!txt)return;var code=(ci>=0?r[ci]:'')||'',dir=(di>=0?r[di]:'')||'',link=(li>=0?r[li]:'')||'',freq=(fi>=0?r[fi]:'')||'',sub=(ai>=0?r[ai]:'')||'';
 var lvl=((lvi>=0?r[lvi]:'')||'').replace(/[^0-9]/g,'');var k=plCsvKey((ki>=0?r[ki]:'')||'үндсэн');var kind=k.indexOf('уял')>=0?'link':(k.indexOf('давт')>=0?'repeat':'main');function push(mm,kk){out.push({id:'ys'+Date.now()+n+mm+Math.floor(Math.random()*999),month:String(parseInt(mm,10)),kind:kk,code:code.trim(),text:txt,dir:dir.trim(),sub:sub.trim(),link:link.trim(),freq:freq.trim(),level:lvl,sourceFileId:fileId,sourceFileName:fileName});}if(hasGrid){MON.forEach(function(mm){var idx=mcols[mm];if(idx===undefined)return;var v=((r[idx]||'')+'').trim().toLowerCase();if(v&&v!=='0'&&v!=='-'&&v!=='х'){push(mm,kind);}});}else if(mi>=0){var raw=(r[mi]||'').trim();var m=(raw.match(/(?:^|[-\/\s])(9|10|11|12|1|2|3|4|5)(?:\s*сар)?$/i)||raw.match(/^(9|10|11|12|1|2|3|4|5)/)||[])[1];if(m)push(m,kind);}});return out;}
-/* ===== Excel (.xlsx/.xls) файлыг шууд унших ===== */
-var KT_XLSX_URL='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
-var _xlsxP=null;
-function ktLoadXlsx(){
-  if(window.XLSX)return Promise.resolve(window.XLSX);
-  if(_xlsxP)return _xlsxP;
-  _xlsxP=new Promise(function(res,rej){
-    var s=document.createElement('script');
-    s.src=KT_XLSX_URL;
-    s.onload=function(){window.XLSX?res(window.XLSX):rej(new Error('xlsx ачаалагдсангүй'));};
-    s.onerror=function(){rej(new Error('Интернэт холболт шаардлагатай'));};
-    document.head.appendChild(s);
-  });
-  return _xlsxP;
-}
-/* Excel-ийн эхний хуудсыг мөрийн массив болгоно */
-function ktXlsxRows(file){
-  return ktLoadXlsx().then(function(X){
-    return file.arrayBuffer().then(function(buf){
-      var wb=X.read(buf,{type:'array'});
-      var best=null,bestN=0;
-      wb.SheetNames.forEach(function(n){
-        var r=X.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:'',blankrows:false});
-        if(r.length>bestN){bestN=r.length;best=r;}
-      });
-      return (best||[]).map(function(row){return row.map(function(c){return c==null?'':String(c).trim();});});
-    });
-  });
-}
-/* Толгой мөрийг автоматаар олох (гарчиг, хоосон мөр дээгүүр байж болно) */
-function ktFindHeader(rows){
-  for(var i=0;i<Math.min(rows.length,25);i++){
-    var joined=rows[i].join('|').toLowerCase();
-    var hits=0;
-    ['сар','сүд','суралцахуйн','код','чиглэл','түвшин','долоо','7 хоног','хоног'].forEach(function(k){
-      if(joined.indexOf(k)>=0)hits++;
-    });
-    if(hits>=2)return i;
-  }
-  return 0;
-}
-/* Мөрүүдийг CSV текст болгож, одоо байгаа задлагчид дамжуулна */
-function ktRowsToCsv(rows){
-  return rows.map(function(r){
-    return r.map(function(c){
-      c=(c==null?'':String(c));
-      return /[",\n;]/.test(c)?('"'+c.replace(/"/g,'""')+'"'):c;
-    }).join(',');
-  }).join('\r\n');
-}
-function ktParseSheet(rows,fileId,fileName){
-  if(!rows||!rows.length)return [];
-  var h=ktFindHeader(rows);
-  var csv=ktRowsToCsv(rows.slice(h));
-  return plParseAnnualCsv(csv,fileId,fileName);
-}
-
-function plUploadFile(input){var list=Array.prototype.slice.call(input.files||[]);input.value='';if(!list.length)return;var left=list.length,ok=0,lastErr=null;list.forEach(function(file){if(file.size>25*1024*1024){toast(file.name+' файл 25 MB-аас том байна');if(!--left)renderPlannerPage();return;}var id='pf'+Date.now()+Math.floor(Math.random()*100000);plFilePut(id,file,function(err){lastErr=err||lastErr;if(err){if(!--left){toast('Файл хадгалахад алдаа гарлаа');renderPlannerPage();}return;}function done(rows){plFiles().unshift({id:id,name:file.name,size:file.size,type:file.type||'',addedAt:new Date().toISOString(),annualSud:rows||[],sudCount:(rows||[]).length});ok++;saveDB();if(!--left){toast(ok+' файл хадгалагдлаа ✓');renderPlannerPage();}}if(/\.csv$/i.test(file.name)){
-      file.text().then(function(t){
-        var rows=plParseAnnualCsv(t,id,file.name);done(rows);
-        if(!rows.length)toast('Баганын нэрийг шалгана уу: Сар, СҮД код, Суралцахуйн үр дүн');
-      }).catch(function(){done([]);});
-    }else if(/\.(xlsx|xlsm|xls)$/i.test(file.name)){
-      toast('Excel файлыг уншиж байна...');
-      ktXlsxRows(file).then(function(rows){
-        var out=ktParseSheet(rows,id,file.name);done(out);
-        if(!out.length)toast('СҮД олдсонгүй. Багана: Сар, СҮД код, Суралцахуйн үр дүн байх ёстой');
-      }).catch(function(e){
-        done([]);toast('Excel уншиж чадсангүй: '+((e&&e.message)||'алдаа'));
-      });
-    }else done([]);});});}
+function plUploadFile(input){var list=Array.prototype.slice.call(input.files||[]);input.value='';if(!list.length)return;var left=list.length,ok=0,lastErr=null;list.forEach(function(file){if(file.size>25*1024*1024){toast(file.name+' файл 25 MB-аас том байна');if(!--left)renderPlannerPage();return;}var id='pf'+Date.now()+Math.floor(Math.random()*100000);plFilePut(id,file,function(err){lastErr=err||lastErr;if(err){if(!--left){toast('Файл хадгалахад алдаа гарлаа');renderPlannerPage();}return;}function done(rows){plFiles().unshift({id:id,name:file.name,size:file.size,type:file.type||'',addedAt:new Date().toISOString(),annualSud:rows||[],sudCount:(rows||[]).length});ok++;saveDB();if(!--left){toast(ok+' файл хадгалагдлаа ✓');renderPlannerPage();}}if(/\.csv$/i.test(file.name)){file.text().then(function(t){var rows=plParseAnnualCsv(t,id,file.name);done(rows);if(!rows.length)toast('CSV баганын нэр эсвэл мэдээллийг шалгана уу');}).catch(function(){done([]);});}else done([]);});});}
 function plOpenFile(id,download){var meta=plFiles().filter(function(f){return f.id===id;})[0],win=download?null:window.open('','_blank');plFileGet(id,function(err,file){if(err||!file){if(win)win.close();toast('Файл олдсонгүй');return;}var u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;if(download)a.download=meta?meta.name:file.name||'file';if(download){document.body.appendChild(a);a.click();a.remove();}else if(win)win.location.href=u;else{a.target='_blank';document.body.appendChild(a);a.click();a.remove();}setTimeout(function(){URL.revokeObjectURL(u);},60000);});}
 function plDeleteFile(id){if(!confirm('Энэ файлыг устгах уу?'))return;var p=plInit();p.files=plFiles().filter(function(f){return f.id!==id;});saveDB();plFileRemoveBlob(id,function(){toast('Файл устгагдлаа');renderPlannerPage();});}
 function plDownloadAnnualTemplate(){var H='\uFEFFТүвшин,Чиглэл,Дэд ай,СҮД код,Суралцахуйн үр дүн,9 сар,10 сар,11 сар,12 сар,1 сар,2 сар,3 сар,4 сар,5 сар,Уялдаа,Давтамж\r\n';var R=['1,Хөдөлгөөн эрүүл мэнд,Байрандаа хийх хөдөлгөөн,ХЭМ1.1а,"Гарын сарвууг атгах, тэнийлгэх, сэгсрэх, базах хөдөлгөөнийг жижиг тоглоом эд зүйлийг ашиглан тоглож гүйцэтгэнэ.",X,X,,,,,X,,,"Хэл яриа 1.1а",Хичээлийн жилийн турш','1,Хөдөлгөөн эрүүл мэнд,Байрандаа хийх хөдөлгөөн,ХЭМ1.1б,"Суугаа байрлалд өлмийг ээтийлгэх жийх хөдөлгөөнийг гүйцэтгэнэ.",,X,,,,,,X,,,','1,Хэл яриа,Сонсох ойлгох,ХЯ1.1а,"Багшийн энгийн заавар ойлгож гүйцэтгэнэ.",X,,,X,,,,,,"Нийгэм-сэтгэл хөдлөл 1.1а",Тогтмол'];var csv=H+R.join('\r\n');var b=new Blob([csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='Jiliin_tuluvluguu_zagvar.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);}
@@ -6833,237 +6743,47 @@ function plBestSud(sec,text,used,lvl){lvl=lvl||plTargetLevel();var list=((SUD[se
 function plGenerateAnnual(){var AGE=plAnnualAge();var SRC=plSourceAge();var a=plAnalyzeMay();if(!a.kids.length){toast(plAgeLabelMn(AGE)+'-т хүүхэд бүртгэлгүй байна');return;}if(SRC&&!a.rated&&!confirm(SRC+' настай үеийн 5-р сарын үнэлгээ олдсонгүй.\n\nҮнэлгээгүйгээр бүх чиглэлийг тэнцвэртэй хамруулсан төлөвлөгөө гаргах уу?'))return;var used={},pool=[];a.weak.forEach(function(w){var s=plBestSud(w.sec,w.item,used);if(s){used[s.code]=1;pool.push({s:s,sec:w.sec,pct:w.pct,why:w.item});}});SECTIONS.forEach(function(sec){if(!pool.some(function(x){return x.sec===sec.cls;})){var s=plBestSud(sec.cls,'',used);if(s){used[s.code]=1;pool.push({s:s,sec:sec.cls,pct:(a.domains.filter(function(d){return d.sec===sec.cls;})[0]||{}).pct,why:'Бүх суралцахуйн чиглэлийг тэнцвэртэй хамруулах'});}}});if(!pool.length){toast('4-р түвшний СҮД олдсонгүй');return;}var rows=[],months=YR_MONTHS;months.forEach(function(m,i){var main=pool[i%pool.length],link=pool[(i+3)%pool.length],rep=pool[i%Math.min(3,pool.length)];[[main,'main'],[link,'link'],[rep,'repeat']].forEach(function(z,j){var x=z[0];if(!x)return;rows.push({id:'ay'+Date.now()+i+j+Math.floor(Math.random()*999),month:m,kind:z[1],code:x.s.code||'',text:x.s.text||'',dir:x.sec,sourceScore:x.pct,sourceWeak:x.why,sourceFileId:'auto-a79'});});});var p=plInit();p.autoAnnual={createdAt:new Date().toISOString(),schoolYear:yrSchoolYear(),sourceMonth:'5',sourceAge:'4',targetAge:'5',children:a.kids.length,domains:a.domains,weak:a.weak,rows:rows};saveDB();toast('9–5 сарын автомат төлөвлөгөө үүслээ ✓');renderPlannerPage();}
 function plDeleteAutoAnnual(){if(!confirm('Автоматаар үүсгэсэн жилийн төлөвлөгөөг устгах уу?'))return;plInit().autoAnnual=null;saveDB();renderPlannerPage();}
 function plAutoAnnualHtml(){var p=plInit(),x=p.autoAnnual,AGE=plAnnualAge(),a=plAnalyzeMay(),names={main:'Үндсэн',link:'Уялдах',repeat:'Давтагдах'};var ages={};(DB.children||[]).forEach(function(c){var k=String(c.age);ages[k]=(ages[k]||0)+1;});var akeys=Object.keys(ages).sort();var picker=akeys.length?('<div style="display:flex;gap:6px;flex-wrap:wrap;">'+akeys.map(function(k){var on=k===AGE;return '<button onclick="plSetAnnualAge(\''+k+'\')" style="min-height:38px;padding:0 13px;border-radius:19px;border:1.5px solid '+(on?'#0d9488':'#e5e7eb')+';background:'+(on?'#0d9488':'#fff')+';color:'+(on?'#fff':'#64748b')+';font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">'+k+' нас ('+ages[k]+')</button>';}).join('')+'</div>'):'<div style="font-size:11.5px;color:#9ca3af;">Хүүхэд бүртгэгдээгүй байна.</div>';return '<div style="'+plCard()+'background:#fff7ed;border:1px solid #fed7aa;"><div style="'+plH2()+'">Жилийн төлөвлөгөөгөө хэрхэн гаргах вэ?</div><div style="font-size:12px;color:#7c2d12;line-height:1.7;">Хоёр арга байна — аль нэгийг нь сонгоно уу:<br><br><b>1. Үнэлгээний дүнгээр</b> (доор) — өмнөх жилийн үнэлгээнээс сул чиглэлийг олж, СҮД-ийг автоматаар хуваарилна.<br><br><b>2. Цэцэрлэгийн батлагдсан төлөвлөгөөгөөр</b> (энэ хуудасны доод хэсэг) — өөрийн жилийн төлөвлөгөөгөө CSV-ээр оруулж, сар бүр татна.</div></div>'+'<div style="'+plCard()+'border:1px solid #a7f3d0;background:linear-gradient(180deg,#f0fdfa,#fff);"><div style="'+plH2()+'">1️⃣ Үнэлгээний дүнгээр автоматаар</div><div style="font-size:12px;color:#475569;line-height:1.7;">Бүх насны бүлэгт ажиллана. Сонгосон бүлгийн <b>өмнөх жилийн 5-р сарын үнэлгээ</b>-ний хамгийн бага үзүүлэлтийг олж, тухайн түвшний <b>7 суралцахуйн чиглэлийн СҮД</b>-тэй холбон 9–5 сарын төлөвлөгөө гаргана.</div>'+'<div style="background:#fff;border:1px solid #d1fae5;border-radius:12px;padding:10px;margin-top:10px;font-size:11px;color:#475569;">'+'<div style="display:flex;font-weight:800;color:#0f766e;border-bottom:1px solid #e5e7eb;padding-bottom:5px;margin-bottom:4px;"><span style="flex:1.5;">Төлөвлөх бүлэг</span><span style="flex:1.3;">Ашиглах үнэлгээ</span><span style="flex:1;">СҮД түвшин</span></div>'+[['2','Бага (2 нас)','—','1'],['3','Дунд (3 нас)','2 насны','2'],['4','Ахлах (4 нас)','3 насны','3'],['5','Бэлтгэл (5 нас)','4 насны','4']].map(function(r){var on=r[0]===AGE;return '<div style="display:flex;padding:4px 3px;line-height:1.5;'+(on?'background:#f0fdfa;font-weight:800;color:#0f766e;border-radius:6px;':'')+'"><span style="flex:1.5;">'+(on?'▸ ':'')+r[1]+'</span><span style="flex:1.3;">'+r[2]+'</span><span style="flex:1;">'+r[3]+'-р түвшин</span></div>';}).join('')+'<div style="margin-top:7px;color:#9ca3af;font-size:10.5px;line-height:1.55;">Бага бүлэгт өмнөх жилийн үнэлгээ байхгүй тул 1-р түвшний СҮД-ийг 7 чиглэлд тэнцвэртэй хуваарилна.</div>'+'</div>'+'<div style="margin:12px 0 4px;font-size:11.5px;font-weight:700;color:#475569;">Аль бүлгийн жилийн төлөвлөгөө гаргах вэ?</div>'+picker+'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0;"><div style="background:#fff;border-radius:12px;padding:9px;text-align:center;"><b style="font-size:17px;color:#0f766e;">'+a.kids.length+'</b><div style="font-size:9.5px;color:#64748b;">'+AGE+' настай хүүхэд</div></div><div style="background:#fff;border-radius:12px;padding:9px;text-align:center;"><b style="font-size:17px;color:#0f766e;">'+a.rated+'</b><div style="font-size:9.5px;color:#64748b;">үнэлэгдсэн үзүүлэлт</div></div><div style="background:#fff;border-radius:12px;padding:9px;text-align:center;"><b style="font-size:17px;color:#0f766e;">'+plTargetLevel()+'</b><div style="font-size:9.5px;color:#64748b;">СҮД түвшин</div></div></div><button onclick="plGenerateAnnual()" style="width:100%;'+plBtn('linear-gradient(135deg,#0d9488,#8b5cf6)','#fff')+'">'+(x?'↻ Дүнгээр дахин шинэчлэх':'✨ 5-р сарын дүнгээр төлөвлөгөө үүсгэх')+'</button>'+(!a.rated?'<div style="font-size:10.5px;color:#b45309;margin-top:8px;line-height:1.5;">'+(plSourceAge()?('Өмнөх жилийн '+plSourceAge()+' насны 5-р сарын үнэлгээ олдсонгүй. Үнэлгээгүйгээр ч төлөвлөгөө гаргаж болно.'):'Бага бүлэгт өмнөх жилийн үнэлгээ шаардлагагүй.')+'</div>':'')+'</div>'+(x?'<div style="'+plCard()+'"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><div><div style="'+plH2()+'margin:0;">'+ktEsc(x.schoolYear)+' оны жилийн төлөвлөгөө</div><div style="font-size:10.5px;color:#9ca3af;margin-top:3px;">'+x.children+' хүүхдийн дүн • '+new Date(x.createdAt).toLocaleString('mn-MN')+'</div></div><button onclick="plDeleteAutoAnnual()" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'width:38px;min-height:38px;">🗑</button></div><div style="'+plH2()+'margin-top:15px;">Чиглэл тус бүрийн 5-р сарын дундаж</div>'+x.domains.map(function(d){var pct=d.pct===null?'—':d.pct+'%',col=d.pct===null?'#94a3b8':d.pct<60?'#ef4444':d.pct<80?'#f59e0b':'#10b981';return '<div style="display:flex;align-items:center;gap:8px;margin:7px 0;font-size:11.5px;"><span style="width:21px;">'+d.icon+'</span><span style="flex:1;color:#475569;">'+ktEsc(d.label)+'</span><b style="color:'+col+';">'+pct+'</b></div>';}).join('')+'<div style="font-size:10.5px;color:#64748b;background:#f8fafc;border-radius:11px;padding:9px;margin-top:9px;line-height:1.5;">🔴 60%-аас доош — нэн түрүүнд дэмжих · 🟡 60–79% — бататгах · 🟢 80%+ — үргэлжлүүлэн хөгжүүлэх</div></div><div style="'+plCard()+'"><div style="'+plH2()+'">9–5 сарын автомат хуваарилалт</div>'+YR_MONTHS.map(function(m){var rr=x.rows.filter(function(r){return r.month===m;});return '<details style="border:1px solid #e5e7eb;border-radius:14px;margin-bottom:8px;background:#fff;"><summary style="cursor:pointer;padding:12px;font-size:12.5px;font-weight:800;color:#1f2937;">'+m+' сар <span style="font-size:10.5px;color:#0d9488;">• '+rr.length+' СҮД</span></summary><div style="padding:0 11px 11px;">'+rr.map(function(r){var sec=SECTIONS.filter(function(s){return s.cls===r.dir;})[0]||{};return '<div style="border-top:1px solid #f1f5f9;padding:9px 0;"><div style="font-size:10px;font-weight:800;color:#0d9488;">'+names[r.kind]+' • '+(sec.icon||'')+' '+ktEsc(sec.label||r.dir)+' • '+ktEsc(r.code)+'</div><div style="font-size:11.5px;color:#374151;line-height:1.5;margin-top:3px;">'+ktEsc(r.text)+'</div>'+(r.sourceScore!==null&&r.sourceScore!==undefined?'<div style="font-size:9.5px;color:#9ca3af;margin-top:3px;">Суурь үнэлгээ: '+r.sourceScore+'%</div>':'')+'</div>';}).join('')+'</div></details>';}).join('')+'<div style="font-size:10.5px;color:#64748b;line-height:1.55;margin-top:9px;">“Сар” хэсэг рүү ороод тухайн сарын СҮД-ийг нэг товчоор татна. Татсаны дараа багш хүссэнээрээ засварлаж болно.</div></div>':'');}
-/* ===== Нэг товчоор: жилээс бүх сар + 7 хоногийг үүсгэх ===== */
-function plYearSpread(){
-  var out={};
-  plFiles().forEach(function(f){
-    (f.annualSud||[]).forEach(function(s){
-      var m=String(parseInt(s.month,10));
-      if(m&&m!=='NaN')out[m]=(out[m]||0)+1;
-    });
-  });
-  var a=plInit().autoAnnual;
-  if(a&&(a.rows||[]).length)a.rows.forEach(function(s){
-    var m=String(parseInt(s.month,10));if(m&&m!=='NaN')out[m]=(out[m]||0)+1;
-  });
-  return out;
-}
-function plBuildAllFromYear(){
-  var sp=plYearSpread(),months=Object.keys(sp);
-  if(!months.length){toast('Эхлээд жилийн файлаа оруулна уу');return;}
-  var y=parseInt((PL.ym||plYM()).slice(0,4),10);
-  if(!confirm(months.length+' сарын СҮД олдлоо.\n\nБүх сарын төлөвлөгөө болон 7 хоногийн хуваарийг автоматаар үүсгэх үү?'))return;
-  var savedYm=PL.ym,totalSud=0,totalWeeks=0;
-  months.sort(function(a,b){return (+a)-(+b);}).forEach(function(mo){
-    var yy=(+mo>=9)?y:y+1;                       // 9-12 сар энэ жил, 1-5 сар дараа жил
-    var ym=yy+'-'+String(+mo).padStart(2,'0');
-    PL.ym=ym;
-    var before=(plMonth(ym).sud||[]).length;
-    plImportMonthSud();
-    totalSud+=((plMonth(ym).sud||[]).length-before);
-    try{
-      if(typeof plCreateWeeksFromMonth==='function')plCreateWeeksFromMonth(ym);
-      else if(typeof plDistributeMonthSud==='function')plDistributeMonthSud(ym,true);
-      totalWeeks+=4;
-    }catch(e){}
-  });
-  PL.ym=savedYm||plYM();
-  saveDB();
-  toast(months.length+' сар, '+totalWeeks+' долоо хоног бэлэн боллоо ✓');
-  renderPlannerPage();
-}
-function plOneClickCard(){
-  var sp=plYearSpread(),months=Object.keys(sp).sort(function(a,b){return (+a)-(+b);});
-  var total=months.reduce(function(s,m){return s+sp[m];},0);
-  if(!months.length){
-    return '<div style="'+plCard()+'background:#fffbeb;border:1px solid #fde68a;">'+
-      '<div style="'+plH2()+'">Жилийн төлөвлөгөө хараахан алга</div>'+
-      '<div style="font-size:12.5px;color:#92400e;line-height:1.7;">Доороос <b>Excel эсвэл CSV</b> файлаа оруулна уу. '+
-      'Оруулмагц энд бүх сарын СҮД харагдаж, нэг товчоор сар, 7 хоногийн төлөвлөгөө үүснэ.</div></div>';
-  }
-  return '<div style="'+plCard()+'background:linear-gradient(180deg,#f0fdfa,#fff);border:1px solid #a7f3d0;">'+
-    '<div style="'+plH2()+'">Жилийн төлөвлөгөө бэлэн</div>'+
-    '<div style="font-size:12.5px;color:#475569;line-height:1.65;margin-bottom:10px;">Файлаас нийт <b>'+total+' СҮД</b>, '+months.length+' сард хуваарилагдсан байна.</div>'+
-    '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">'+
-      months.map(function(m){
-        return '<span style="background:#fff;border:1px solid #99f6e4;border-radius:16px;padding:4px 10px;font-size:11px;font-weight:800;color:#0f766e;">'+m+' сар · '+sp[m]+'</span>';
-      }).join('')+'</div>'+
-    '<button onclick="plBuildAllFromYear()" style="width:100%;'+plBtn('linear-gradient(135deg,#0d9488,#14b8a6)','#fff')+'min-height:52px;font-size:14px;">Бүх сар, 7 хоногийг үүсгэх</button>'+
-    '<div style="font-size:11.5px;color:#64748b;margin-top:8px;line-height:1.55;">Нэг товшилтоор 9–5 сарын төлөвлөгөө болон долоо хоногийн хуваарь бэлэн болно. Дараа нь «Сар», «7 хоног» табаас засаж болно.</div></div>';
-}
-
-function plYearFilesHtml(){
-  var files=plFiles();
-  return '<div style="'+plCard()+'">'+
-    '<div style="'+plH2()+'">Файл оруулах</div>'+
-    '<div style="font-size:12.5px;color:#64748b;line-height:1.7;margin-bottom:12px;">'+
-      'Цэцэрлэгийнхээ жилийн төлөвлөгөөг <b>Excel (.xlsx)</b> эсвэл <b>CSV</b>-ээр оруулна — СҮД автоматаар уншигдана.<br><br>'+
-      'Багана: <b>Сар</b> · <b>СҮД код</b> · <b>Суралцахуйн үр дүн</b>. Түвшин, Чиглэл, 7 хоног байвал бүр сайн. '+
-      'Эсвэл сарын багана бүрд <b>X</b> тэмдэглэсэн хүснэгт ч болно.<br><br>'+
-      'PDF, Word, зургаар бол зөвхөн хадгалагдана.</div>'+
-    '<button onclick="plDownloadAnnualTemplate()" style="width:100%;margin-bottom:10px;'+plBtn('#fff7ed','#c2410c','1px solid #fed7aa')+'">CSV загвар татах</button>'+
-    '<label for="plPlanFile" style="display:flex;align-items:center;justify-content:center;gap:9px;min-height:52px;border:2px dashed #5eead4;border-radius:16px;background:#f0fdfa;color:#0f766e;font-size:13px;font-weight:800;cursor:pointer;">Файл сонгож оруулах</label>'+
-    '<input type="file" id="plPlanFile" multiple accept=".xlsx,.xls,.csv,.pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp" style="display:none" onchange="plUploadFile(this)">'+
-    '<div style="margin-top:14px;font-size:12.5px;font-weight:800;color:#1a1a2e;">Оруулсан файлууд ('+files.length+')</div>'+
-    (files.length?files.map(function(f){
-      return '<div style="display:flex;align-items:center;gap:10px;border:1px solid #eceef0;border-radius:12px;padding:10px;margin-top:8px;">'+
-        '<span style="font-size:18px;">'+plFileIcon(f.name)+'</span>'+
-        '<div style="flex:1;min-width:0;">'+
-          '<div style="font-size:12.5px;font-weight:700;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ktEsc(f.name)+'</div>'+
-          '<div style="font-size:10.5px;color:#9ca3af;">'+plFileSize(f.size)+((f.sudCount||0)?' • '+f.sudCount+' СҮД уншигдсан':' • СҮД уншигдаагүй')+'</div></div>'+
-        '<button onclick="plOpenFile(\''+f.id+'\')" style="'+plBtn('#f0fdfa','#0f766e','1px solid #99f6e4')+'padding:0 12px;min-height:36px;">Нээх</button>'+
-        '<button onclick="plDeleteFile(\''+f.id+'\')" aria-label="Устгах" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'padding:0 11px;min-height:36px;">Устгах</button>'+
-      '</div>';
-    }).join(''):'<div style="font-size:12px;color:#9ca3af;padding:10px 0;">Одоогоор файл оруулаагүй байна.</div>')+
-  '</div>';
-}
+function plYearHtml(){var files=plFiles();return plAutoAnnualHtml()+'<div style="'+plCard()+'"><div style="'+plH2()+'">2️⃣ Цэцэрлэгийн батлагдсан төлөвлөгөө</div><div style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:12px;">Цэцэрлэгийнхээ батлагдсан жилийн төлөвлөгөөг оруулна. <b>CSV</b> оруулбал сар бүрийн СҮД автоматаар татагдана. PDF, Word, зургаар бол зөвхөн хадгалагдана.<br><br>Загвар нь албан ёсны маягттай ижил: мөр бүр = нэг СҮД, тухайн СҮД хийгдэх <b>сарын нүдэнд X тэмдэг</b> тавина.</div><button onclick="plDownloadAnnualTemplate()" style="width:100%;margin-bottom:10px;'+plBtn('#fff7ed','#c2410c','1px solid #fed7aa')+'">⬇️ СҮД оруулах CSV загвар татах</button><label for="plPlanFile" style="display:flex;align-items:center;justify-content:center;gap:9px;min-height:54px;border:2px dashed #5eead4;border-radius:16px;background:#f0fdfa;color:#0f766e;font-size:13px;font-weight:800;cursor:pointer;">📎 Файл сонгож оруулах</label><input id="plPlanFile" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp" onchange="plUploadFile(this)" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"></div><div style="'+plCard()+'"><div style="'+plH2()+'">Оруулсан файлууд ('+files.length+')</div>'+(files.length?files.map(function(f){return '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid #eef0f2;border-radius:15px;padding:11px;margin-bottom:8px;"><span style="font-size:24px;flex:0 0 auto;">'+plFileIcon(f.name)+'</span><div style="flex:1;min-width:160px;"><div style="font-size:12.5px;font-weight:800;color:#1f2937;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+ktEsc(f.name)+'</div><div style="font-size:10.5px;color:#9ca3af;margin-top:3px;">'+plFileSize(f.size||0)+' • '+new Date(f.addedAt).toLocaleString('mn-MN')+(f.sudCount?' • '+f.sudCount+' СҮД танигдсан':'')+'</div></div><button onclick="plOpenFile(\''+f.id+'\',false)" aria-label="Нээх" style="'+plBtn('#f0fdfa','#0d9488','1px solid #99f6e4')+'padding:0 10px;min-height:38px;">Нээх</button><button onclick="plOpenFile(\''+f.id+'\',true)" aria-label="Татах" style="'+plBtn('#fff','#374151','1px solid #e5e7eb')+'width:38px;min-height:38px;">⬇</button><button onclick="plDeleteFile(\''+f.id+'\')" aria-label="Устгах" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'width:38px;min-height:38px;">🗑</button></div>';}).join(''):'<div style="text-align:center;color:#9ca3af;font-size:12.5px;padding:24px 8px;">Одоогоор файл оруулаагүй байна.</div>')+'</div>';}
 /* ---- ЖИЛИЙН ХҮСНЭГТ: дан болон холимог бүлэг ---- */
-
+var plYearHtmlLegacy=plYearHtml;
 function plAnnualMatrix(){return plInit().annualMatrix;}
-/* Бүртгэсэн хүүхдийн наснаас бүлгийн насыг тодорхойлох */
-function plDetectAges(){
-  var s={};(DB.children||[]).forEach(function(c){var a=String(c.age||'').trim();if(a)s[a]=(s[a]||0)+1;});
-  return {ages:Object.keys(s).sort(),counts:s};
-}
-function plAutoSetAges(silent){
-  var d=plDetectAges();
-  if(!d.ages.length){if(!silent)toast('Хүүхэд бүртгээгүй байна');return false;}
-  var a=plAnnualMatrix();
-  a.ages=d.ages.slice();
-  a.classType=d.ages.length>1?'mixed':'single';
-  a.agesAuto=true;a.updatedAt=new Date().toISOString();
-  saveDB();
-  if(!silent){toast('Бүлгийн нас шинэчлэгдлээ ✓');renderPlannerPage();}
-  return true;
-}
-function plAgesMatch(){
-  var d=plDetectAges(),a=plAnnualMatrix();
-  if(!d.ages.length)return true;
-  return d.ages.join(',')===(a.ages||[]).slice().sort().join(',');
-}
-function plGroupAgeCard(){
-  var d=plDetectAges(),a=plAnnualMatrix();
-  if(!d.ages.length)return '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px;margin-bottom:10px;font-size:12px;color:#92400e;line-height:1.6;">Хүүхэд бүртгээгүй тул бүлгийн насыг автоматаар тодорхойлох боломжгүй. Доороос гараар сонгоно уу.</div>';
-  var same=plAgesMatch();
-  return '<div style="background:'+(same?'#f0fdfa':'#fffbeb')+';border:1px solid '+(same?'#99f6e4':'#fde68a')+';border-radius:12px;padding:12px;margin-bottom:10px;">'+
-    '<div style="font-size:11.5px;font-weight:800;color:'+(same?'#0f766e':'#92400e')+';margin-bottom:7px;">'+
-      (d.ages.length>1?'Холимог бүлэг':'Таны бүлэг')+' — бүртгэсэн '+(DB.children||[]).length+' хүүхдээс</div>'+
-    '<div style="display:flex;gap:7px;flex-wrap:wrap;">'+d.ages.map(function(k){
-      return '<span style="background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:5px 12px;font-size:11.5px;font-weight:800;color:#0f766e;">'+
-        k+' нас • '+d.counts[k]+' хүүхэд</span>';}).join('')+'</div>'+
-    (same?'':'<div style="font-size:11.5px;color:#92400e;margin-top:9px;line-height:1.55;">Одоогийн төлөвлөгөөний нас ('+((a.ages||[]).join(', ')||'—')+') бүртгэлтэй таарахгүй байна.</div>'+
-      '<button onclick="plAutoSetAges()" style="width:100%;margin-top:8px;'+plBtn('#0d9488','#fff')+'min-height:42px;">Бүртгэсэн хүүхдээр тохируулах</button>')+
-  '</div>';
-}
 function plAnnualMetaSet(k,v){var a=plAnnualMatrix();a[k]=v;a.updatedAt=new Date().toISOString();a.version=(a.version||1)+1;saveDB();}
 function plAnnualClassType(v){var a=plAnnualMatrix();a.classType=v;if(v==='single'&&a.ages.length>1)a.ages=[a.ages[0]];a.updatedAt=new Date().toISOString();saveDB();renderPlannerPage();}
-function plAnnualAgeToggle(age){var a=plAnnualMatrix(),i=a.ages.indexOf(age);a.agesAuto=false;if(a.classType==='single')a.ages=[age];else if(i>=0&&a.ages.length>1)a.ages.splice(i,1);else if(i<0)a.ages.push(age);a.ages.sort();a.updatedAt=new Date().toISOString();saveDB();renderPlannerPage();}
+function plAnnualAgeToggle(age){var a=plAnnualMatrix(),i=a.ages.indexOf(age);if(a.classType==='single')a.ages=[age];else if(i>=0&&a.ages.length>1)a.ages.splice(i,1);else if(i<0)a.ages.push(age);a.ages.sort();a.updatedAt=new Date().toISOString();saveDB();renderPlannerPage();}
 function plAnnualAddRow(month,week,age){var a=plAnnualMatrix();a.rows.push({id:'yr'+Date.now()+Math.floor(Math.random()*9999),month:String(month||'9'),week:parseInt(week,10)||1,age:String(age||a.ages[0]||'4'),level:a79Level(String(age||a.ages[0]||'4')),area:'',subArea:'',code:'',text:'',kind:'main',dir:'',createdAt:new Date().toISOString()});a.updatedAt=new Date().toISOString();saveDB();renderPlannerPage();}
 function plAnnualRowSet(id,k,v){var a=plAnnualMatrix(),r=a.rows.filter(function(x){return x.id===id;})[0];if(!r)return;r[k]=(k==='week'?parseInt(v,10)||1:v);if(k==='age')r.level=a79Level(v);a.updatedAt=new Date().toISOString();saveDB();}
 function plAnnualRowDel(id){if(!confirm('Энэ СҮД-ийг жилийн төлөвлөгөөнөөс устгах уу?'))return;var a=plAnnualMatrix();a.rows=a.rows.filter(function(x){return x.id!==id;});a.updatedAt=new Date().toISOString();saveDB();renderPlannerPage();}
-function plAnnualRowsHtml(){var a=plAnnualMatrix();return '<div style="'+plCard()+'border:1px solid #99f6e4;background:#f0fdfa;"><div style="'+plH2()+'">Жилийн төлөвлөгөөний хүснэгт</div><div style="font-size:11.5px;color:#64748b;line-height:1.6;">9–5 сар • долоо хоног бүр Ай, Дэд ай, СҮД • холимог бүлэгт нас тус бүрээр</div><div class="pl-two"><div><label style="'+plLabel()+'">Хичээлийн жил</label><input style="'+plInput()+'" value="'+ktEsc(a.schoolYear||yrSchoolYear())+'" oninput="plAnnualMetaSet(\'schoolYear\',this.value)"></div><div><label style="'+plLabel()+'">Бүлэг</label><input style="'+plInput()+'" value="'+ktEsc(a.group||'')+'" oninput="plAnnualMetaSet(\'group\',this.value)"></div></div>'+plGroupAgeCard()+'<label style="'+plLabel()+'">Бүлгийн төрөл</label><div style="display:flex;gap:7px;">'+[['single','Дан насны'],['mixed','Холимог']].map(function(x){var on=a.classType===x[0];return '<button onclick="plAnnualClassType(\''+x[0]+'\')" style="flex:1;'+plBtn(on?'#0d9488':'#fff',on?'#fff':'#475569','1px solid '+(on?'#0d9488':'#e5e7eb'))+'">'+x[1]+'</button>';}).join('')+'</div><label style="'+plLabel()+'">Төлөвлөх нас</label><div style="display:flex;gap:7px;flex-wrap:wrap;">'+['2','3','4','5'].map(function(age){var on=a.ages.indexOf(age)>=0;return '<button onclick="plAnnualAgeToggle(\''+age+'\')" style="min-width:70px;'+plBtn(on?'#0d9488':'#fff',on?'#fff':'#64748b','1px solid '+(on?'#0d9488':'#e5e7eb'))+'">'+(on?'✓ ':'')+age+' нас</button>';}).join('')+'</div></div>'+YR_MONTHS.map(function(m){var rows=a.rows.filter(function(r){return String(r.month)===m;});return '<details style="'+plCard()+'padding:0;overflow:hidden;" '+(m==='9'?'open':'')+'><summary style="padding:13px 14px;cursor:pointer;font-size:13px;font-weight:800;background:#f8fafc;">'+m+'-р сар <span style="color:#0d9488;font-size:10.5px;">• '+rows.length+' СҮД</span></summary><div style="padding:11px;">'+[1,2,3,4,5].map(function(w){var wr=rows.filter(function(r){return Number(r.week)===w;});if(w===5&&!wr.length)return '';return '<div style="font-size:11.5px;font-weight:800;color:#475569;margin:8px 0;">'+w+'-р долоо хоног</div>'+wr.map(function(r){return '<div style="border:1px solid #e5e7eb;border-left:4px solid '+plLevelColor(r.level)+';border-radius:13px;padding:9px;margin-bottom:8px;"><div style="display:grid;grid-template-columns:76px 1fr 38px;gap:6px;"><select style="'+plInput()+'margin:0;" onchange="plAnnualRowSet(\''+r.id+'\',\'age\',this.value)">'+a.ages.map(function(age){return '<option value="'+age+'"'+(r.age===age?' selected':'')+'>'+age+' нас</option>';}).join('')+'</select><select style="'+plInput()+'margin:0;" onchange="plAnnualRowSet(\''+r.id+'\',\'kind\',this.value)">'+[['main','Үндсэн'],['link','Уялдах'],['repeat','Давтагдах']].map(function(k){return '<option value="'+k[0]+'"'+(r.kind===k[0]?' selected':'')+'>'+k[1]+'</option>';}).join('')+'</select><button onclick="plAnnualRowDel(\''+r.id+'\')" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'width:38px;min-height:38px;">🗑</button></div><div class="pl-two"><input style="'+plInput()+'margin-top:7px;" placeholder="Ай" value="'+ktEsc(r.area||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'area\',this.value)"><input style="'+plInput()+'margin-top:7px;" placeholder="Дэд ай" value="'+ktEsc(r.subArea||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'subArea\',this.value)"></div><input style="'+plInput()+'margin-top:7px;" placeholder="СҮД код" value="'+ktEsc(r.code||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'code\',this.value)"><textarea style="'+plInput()+'height:64px;margin-top:7px;" placeholder="Суралцахуйн үр дүн" oninput="plAnnualRowSet(\''+r.id+'\',\'text\',this.value)">'+ktEsc(r.text||'')+'</textarea></div>';}).join('')+'<button onclick="plAnnualAddRow(\''+m+'\','+w+')" style="width:100%;margin-bottom:7px;'+plBtn('#fff','#0d9488','1px dashed #5eead4')+'">＋ '+w+'-р долоо хоногт СҮД нэмэх</button>';}).join('')+'</div></details>';}).join('');}
+function plAnnualRowsHtml(){var a=plAnnualMatrix();return '<div style="'+plCard()+'border:1px solid #99f6e4;background:#f0fdfa;"><div style="'+plH2()+'">Жилийн төлөвлөгөөний хүснэгт</div><div style="font-size:11.5px;color:#64748b;line-height:1.6;">9–5 сар • долоо хоног бүр Ай, Дэд ай, СҮД • холимог бүлэгт нас тус бүрээр</div><div class="pl-two"><div><label style="'+plLabel()+'">Хичээлийн жил</label><input style="'+plInput()+'" value="'+ktEsc(a.schoolYear||yrSchoolYear())+'" oninput="plAnnualMetaSet(\'schoolYear\',this.value)"></div><div><label style="'+plLabel()+'">Бүлэг</label><input style="'+plInput()+'" value="'+ktEsc(a.group||'')+'" oninput="plAnnualMetaSet(\'group\',this.value)"></div></div><label style="'+plLabel()+'">Бүлгийн төрөл</label><div style="display:flex;gap:7px;">'+[['single','Дан насны'],['mixed','Холимог']].map(function(x){var on=a.classType===x[0];return '<button onclick="plAnnualClassType(\''+x[0]+'\')" style="flex:1;'+plBtn(on?'#0d9488':'#fff',on?'#fff':'#475569','1px solid '+(on?'#0d9488':'#e5e7eb'))+'">'+x[1]+'</button>';}).join('')+'</div><label style="'+plLabel()+'">Төлөвлөх нас</label><div style="display:flex;gap:7px;flex-wrap:wrap;">'+['2','3','4','5'].map(function(age){var on=a.ages.indexOf(age)>=0;return '<button onclick="plAnnualAgeToggle(\''+age+'\')" style="min-width:70px;'+plBtn(on?'#0d9488':'#fff',on?'#fff':'#64748b','1px solid '+(on?'#0d9488':'#e5e7eb'))+'">'+(on?'✓ ':'')+age+' нас</button>';}).join('')+'</div></div>'+YR_MONTHS.map(function(m){var rows=a.rows.filter(function(r){return String(r.month)===m;});return '<details style="'+plCard()+'padding:0;overflow:hidden;" '+(m==='9'?'open':'')+'><summary style="padding:13px 14px;cursor:pointer;font-size:13px;font-weight:800;background:#f8fafc;">'+m+'-р сар <span style="color:#0d9488;font-size:10.5px;">• '+rows.length+' СҮД</span></summary><div style="padding:11px;">'+[1,2,3,4,5].map(function(w){var wr=rows.filter(function(r){return Number(r.week)===w;});if(w===5&&!wr.length)return '';return '<div style="font-size:11.5px;font-weight:800;color:#475569;margin:8px 0;">'+w+'-р долоо хоног</div>'+wr.map(function(r){return '<div style="border:1px solid #e5e7eb;border-left:4px solid '+plLevelColor(r.level)+';border-radius:13px;padding:9px;margin-bottom:8px;"><div style="display:grid;grid-template-columns:76px 1fr 38px;gap:6px;"><select style="'+plInput()+'margin:0;" onchange="plAnnualRowSet(\''+r.id+'\',\'age\',this.value)">'+a.ages.map(function(age){return '<option value="'+age+'"'+(r.age===age?' selected':'')+'>'+age+' нас</option>';}).join('')+'</select><select style="'+plInput()+'margin:0;" onchange="plAnnualRowSet(\''+r.id+'\',\'kind\',this.value)">'+[['main','Үндсэн'],['link','Уялдах'],['repeat','Давтагдах']].map(function(k){return '<option value="'+k[0]+'"'+(r.kind===k[0]?' selected':'')+'>'+k[1]+'</option>';}).join('')+'</select><button onclick="plAnnualRowDel(\''+r.id+'\')" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'width:38px;min-height:38px;">🗑</button></div><div class="pl-two"><input style="'+plInput()+'margin-top:7px;" placeholder="Ай" value="'+ktEsc(r.area||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'area\',this.value)"><input style="'+plInput()+'margin-top:7px;" placeholder="Дэд ай" value="'+ktEsc(r.subArea||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'subArea\',this.value)"></div><input style="'+plInput()+'margin-top:7px;" placeholder="СҮД код" value="'+ktEsc(r.code||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'code\',this.value)"><textarea style="'+plInput()+'height:64px;margin-top:7px;" placeholder="Суралцахуйн үр дүн" oninput="plAnnualRowSet(\''+r.id+'\',\'text\',this.value)">'+ktEsc(r.text||'')+'</textarea></div>';}).join('')+'<button onclick="plAnnualAddRow(\''+m+'\','+w+')" style="width:100%;margin-bottom:7px;'+plBtn('#fff','#0d9488','1px dashed #5eead4')+'">＋ '+w+'-р долоо хоногт СҮД нэмэх</button>';}).join('')+'</div></details>';}).join('');}
 function plExportAnnualMatrixCsv(){var a=plAnnualMatrix(),q=function(v){return '"'+String(v||'').replace(/"/g,'""')+'"';},rows=[['Хичээлийн жил','Бүлэг','Бүлгийн төрөл','Сар','Долоо хоног','Нас','Түвшин','Ай','Дэд ай','СҮД төрөл','СҮД код','Суралцахуйн үр дүн']];(a.rows||[]).forEach(function(r){rows.push([a.schoolYear,a.group,a.classType==='mixed'?'Холимог':'Дан насны',r.month,r.week,r.age,r.level,r.area,r.subArea,r.kind,r.code,r.text]);});var csv='\uFEFF'+rows.map(function(r){return r.map(q).join(',');}).join('\r\n'),b=new Blob([csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(b),x=document.createElement('a');x.href=u;x.download='KinderTrack_jiliin_tuluvluguu_'+(a.schoolYear||'')+'.csv';document.body.appendChild(x);x.click();x.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);}
 function plPrintAnnualMatrix(){var a=plAnnualMatrix(),h='<h1>Жилийн үйл ажиллагааны төлөвлөгөө</h1><div class="d" style="text-align:center;">'+ktEsc(a.schoolYear||'')+' • '+ktEsc(a.group||'')+' • '+(a.classType==='mixed'?'Холимог бүлэг':'Дан насны бүлэг')+'</div>';YR_MONTHS.forEach(function(m){var rows=(a.rows||[]).filter(function(r){return String(r.month)===m;});if(!rows.length)return;h+='<h2>'+m+'-р сар</h2>';[1,2,3,4,5].forEach(function(w){var rr=rows.filter(function(r){return Number(r.week)===w;});if(!rr.length)return;h+='<div class="it"><div class="t">'+w+'-р долоо хоног</div>'+rr.map(function(r){return '<div class="x"><b>'+ktEsc(r.age)+' нас • '+ktEsc(r.code||'')+'</b> — '+ktEsc(r.area||'')+' / '+ktEsc(r.subArea||'')+'<br>'+ktEsc(r.text||'')+'</div>';}).join('')+'</div>';});});anPrintArea(h);}
 function plAnnualActionsHtml(){var a=plAnnualMatrix();return '<div style="'+plCard()+'"><div style="'+plH2()+'">Жилийн төлөвлөгөөний үйлдэл</div><div style="display:flex;gap:7px;flex-wrap:wrap;"><button onclick="plExportAnnualMatrixCsv()" style="flex:1;min-width:150px;'+plBtn('#ecfdf5','#047857','1px solid #a7f3d0')+'">⬇️ Excel-д нээх CSV</button><button onclick="plPrintAnnualMatrix()" style="flex:1;min-width:130px;'+plBtn('#fff','#374151','1px solid #e5e7eb')+'">🖨️ Хэвлэх / PDF</button></div><div style="font-size:10.5px;color:#9ca3af;margin-top:8px;">'+(a.updatedAt?'Сүүлийн засвар: '+new Date(a.updatedAt).toLocaleString('mn-MN'):'Өөрчлөлт автоматаар хадгалагдана.')+'</div></div>';}
-/* ===== Жилийн төлөвлөгөө — нэг ойлгомжтой урсгал ===== */
-function plYearSourceInfo(){
-  var files=0,fileSud=0,byMonth={};
-  plFiles().forEach(function(f){
-    var n=(f.annualSud||[]).length;
-    if(n){files++;fileSud+=n;}
-    (f.annualSud||[]).forEach(function(s){
-      var m=String(parseInt(s.month,10));if(m!=='NaN')byMonth[m]=(byMonth[m]||0)+1;
-    });
-  });
-  var mtx=((plInit().annualMatrix||{}).rows||[]).filter(function(r){return (r.text||'').trim()||(r.code||'').trim();});
-  mtx.forEach(function(s){var m=String(parseInt(s.month,10));if(m!=='NaN')byMonth[m]=(byMonth[m]||0)+1;});
-  var au=((plInit().autoAnnual||{}).rows||[]);
-  au.forEach(function(s){var m=String(parseInt(s.month,10));if(m!=='NaN')byMonth[m]=(byMonth[m]||0)+1;});
-  return {files:files,fileSud:fileSud,matrix:mtx.length,auto:au.length,
-    byMonth:byMonth,total:fileSud+mtx.length+au.length,
-    months:Object.keys(byMonth).sort(function(a,b){return (+a)-(+b);})};
-}
-function plMonthsReady(){
-  var p=plInit(),n=0;
-  Object.keys(p.months||{}).forEach(function(k){if(((p.months[k].sud)||[]).length)n++;});
-  return n;
-}
-function plWeeksReady(){
-  var p=plInit(),n=0;
-  Object.keys(p.weeks||{}).forEach(function(k){if(((p.weeks[k].sud)||[]).length)n++;});
-  return n;
-}
-function plStepBadge(num,done){
-  var c=done?'#0d9488':'#cbd5e1';
-  return '<span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:'+c+';color:#fff;font-size:13px;font-weight:800;flex-shrink:0;">'+(done?'✓':num)+'</span>';
-}
-function plWizardHtml(){
-  var s=plYearSourceInfo(),mr=plMonthsReady(),wr=plWeeksReady();
-  var step1=s.total>0,step2=mr>0,step3=wr>0;
-  var H='<div style="'+plCard()+'">'+
-    '<div style="'+plH2()+'">Жилийн төлөвлөгөө — 3 алхам</div>'+
-    '<div style="font-size:12.5px;color:#64748b;line-height:1.65;margin-bottom:14px;">Доорх дарааллаар хийнэ. Алхам бүр дуусахад ✓ болно.</div>';
+function plAnnualDemoRows(){var data=[['1','Өөрийгөө таних','Өөрийгөө ойлгож мэдрэх','НСХ2.1а','Биеийн мэдрэмж, сэтгэл хөдлөлөө энгийн үгээр илэрхийлнэ.'],['1','Өөрийгөө таних','Өөрийгөө ойлгож мэдрэх','НСХ3.1а','Өөрийн сэтгэл хөдлөлийг нэрлэж, шалтгааныг тайлбарлана.'],['1','Өөрийгөө таних','Өөрийгөө ойлгож мэдрэх','НСХ4.1а','Сэтгэл хөдлөлөө зохистой илэрхийлж, тайвшрах аргыг хэрэглэнэ.'],['2','Сонсох','Сонсож ойлгох','ХЯ2.1а','Бусдын яриаг анхаарч сонсон, энгийн үгээр хариулна.'],['2','Сонсох','Сонсож ойлгох','ХЯ3.1а','Сонссон зүйлээ дарааллын дагуу ярина.'],['2','Сонсох','Сонсож ойлгох','ХЯ4.1а','Сонссон мэдээллийн гол санааг ойлгож, асуултад хариулна.'],['3','Тоо тоолол','Тоо','МАТ2.1а','Тоглоом, юмсыг тоолж, олон ба цөөнийг ялгана.'],['3','Тоо тоолол','Тоо','МАТ3.1а','Тоглоом, юмсыг оноож тоолж, тоог харьцуулна.'],['3','Тоо тоолол','Тоо','МАТ4.1а','Тоо хэмжээг харьцуулж, сонголтоо тайлбарлана.'],['4','Хөдөлгөөн','Байрандаа хийх хөдөлгөөн','ХЭМ2.1а','Энгийн хөдөлгөөнийг даган дууриаж гүйцэтгэнэ.'],['4','Хөдөлгөөн','Байрандаа хийх хөдөлгөөн','ХЭМ3.1а','Хөдөлгөөнийг дарааллын дагуу зохицуулан гүйцэтгэнэ.'],['4','Хөдөлгөөн','Байрандаа хийх хөдөлгөөн','ХЭМ4.1а','Цогц хөдөлгөөнийг бие даан, зохицуулалттай гүйцэтгэнэ.']],ages=['3','4','5'];return data.map(function(x,i){var age=ages[i%3];return {id:'demo-annual-'+i,month:'9',week:parseInt(x[0],10),age:age,level:a79Level(age),area:x[1],subArea:x[2],code:x[3],text:x[4],kind:i%3===1?'main':(i%3===0?'link':'repeat'),dir:'',createdAt:new Date().toISOString(),demo:true};});}
+function plStartAnnualDemo(){var a=plAnnualMatrix(),ids={};(a.rows||[]).forEach(function(r){ids[r.id]=1;});plAnnualDemoRows().forEach(function(r){if(!ids[r.id])a.rows.push(r);});a.classType='mixed';a.ages=['3','4','5'];a.group=a.group||'Туршилтын холимог бүлэг';a.schoolYear=a.schoolYear||yrSchoolYear();a.version=(a.version||1)+1;a.updatedAt=new Date().toISOString();var y=parseInt(String(a.schoolYear).slice(0,4),10)||new Date().getFullYear();PL.ym=y+'-09';saveDB();toast('9-р сарын жишээ төлөвлөгөө бэлэн боллоо ✓');renderPlannerPage();}
+function plRemoveAnnualDemo(){var a=plAnnualMatrix(),n=a.rows.length;a.rows=a.rows.filter(function(r){return !r.demo&&String(r.id).indexOf('demo-annual-')!==0;});if(n===a.rows.length){toast('Туршилтын мөр алга');return;}a.version=(a.version||1)+1;a.updatedAt=new Date().toISOString();saveDB();toast('Туршилтын жишээг цэвэрлэлээ');renderPlannerPage();}
+function plAnnualDemoCardHtml(){var a=plAnnualMatrix(),has=(a.rows||[]).some(function(r){return r.demo||String(r.id).indexOf('demo-annual-')===0;});return '<div style="'+plCard()+'border:1px solid #c4b5fd;background:linear-gradient(135deg,#faf5ff,#fff);"><div style="'+plH2()+'">🧪 Эхлээд жишээгээр турших</div><div style="font-size:11.5px;color:#64748b;line-height:1.6;margin-bottom:10px;">Холимог 3, 4, 5 насны 9-р сарын 4 долоо хоногийн жишээ автоматаар орно. Дараа нь <b>Сар → 7 хоног → Өдөр</b> дарааллаар туршина.</div><button onclick="plStartAnnualDemo()" style="width:100%;'+plBtn('linear-gradient(135deg,#8b5cf6,#0d9488)','#fff')+'">✨ Жишээ төлөвлөгөө үүсгэх</button>'+(has?'<button onclick="plRemoveAnnualDemo()" style="width:100%;margin-top:7px;'+plBtn('#fff','#e11d48','1px solid #fecdd3')+'">Туршилтын жишээг цэвэрлэх</button>':'')+'</div>';}
+var PL_YEAR_THEME_DEFAULTS={'9':'Би болон миний орчин','10':'Намар ба ургац','11':'Миний гэр бүл, бидний орчин','12':'Өвөл ба шинэ жил','1':'Эрүүл биед саруул ухаан','2':'Монгол ёс, өв уламжлал','3':'Мэргэжил ба гэр бүл','4':'Ургамал, амьтан, байгаль','5':'Миний сурсан зүйл'};
+function plAnnualThemeMap(){var a=plAnnualMatrix();if(!a.monthThemes)a.monthThemes={};YR_MONTHS.forEach(function(m){if(!a.monthThemes[m])a.monthThemes[m]=PL_YEAR_THEME_DEFAULTS[m];});return a.monthThemes;}
+function plAnnualThemeSet(m,v){var a=plAnnualMatrix();plAnnualThemeMap()[m]=v;a.updatedAt=new Date().toISOString();saveDB();}
+function plAnnualSudCode(s){if(s.code)return s.code;var m=String(s.text||'').match(/^([А-ЯӨҮA-Z]+\s*\d+\.\d+[а-яa-z]?)[\.\s-]*/);return m?m[1].replace(/\s+/g,''):'';}
+function plAnnualSudText(s){var t=String(s.text||'').trim(),c=plAnnualSudCode(s);if(c&&t.indexOf(c)===0)t=t.slice(c.length).replace(/^[\.\s-]+/,'');return t;}
+function plAnnualAutoGenerate(){var a=plAnnualMatrix(),ages=(a.ages||[]).slice(),themes=plAnnualThemeMap();if(!ages.length){toast('Төлөвлөх насаа сонгоно уу');return;}var old=(a.rows||[]).filter(function(r){return r.autoFullYear;}).length;if(old&&!confirm('Өмнөх автомат жилийн төлөвлөгөөг шинэчилж үүсгэх үү?\nГараар нэмсэн мөрүүд хэвээр үлдэнэ.'))return;var manual=(a.rows||[]).filter(function(r){return !r.autoFullYear;});var dirs=SECTIONS.map(function(s){return s.cls;}).filter(function(d){return SUD[d];});if(!dirs.length)dirs=Object.keys(SUD);var rows=[],seq=0,startYear=parseInt(String(a.schoolYear||yrSchoolYear()).slice(0,4),10)||new Date().getFullYear();YR_MONTHS.forEach(function(month,mi){var ym=(parseInt(month,10)>=9?startYear:startYear+1)+'-'+String(month).padStart(2,'0'),mp=plMonth(ym);mp.theme=themes[month]||'';mp.group=a.group||mp.group||'';mp.classType=a.classType;mp.selectedAges=ages.slice();mp.sourceYearPlanId='annual-matrix';mp.sourceVersion=(a.version||1)+1;mp.sub=[1,2,3,4].map(function(w){return (themes[month]||month+'-р сар')+' — '+w+'-р долоо хоног';});for(var week=1;week<=4;week++){var mainIndex=mi*4+(week-1),mainDir=dirs[mainIndex%dirs.length],linkDir=dirs[(mainIndex+2)%dirs.length],repeatDir=dirs[(mainIndex-1+dirs.length)%dirs.length];[['main',mainDir,mainIndex],['link',linkDir,mainIndex+1],['repeat',repeatDir,Math.max(0,mainIndex-1)]].forEach(function(spec){ages.forEach(function(age){var lvl=a79Level(age),pool=((SUD[spec[1]]||{})[lvl]||[]);if(!pool.length)return;var item=pool[spec[2]%pool.length];rows.push({id:'autofy-'+Date.now()+'-'+(seq++),month:month,week:week,age:String(age),level:lvl,area:item.ai||'',subArea:item.sub||'',code:plAnnualSudCode(item),text:plAnnualSudText(item),kind:spec[0],dir:spec[1],theme:themes[month]||'',sourceFileId:'auto-full-year',sourceVersion:(a.version||1)+1,createdAt:new Date().toISOString(),autoFullYear:true});});});}});a.rows=manual.concat(rows);a.classType=ages.length>1?'mixed':'single';a.version=(a.version||1)+1;a.updatedAt=new Date().toISOString();a.autoGeneratedAt=a.updatedAt;a.autoGeneratedCount=rows.length;saveDB();toast('9–5 сарын '+rows.length+' СҮД бүхий төлөвлөгөө үүслээ ✓');renderPlannerPage();}
+function plAnnualAutoClear(){var a=plAnnualMatrix(),n=(a.rows||[]).filter(function(r){return r.autoFullYear;}).length;if(!n){toast('Автомат мөр алга');return;}if(!confirm(n+' автомат СҮД-ийг жилийн төлөвлөгөөнөөс хасах уу?\nГараар нэмсэн мөрүүд үлдэнэ.'))return;a.rows=a.rows.filter(function(r){return !r.autoFullYear;});a.version=(a.version||1)+1;a.updatedAt=new Date().toISOString();saveDB();toast('Автомат төлөвлөгөөг цэвэрлэлээ');renderPlannerPage();}
+function plAnnualAutoCardHtml(){var a=plAnnualMatrix(),themes=plAnnualThemeMap(),autoN=(a.rows||[]).filter(function(r){return r.autoFullYear;}).length,estimate=YR_MONTHS.length*4*3*(a.ages||[]).length;return '<div style="'+plCard()+'border:1px solid #5eead4;background:linear-gradient(145deg,#ecfdf5,#fff);"><div style="display:flex;align-items:flex-start;gap:8px;"><div style="flex:1;"><div style="'+plH2()+'margin:0;">✨ Бүтэн жилийн автомат төлөвлөгөө</div><div style="font-size:11.5px;color:#64748b;line-height:1.6;margin-top:5px;">Сар бүрийн сэдвээ өөрийн цэцэрлэгт тохируулна. Апп сонгосон насны СҮД-ийг 9–5 сарын 36 долоо хоногт үндсэн, уялдах, давтагдах төрлөөр хуваарилна.</div></div>'+(autoN?'<span style="background:#d1fae5;color:#047857;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:800;">'+autoN+' СҮД</span>':'')+'</div><label style="'+plLabel()+'">Сар бүрийн ерөнхий сэдэв</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;">'+YR_MONTHS.map(function(m){return '<div><div style="font-size:10px;font-weight:800;color:#0f766e;margin:0 0 4px 3px;">'+m+'-р сар</div><input aria-label="'+m+'-р сарын сэдэв" style="'+plInput()+'min-height:42px;padding:8px 9px;font-size:11px;" value="'+ktEsc(themes[m]||'')+'" oninput="plAnnualThemeSet(\''+m+'\',this.value)"></div>';}).join('')+'</div><div style="background:#fff;border:1px solid #d1fae5;border-radius:13px;padding:10px;margin-top:11px;font-size:11px;color:#475569;line-height:1.6;"><b>Үүсэх бүтэц:</b> 9 сар × 4 долоо хоног × 3 СҮД төрөл × '+(a.ages||[]).length+' нас = ойролцоогоор <b>'+estimate+' мөр</b><br>СҮД давтагдвал давтамж нь хадгалагдаж, дараа нь багш хүссэн мөрөө сольж болно.</div><button onclick="plAnnualAutoGenerate()" style="width:100%;margin-top:11px;'+plBtn('linear-gradient(135deg,#0d9488,#8b5cf6)','#fff')+'">✨ 9–5 сарын төлөвлөгөөг нэг дор үүсгэх</button>'+(autoN?'<button onclick="plAnnualAutoClear()" style="width:100%;margin-top:7px;'+plBtn('#fff','#e11d48','1px solid #fecdd3')+'">Автомат төлөвлөгөөг цэвэрлэх</button>':'')+'</div>';}
+function plAnnualOpenMonth(m){PL.yearMonth=String(m);renderPlannerPage();}
+function plAnnualCompactRowsHtml(){var a=plAnnualMatrix(),m=PL.yearMonth||'9',rows=(a.rows||[]).filter(function(r){return String(r.month)===m;}),names={main:'Үндсэн',link:'Уялдах',repeat:'Давтагдах'},cols={main:'#0d9488',link:'#8b5cf6',repeat:'#f59e0b'};return '<div style="'+plCard()+'"><div style="'+plH2()+'">Жилийн төлөвлөгөөг сараар засах</div><div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:9px;">'+YR_MONTHS.map(function(mm){var on=mm===m,n=(a.rows||[]).filter(function(r){return String(r.month)===mm;}).length;return '<button onclick="plAnnualOpenMonth(\''+mm+'\')" style="min-width:67px;'+plBtn(on?'#0d9488':'#fff',on?'#fff':'#64748b','1px solid '+(on?'#0d9488':'#e5e7eb'))+'">'+mm+' сар<br><span style="font-size:9px;opacity:.8;">'+n+' СҮД</span></button>';}).join('')+'</div><div style="background:#f0fdfa;border-radius:12px;padding:9px;font-size:11px;color:#0f766e;margin-bottom:10px;"><b>'+m+'-р сарын сэдэв:</b> '+ktEsc(plAnnualThemeMap()[m]||'')+' • '+rows.length+' СҮД</div>'+[1,2,3,4].map(function(w){var wr=rows.filter(function(r){return Number(r.week)===w;});return '<details style="border:1px solid #e5e7eb;border-radius:14px;margin-bottom:8px;" '+(w===1?'open':'')+'><summary style="padding:11px;cursor:pointer;font-size:12px;font-weight:800;color:#374151;">'+w+'-р долоо хоног • '+wr.length+' СҮД</summary><div style="padding:0 9px 9px;">'+wr.map(function(r){var c=cols[r.kind]||'#0d9488';return '<details style="border-top:1px solid #f1f5f9;padding:8px 0;"><summary style="cursor:pointer;display:flex;gap:7px;align-items:flex-start;list-style:none;"><span style="background:'+plLevelColor(r.level)+'1a;color:'+plLevelColor(r.level)+';border-radius:12px;padding:3px 7px;font-size:9.5px;font-weight:800;white-space:nowrap;">'+r.age+' нас</span><div style="flex:1;font-size:11px;color:#374151;line-height:1.45;"><b>'+ktEsc(r.code||'СҮД')+'</b> — '+ktEsc(r.text||'')+'</div><span style="font-size:9.5px;font-weight:800;color:'+c+';white-space:nowrap;">'+(names[r.kind]||'Үндсэн')+'</span></summary><div style="padding:8px 0 0 0;"><div class="pl-two"><input style="'+plInput()+'" placeholder="Ай" value="'+ktEsc(r.area||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'area\',this.value)"><input style="'+plInput()+'" placeholder="Дэд ай" value="'+ktEsc(r.subArea||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'subArea\',this.value)"></div><div style="font-size:10px;color:#64748b;margin:4px 0;">СҮД код ба суралцахуйн үр дүн хамт хадгалагдана.</div><input style="'+plInput()+'" placeholder="СҮД код" value="'+ktEsc(r.code||'')+'" oninput="plAnnualRowSet(\''+r.id+'\',\'code\',this.value)"><textarea style="'+plInput()+'height:65px;margin-top:7px;" oninput="plAnnualRowSet(\''+r.id+'\',\'text\',this.value)">'+ktEsc(r.text||'')+'</textarea><button onclick="plAnnualRowDel(\''+r.id+'\')" style="width:100%;margin-top:7px;'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'">🗑 Энэ СҮД-ийг хасах</button></div></details>';}).join('')+'<button onclick="plAnnualAddRow(\''+m+'\','+w+')" style="width:100%;margin-top:7px;'+plBtn('#fff','#0d9488','1px dashed #5eead4')+'">＋ СҮД нэмэх</button></div></details>';}).join('')+'</div>';}
+function plAnnualRowsSectionHtml(){return (plAnnualMatrix().rows||[]).length>120?plAnnualCompactRowsHtml():plAnnualRowsHtml();}
 
-  /* 1 */
-  H+='<div style="border:1.5px solid '+(step1?'#a7f3d0':'#e5e7eb')+';background:'+(step1?'#f0fdfa':'#fff')+';border-radius:14px;padding:13px;margin-bottom:10px;">'+
-    '<div style="display:flex;gap:10px;align-items:flex-start;">'+plStepBadge(1,step1)+
-    '<div style="flex:1;min-width:0;">'+
-      '<div style="font-size:13.5px;font-weight:800;color:#1a1a2e;">Жилийн төлөвлөгөөгөө оруулах</div>'+
-      (step1
-        ? '<div style="font-size:12px;color:#0f766e;margin-top:4px;line-height:1.6;">Нийт <b>'+s.total+' СҮД</b> бэлэн — '+s.months.length+' сард хуваарилагдсан.</div>'+
-          '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">'+s.months.map(function(m){
-            return '<span style="background:#fff;border:1px solid #99f6e4;border-radius:14px;padding:3px 9px;font-size:10.5px;font-weight:800;color:#0f766e;">'+m+' сар · '+s.byMonth[m]+'</span>';}).join('')+'</div>'
-        : '<div style="font-size:12px;color:#64748b;margin-top:4px;line-height:1.6;">Excel (.xlsx) эсвэл CSV файлаа оруулна. Эсвэл доорх хүснэгтэд гараар бичнэ.</div>'+
-          '<label for="plPlanFile" style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;margin-top:10px;border:2px dashed #5eead4;border-radius:14px;background:#f0fdfa;color:#0f766e;font-size:13px;font-weight:800;cursor:pointer;">Файл сонгож оруулах</label>')+
-    '</div></div></div>';
-
-  /* 2 */
-  H+='<div style="border:1.5px solid '+(step2?'#a7f3d0':'#e5e7eb')+';background:'+(step2?'#f0fdfa':'#fff')+';border-radius:14px;padding:13px;margin-bottom:10px;'+(step1?'':'opacity:.5;')+'">'+
-    '<div style="display:flex;gap:10px;align-items:flex-start;">'+plStepBadge(2,step2)+
-    '<div style="flex:1;min-width:0;">'+
-      '<div style="font-size:13.5px;font-weight:800;color:#1a1a2e;">Сар, 7 хоногийг үүсгэх</div>'+
-      (step2
-        ? '<div style="font-size:12px;color:#0f766e;margin-top:4px;line-height:1.6;"><b>'+mr+' сар</b>, <b>'+wr+' долоо хоног</b> бэлэн боллоо.</div>'
-        : '<div style="font-size:12px;color:#64748b;margin-top:4px;line-height:1.6;">Нэг товшилтоор 9–5 сарын төлөвлөгөө болон долоо хоногийн хуваарь бүгд үүснэ.</div>')+
-      (step1?'<button onclick="plBuildAllFromYear()" style="width:100%;margin-top:10px;'+plBtn('linear-gradient(135deg,#0d9488,#14b8a6)','#fff')+'min-height:46px;font-size:13.5px;">'+(step2?'Дахин үүсгэх':'Бүх сар, 7 хоногийг үүсгэх')+'</button>':'')+
-    '</div></div></div>';
-
-  /* 3 */
-  H+='<div style="border:1.5px solid '+(step3?'#a7f3d0':'#e5e7eb')+';background:'+(step3?'#f0fdfa':'#fff')+';border-radius:14px;padding:13px;'+(step2?'':'opacity:.5;')+'">'+
-    '<div style="display:flex;gap:10px;align-items:flex-start;">'+plStepBadge(3,step3)+
-    '<div style="flex:1;min-width:0;">'+
-      '<div style="font-size:13.5px;font-weight:800;color:#1a1a2e;">Шалгаж, засах</div>'+
-      '<div style="font-size:12px;color:#64748b;margin-top:4px;line-height:1.6;">«Сар» болон «7 хоног» табаас гарсан төлөвлөгөөгөө хараад, хүссэнээрээ засна.</div>'+
-      (step2?'<div style="display:flex;gap:7px;margin-top:10px;">'+
-        '<button onclick="plSetTab(\'month\')" style="flex:1;'+plBtn('#fff','#0d9488','1px solid #99f6e4')+'">Сар харах</button>'+
-        '<button onclick="plSetTab(\'week\')" style="flex:1;'+plBtn('#fff','#0d9488','1px solid #99f6e4')+'">7 хоног харах</button></div>':'')+
-    '</div></div></div>';
-
-  H+='</div>';
-  return H;
-}
-/* Өмнөх жилийн үнэлгээ хаана байдгийг заана */
-function plAssessHintHtml(){
-  return '<div style="'+plCard()+'background:#fffbeb;border:1px solid #fde68a;">'+
-    '<div style="'+plH2()+'">Өмнөх жилийн үнэлгээг хаанаас оруулах вэ?</div>'+
-    '<div style="font-size:12.5px;color:#92400e;line-height:1.75;">'+
-      '<b>Ажиглалт</b> → хүүхдээ сонгох → <b>«Гарааны үнэлгээ»</b> таб → дээд талаас <b>5-р сар</b> сонгож бөглөнө.<br><br>'+
-      'Энэ нь зөвхөн доорх <b>«Үнэлгээний дүнгээр автоматаар»</b> хэсэгт хэрэгтэй. '+
-      'Цэцэрлэгийн батлагдсан төлөвлөгөөгөө оруулж байгаа бол <b>үнэлгээ шаардлагагүй</b>.</div>'+
-    '<button onclick="goPage(\'children\')" style="width:100%;margin-top:11px;'+plBtn('#fff','#b45309','1px solid #fde68a')+'">Хүүхдүүд рүү очих</button></div>';
-}
-function plCollapse(title,inner,openIt){
-  return '<details '+(openIt?'open':'')+' style="'+plCard()+'padding:0;overflow:hidden;">'+
-    '<summary style="padding:14px 16px;cursor:pointer;font-size:13.5px;font-weight:800;color:#1a1a2e;list-style:none;">'+title+'</summary>'+
-    '<div style="padding:0 4px 4px;">'+inner+'</div></details>';
-}
-
-function plYearHtml(){
-  return plWizardHtml()+
-    plCollapse('Гараар хүснэгт засах',plAnnualRowsHtml()+plAnnualActionsHtml(),false)+
-    plCollapse('Үнэлгээний дүнгээр автоматаар (нэмэлт арга)',plAssessHintHtml()+plAutoAnnualHtml(),false)+
-    plCollapse('Оруулсан файлууд',plYearFilesHtml(),false);
-}
+/* ---- ЖИЛИЙН ТӨЛӨВЛӨГӨӨ: хийх аргаа эхлээд сонгоно ---- */
+function plYearModeSet(v){PL.yearMode=v||'home';renderPlannerPage();}
+function plYearModeHeader(title,desc){return '<div style="'+plCard()+'padding:13px 14px;"><button onclick="plYearModeSet(\'home\')" style="'+plBtn('#fff','#475569','1px solid #e5e7eb')+'min-height:36px;padding:0 11px;margin-bottom:10px;">← Арга сонгох</button><div style="'+plH2()+'margin:0;">'+title+'</div><div style="font-size:11.5px;color:#64748b;line-height:1.6;margin-top:5px;">'+desc+'</div></div>';}
+function plYearChoiceCard(mode,icon,title,desc,note,color,bg,badge){return '<button onclick="plYearModeSet(\''+mode+'\')" style="display:block;width:100%;text-align:left;border:1px solid '+color+'55;border-radius:18px;background:'+bg+';padding:15px;margin:0 0 10px;font-family:inherit;cursor:pointer;color:#1f2937;"><div style="display:flex;gap:11px;align-items:flex-start;"><span style="font-size:26px;line-height:1;">'+icon+'</span><div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;"><b style="font-size:13.5px;color:'+color+';">'+title+'</b>'+(badge?'<span style="font-size:9.5px;font-weight:800;border-radius:14px;padding:3px 7px;background:#fff;color:'+color+';">'+badge+'</span>':'')+'</div><div style="font-size:11.5px;line-height:1.55;color:#475569;margin-top:5px;">'+desc+'</div><div style="font-size:10.5px;font-weight:700;color:'+color+';margin-top:7px;">'+note+' →</div></div></div></button>';}
+function plYearModeHomeHtml(){var files=plFiles(),a=plAnnualMatrix(),manual=(a.rows||[]).filter(function(r){return !r.autoFullYear;}).length,draft=(a.rows||[]).filter(function(r){return r.autoFullYear;}).length;return '<div style="'+plCard()+'background:linear-gradient(145deg,#f0fdfa,#fff);border:1px solid #99f6e4;"><div style="'+plH2()+'font-size:16px;margin-bottom:5px;">Жилийн төлөвлөгөөгөө яаж хийх вэ?</div><div style="font-size:11.5px;color:#64748b;line-height:1.6;">Цэцэрлэг бүрийн төлөвлөгөө өөр тул өөрт тохирох <b>нэг аргаа</b> сонгоно. Сонгосон төлөвлөгөөнөөс Сар → 7 хоног → Өдөр рүү СҮД автоматаар татагдана.</div></div>'+plYearChoiceCard('file','📗','Батлагдсан файлаас оруулах','Цэцэрлэгийнхээ бэлэн жилийн төлөвлөгөөг ашиглана. CSV файл оруулбал сарын СҮД шууд танигдана.','Хамгийн найдвартай арга','#0f766e','#f0fdfa',files.length?files.length+' файл':'Зөвлөмж')+plYearChoiceCard('manual','✏️','СҮД сангаас төлөвлөх','Бүлгийн нас, сар, долоо хоногоо сонгоод СҮД-ээ өөрөө нэмэж, засварлана.','Өөрийн онцлогт тохируулна','#2563eb','#eff6ff',manual?manual+' мөр':'')+plYearChoiceCard('draft','✨','Автомат ноорог санал','Апп 9–5 сарын эхний ноорог хуваарилалт санал болгоно. Багш заавал шалгаж, тохируулж батална.','Заавал ашиглахгүй','#7c3aed','#faf5ff',draft?draft+' ноорог':'Сонголтоор');}
+function plYearFileModeHtml(){var files=plFiles();return plYearModeHeader('📗 Батлагдсан файлаас оруулах','Танай цэцэрлэгийн батлагдсан төлөвлөгөө үндсэн эх сурвалж болно. Numbers эсвэл Excel файлаа эхлээд <b>CSV</b> болгож экспортловол апп сарын СҮД-ийг автоматаар танина.')+'<div style="'+plCard()+'"><button onclick="plDownloadAnnualTemplate()" style="width:100%;margin-bottom:10px;'+plBtn('#fff7ed','#c2410c','1px solid #fed7aa')+'">⬇️ CSV загвар татах</button><label for="plPlanFile" style="display:flex;align-items:center;justify-content:center;gap:9px;min-height:58px;border:2px dashed #5eead4;border-radius:16px;background:#f0fdfa;color:#0f766e;font-size:13px;font-weight:800;cursor:pointer;">📎 Жилийн төлөвлөгөө оруулах</label><input id="plPlanFile" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp" onchange="plUploadFile(this)" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"><div style="font-size:10.5px;color:#64748b;line-height:1.55;margin-top:9px;">CSV — СҮД автоматаар танигдана. Excel, Numbers файлыг CSV болгон экспортлоод оруулна. PDF, Word, зураг — зөвхөн лавлах файл болж хадгалагдана.</div></div><div style="'+plCard()+'"><div style="'+plH2()+'">Оруулсан файлууд ('+files.length+')</div>'+(files.length?files.map(function(f){return '<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;border:1px solid #eef0f2;border-radius:14px;padding:10px;margin-bottom:8px;"><span style="font-size:23px;">'+plFileIcon(f.name)+'</span><div style="flex:1;min-width:145px;"><div style="font-size:12px;font-weight:800;color:#1f2937;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+ktEsc(f.name)+'</div><div style="font-size:10px;color:#9ca3af;margin-top:3px;">'+plFileSize(f.size||0)+(f.sudCount?' • '+f.sudCount+' СҮД танигдсан':'')+'</div></div><button onclick="plOpenFile(\''+f.id+'\',false)" style="'+plBtn('#f0fdfa','#0d9488','1px solid #99f6e4')+'min-height:36px;padding:0 10px;">Нээх</button><button onclick="plDeleteFile(\''+f.id+'\')" aria-label="Устгах" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'width:36px;min-height:36px;">🗑</button></div>';}).join('')+'<button onclick="plSetTab(\'month\')" style="width:100%;margin-top:4px;'+plBtn('linear-gradient(135deg,#0d9488,#14b8a6)','#fff')+'">Сарын төлөвлөгөө рүү →</button>':'<div style="text-align:center;color:#9ca3af;font-size:12px;padding:22px 8px;">Одоогоор файл оруулаагүй байна.</div>')+'</div>';}
+function plAnnualSetupCompactHtml(){var a=plAnnualMatrix();return '<div style="'+plCard()+'"><div style="'+plH2()+'">Бүлгийн тохиргоо</div><div class="pl-two"><div><label style="'+plLabel()+'">Хичээлийн жил</label><input style="'+plInput()+'" value="'+ktEsc(a.schoolYear||yrSchoolYear())+'" oninput="plAnnualMetaSet(\'schoolYear\',this.value)"></div><div><label style="'+plLabel()+'">Бүлэг</label><input style="'+plInput()+'" placeholder="Бүлгийн нэр" value="'+ktEsc(a.group||'')+'" oninput="plAnnualMetaSet(\'group\',this.value)"></div></div><label style="'+plLabel()+'">Бүлгийн төрөл</label><div style="display:flex;gap:7px;">'+[['single','Дан насны'],['mixed','Холимог']].map(function(x){var on=a.classType===x[0];return '<button onclick="plAnnualClassType(\''+x[0]+'\')" style="flex:1;'+plBtn(on?'#0d9488':'#fff',on?'#fff':'#64748b','1px solid '+(on?'#0d9488':'#e5e7eb'))+'">'+x[1]+'</button>';}).join('')+'</div><label style="'+plLabel()+'">Төлөвлөх нас</label><div style="display:flex;gap:6px;flex-wrap:wrap;">'+['2','3','4','5'].map(function(age){var on=(a.ages||[]).indexOf(age)>=0;return '<button onclick="plAnnualAgeToggle(\''+age+'\')" style="min-width:62px;'+plBtn(on?'#ccfbf1':'#fff',on?'#0f766e':'#64748b','1px solid '+(on?'#5eead4':'#e5e7eb'))+'">'+age+' нас</button>';}).join('')+'</div></div>';}
+function plAnnualDraftCardHtml(){return plAnnualAutoCardHtml().replace('✨ Бүтэн жилийн автомат төлөвлөгөө','✨ Бүтэн жилийн ноорог санал').replace('Апп сонгосон насны СҮД-ийг 9–5 сарын 36 долоо хоногт үндсэн, уялдах, давтагдах төрлөөр хуваарилна.','Апп сонгосон насны СҮД-ийг 9–5 сарын 36 долоо хоногт ноорог болгон хуваарилна. Үүссэний дараа багш сар бүрийг шалгаж, өөрийн цэцэрлэгт тохируулна.').replace('✨ 9–5 сарын төлөвлөгөөг нэг дор үүсгэх','✨ 9–5 сарын ноорог санал үүсгэх').replace('Автомат төлөвлөгөөг цэвэрлэх','Ноорог саналыг цэвэрлэх');}
+function plYearManualModeHtml(){return plYearModeHeader('✏️ СҮД сангаас төлөвлөх','Бүлгийн онцлогтоо тааруулан сар, долоо хоног бүрийн СҮД-ийг өөрөө нэмнэ. СҮД код болон суралцахуйн үр дүн нэг мөрөнд хамт хадгалагдана.')+plAnnualRowsSectionHtml()+plAnnualActionsHtml();}
+function plYearDraftModeHtml(){var a=plAnnualMatrix(),has=(a.rows||[]).some(function(r){return r.autoFullYear;});return plYearModeHeader('✨ Автомат ноорог санал','Энэ нь батлагдсан төлөвлөгөө биш. Аппын гаргасан саналыг багш шалгаж, сэдэв болон СҮД-ийг өөрийн цэцэрлэгт тохируулан засна.')+plAnnualSetupCompactHtml()+plAnnualDraftCardHtml()+(has?plAnnualCompactRowsHtml()+plAnnualActionsHtml():'');}
+plYearHtml=function(){var mode=PL.yearMode||'home';if(mode==='file')return plYearFileModeHtml();if(mode==='manual')return plYearManualModeHtml();if(mode==='draft')return plYearDraftModeHtml();return plYearModeHomeHtml();};
 
 /* ---- САР ---- */
 function plAnnualSud(month){var out=[],p=plInit(),a=p.autoAnnual;if(a&&(a.rows||[]).length)(a.rows||[]).forEach(function(s){if(String(s.month)===String(month))out.push(s);});((p.annualMatrix&&p.annualMatrix.rows)||[]).forEach(function(s){if(String(s.month)===String(month)&&((s.text||'').trim()||(s.code||'').trim()))out.push({id:s.id,month:s.month,week:s.week,age:s.age,level:s.level,area:s.area,subArea:s.subArea,kind:s.kind||'main',code:s.code||'',text:s.text||'',dir:s.dir||'',sourceFileId:'annual-matrix',sourceVersion:(p.annualMatrix.version||1)});});plFiles().forEach(function(f){(f.annualSud||[]).forEach(function(s){if(String(s.month)===String(month))out.push(s);});});return out;}
@@ -7083,9 +6803,65 @@ function plLevelSummary(list){
         (k==='—'?'Түвшингүй':k+'-р түвшин'+(plLevelAge(k)?' ('+plLevelAge(k)+')':''))+': '+c[k]+'</span>';}).join('')+'</div></div>';
 }
 function plMonthSudHtml(m,mo){var src=plAnnualSud(mo),names={main:'Үндсэн',link:'Уялдах',repeat:'Давтагдах'};return '<div style="'+plCard()+'"><div style="'+plH2()+'">Жилийн файлаас СҮД татах</div><div style="font-size:12px;color:#64748b;line-height:1.55;margin-bottom:10px;">'+mo+'-р сард жилийн CSV файлаас <b>'+src.length+'</b> СҮД олдлоо.</div><button onclick="plImportMonthSud()" '+(!src.length?'disabled':'')+' style="width:100%;'+plBtn(src.length?'#ecfdf5':'#f3f4f6',src.length?'#047857':'#9ca3af','1px solid '+(src.length?'#a7f3d0':'#e5e7eb'))+'">📥 Жилийн файлаас СҮД татах</button>'+(!src.length?'<div style="font-size:10.5px;color:#9ca3af;margin-top:8px;">“Файл” хэсэгт CSV загвараар жилийн СҮД-ээ оруулна уу.</div>':'')+'</div>'+(m.sud.length?'<div style="'+plCard()+'"><div style="'+plH2()+'">Энэ сарын СҮД ('+m.sud.length+')</div>'+plLevelSummary(m.sud)+m.sud.map(function(s){return '<div style="border:1px solid #e5e7eb;border-radius:14px;padding:10px;margin-bottom:9px;border-left:4px solid '+plLevelColor(s.level)+';">'+(s.level?'<div style="font-size:10.5px;font-weight:800;color:'+plLevelColor(s.level)+';margin-bottom:5px;">'+s.level+'-р түвшин'+(plLevelAge(s.level)?' • '+plLevelAge(s.level):'')+'</div>':'')+'<div style="display:flex;gap:7px;align-items:center;"><select aria-label="СҮД төрөл" style="'+plInput()+'margin:0;flex:0 0 120px;" onchange="plMonthSudSet(\''+s.id+'\',\'kind\',this.value)">'+['main','link','repeat'].map(function(k){return '<option value="'+k+'"'+(s.kind===k?' selected':'')+'>'+names[k]+'</option>';}).join('')+'</select><input aria-label="СҮД код" style="'+plInput()+'margin:0;min-width:0;" value="'+ktEsc(s.code||'')+'" placeholder="Код" oninput="plMonthSudSet(\''+s.id+'\',\'code\',this.value)"><button onclick="plMonthSudDel(\''+s.id+'\')" aria-label="СҮД устгах" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'width:38px;min-height:38px;">🗑</button></div><textarea aria-label="СҮД тайлбар" style="'+plInput()+'height:62px;margin-top:7px;" oninput="plMonthSudSet(\''+s.id+'\',\'text\',this.value)">'+ktEsc(s.text||'')+'</textarea>'+(s.dir?'<div style="font-size:10.5px;color:#64748b;">'+ktEsc(s.dir)+'</div>':'')+'</div>';}).join('')+'<div style="font-size:10.5px;color:#9ca3af;">Татсан СҮД-үүдийг энд шууд засварлаж болно. Өөрчлөлт автоматаар хадгалагдана.</div></div>':'');}
+
+/* ---- Сарын сэдвийг AI-аар санал болгох, батлах ---- */
+function plParseAIThemeJSON(text){
+  var raw=String(text||'').trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');
+  var a=raw.indexOf('{'),b=raw.lastIndexOf('}');if(a>=0&&b>a)raw=raw.slice(a,b+1);
+  var x;try{x=JSON.parse(raw);}catch(e){throw new Error('AI хариуг уншиж чадсангүй. Дахин санал болгуулна уу.');}
+  var main=String(x.main_theme||x.mainTheme||x.theme||'').trim();
+  var subs=x.subthemes||x.subThemes||x.weekly_themes||x.weeks||[];
+  if(!Array.isArray(subs))subs=[];
+  subs=subs.map(function(v){return String(v&&typeof v==='object'?(v.title||v.theme||v.name||''):v||'').trim();}).filter(Boolean).slice(0,4);
+  while(subs.length<4)subs.push('');
+  if(!main||subs.filter(Boolean).length<4)throw new Error('AI 4 дэд сэдвийг бүрэн гаргасангүй. Дахин оролдоно уу.');
+  var wc=x.week_sud_codes||x.weekSudCodes||[];if(!Array.isArray(wc))wc=[];wc=wc.slice(0,4).map(function(v){return Array.isArray(v)?v.map(function(c){return String(c||'').trim();}).filter(Boolean):[];});while(wc.length<4)wc.push([]);
+  return {mainTheme:main,subThemes:subs,goal:String(x.goal||x.main_goal||'').trim(),weekSudCodes:wc};
+}
+function plMonthAICandidates(m,mo){var src=(m.sud||[]).length?(m.sud||[]):plAnnualSud(mo),seen={};return src.filter(function(s){var k=(s.code||'')+'|'+(s.text||'')+'|'+(s.age||s.level||'');if(seen[k]||(!(s.code||'').trim()&&!(s.text||'').trim()))return false;seen[k]=1;return true;}).slice(0,70);}
+async function plMonthAITheme(mode){
+  if(PL.monthAiBusy)return;var ym=PL.ym||plYM(),m=plMonth(ym),mo=parseInt(ym.slice(5),10),a=plAnnualMatrix();
+  if(mode==='split'&&!(m.theme||'').trim()){toast('Эхлээд гол сэдвээ бичнэ үү');return;}
+  PL.monthAiBusy=true;renderPlannerPage();
+  var ages=(a.ages||[]).length?(a.ages||[]).join(', '):(m.selectedAges||[]).join(', '),group=a.group||m.group||'цэцэрлэгийн бүлэг',candidates=plMonthAICandidates(m,mo);
+  var prompt='Монголын цэцэрлэгийн '+group+'-т зориулсан '+mo+'-р сарын сэдэвчилсэн төлөвлөгөөний ноорог гарга.\n'+
+    'Нас: '+(ages?ages+' нас':'нас заагаагүй')+'. Бүлгийн төрөл: '+(a.classType==='mixed'?'холимог':'дан насны')+'.\n'+
+    (mode==='split'?'Багшийн сонгосон гол сэдэв: "'+m.theme+'". Гол сэдвийг өөрчлөхгүй, логик дараалалтай 4 долоо хоногийн дэд сэдэв болгон задал.':'Монгол орны улирал, хүүхдийн нас, тухайн сарын онцлогт тохирох нэг гол сэдэв болон 4 долоо хоногийн дэд сэдэв санал болго.')+
+    (m.events?'\nТухайн сарын чухал арга хэмжээ: '+m.events:'')+
+    (candidates.length?'\nДараах нь аппын батлагдсан СҮД сангаас тухайн сард сонгогдсон СҮД. Шинэ код зохиохгүйгээр дэд сэдэвт тохирох долоо хоногт кодыг нь хуваарил:\n'+candidates.map(function(s){return '- '+(s.code||'Кодгүй')+' — '+(s.text||'')+(s.age?' ('+s.age+' нас)':'');}).join('\n'):'')+
+    '\nЗөвхөн дараах JSON бүтцийг буцаа. Markdown, тайлбар бүү нэм:\n{"main_theme":"...","subthemes":["...","...","...","..."],"goal":"...","week_sud_codes":[["код"],["код"],["код"],["код"]]}\nДэд сэдэв бүр товч, давхцахгүй, хүүхдэд ойлгомжтой байна. week_sud_codes-д зөвхөн дээр өгөгдсөн кодыг ашигла.';
+  try{
+    var out=await ktAI(prompt,'Чи Монголын сургуулийн өмнөх боловсролын туршлагатай арга зүйч. Зөвхөн зөв монгол хэлээр бич. Нас, улирал, орон нутгийн нөхцөлийг харгалз. СҮД код шинээр зохиохгүй.',1000);
+    var draft=plParseAIThemeJSON(out);if(mode==='split')draft.mainTheme=(m.theme||'').trim();
+    draft.createdAt=new Date().toISOString();draft.mode=mode;m.aiThemeDraft=draft;saveDB();
+  }catch(e){toast('AI: '+(e.message||'алдаа'));}
+  PL.monthAiBusy=false;renderPlannerPage();
+}
+function plMonthAIDraftSet(k,i,v){var m=plMonth(PL.ym||plYM()),d=m.aiThemeDraft;if(!d)return;if(k==='sub')d.subThemes[i]=v;else d[k]=v;saveDB();}
+function plMonthAIDiscard(){var m=plMonth(PL.ym||plYM());m.aiThemeDraft=null;saveDB();renderPlannerPage();}
+function plMonthApplyAISud(ym,d){var m=plMonth(ym),mo=parseInt(ym.slice(5),10);if(!(m.sud||[]).length){var src=plAnnualSud(mo);m.sud=src.map(function(s,i){return {id:'msai'+Date.now()+i,sourceId:s.id||'',week:s.week||'',age:s.age||'',area:s.area||'',subArea:s.subArea||s.sub||'',kind:s.kind||'main',code:s.code||'',text:s.text||'',dir:s.dir||'',level:s.level||'',sourceFileId:s.sourceFileId||'',sourceVersion:s.sourceVersion||1,teacherEdited:false};});}
+  var map={};(d.weekSudCodes||[]).forEach(function(arr,wi){(arr||[]).forEach(function(code){map[String(code).replace(/\s+/g,'').toLowerCase()]=wi+1;});});
+  (m.sud||[]).forEach(function(s,i){var k=String(s.code||'').replace(/\s+/g,'').toLowerCase(),week=map[k]||0;if(!week){var best=-1;for(var wi=0;wi<4;wi++){var score=plSimilarity((d.subThemes||[])[wi]||'',(s.area||'')+' '+(s.subArea||'')+' '+(s.text||''));if(score>best){best=score;week=wi+1;}}if(best<=0)week=(i%4)+1;}s.week=week;s.aiThemeMapped=true;});
+}
+function plSyncMonthThemesToWeeks(ym){
+  var m=plMonth(ym),weeks=plMonthWeekStarts(ym);
+  weeks.forEach(function(ws,wi){var w=plWeek(ws);w.mainTheme=m.theme||'';w.subTheme=(m.sub||[])[wi]||'';w.theme=w.subTheme||w.mainTheme;w.themeSource='month-ai';
+    [0,1,2,3,4].forEach(function(di){var ds=plAddDays(ws,di),d=plInit().days[ds];if(!d)return;if(!d.theme||d.themeSource==='month-ai')d.theme=w.mainTheme;if(!d.subTheme||d.themeSource==='month-ai')d.subTheme=w.subTheme;d.themeSource='month-ai';});
+  });
+}
+function plMonthAIApprove(){
+  var ym=PL.ym||plYM(),m=plMonth(ym),d=m.aiThemeDraft;if(!d)return;
+  if(!(d.mainTheme||'').trim()||(d.subThemes||[]).filter(function(x){return (x||'').trim();}).length<4){toast('Гол сэдэв болон 4 дэд сэдвээ бүрэн оруулна уу');return;}
+  m.theme=d.mainTheme.trim();m.sub=d.subThemes.slice(0,4).map(function(x){return x.trim();});if(d.goal)m.goals=d.goal;plMonthApplyAISud(ym,d);
+  m.aiThemeApprovedAt=new Date().toISOString();m.aiThemeSource='ai-approved';m.aiThemeDraft=null;plSyncMonthThemesToWeeks(ym);saveDB();if((m.sud||[]).length)plCreateWeeksFromMonth(ym);toast('Сэдэв, дэд сэдэв, СҮД-ийн хуваарилалт батлагдлаа ✓');renderPlannerPage();
+}
+function plMonthAIHtml(m,ym){var d=m.aiThemeDraft,b=!!PL.monthAiBusy;return '<div style="'+plCard()+'border:1px solid #c4b5fd;background:linear-gradient(145deg,#faf5ff,#fff);"><div style="display:flex;align-items:flex-start;gap:9px;"><span style="font-size:23px;">✨</span><div style="flex:1;"><div style="'+plH2()+'margin:0;">AI сэдвийн туслах</div><div style="font-size:11.5px;color:#64748b;line-height:1.6;margin-top:4px;">Гол сэдвийг санал болгох эсвэл багшийн бичсэн сэдвийг 4 долоо хоногт задална. Эцэслэхээс өмнө багш засаж батална.</div></div></div>'+
+  '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px;"><button onclick="plMonthAITheme(\'suggest\')" '+(b?'disabled':'')+' style="flex:1;min-width:145px;'+plBtn(b?'#e2e8f0':'#7c3aed','#fff')+'">'+(b?'✨ Бэлтгэж байна...':'✨ Гол сэдэв санал болгох')+'</button><button onclick="plMonthAITheme(\'split\')" '+(b?'disabled':'')+' style="flex:1;min-width:165px;'+plBtn('#fff','#7c3aed','1px solid #c4b5fd')+'">Миний сэдвийг 4 хуваах</button></div>'+
+  (m.aiThemeApprovedAt?'<div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:11px;padding:9px;margin-top:9px;font-size:10.5px;color:#047857;font-weight:700;">✓ AI санал багшаар батлагдсан • '+new Date(m.aiThemeApprovedAt).toLocaleString('mn-MN')+'</div>':'')+
+  (d?'<div style="background:#fff;border:1px solid #ddd6fe;border-radius:14px;padding:11px;margin-top:11px;"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;"><b style="font-size:11.5px;color:#7c3aed;">AI НООРОГ САНАЛ</b><span style="font-size:9.5px;color:#9ca3af;">Засаж болно</span></div><label style="'+plLabel()+'">Гол сэдэв</label><input style="'+plInput()+'" value="'+ktEsc(d.mainTheme||'')+'" oninput="plMonthAIDraftSet(\'mainTheme\',0,this.value)"><label style="'+plLabel()+'">4 долоо хоногийн дэд сэдэв</label>'+d.subThemes.map(function(x,i){return '<input style="'+plInput()+'margin-bottom:7px;" value="'+ktEsc(x)+'" placeholder="'+(i+1)+'-р долоо хоног" oninput="plMonthAIDraftSet(\'sub\','+i+',this.value)">';}).join('')+'<label style="'+plLabel()+'">Сарын гол зорилго</label><textarea style="'+plInput()+'height:64px;" oninput="plMonthAIDraftSet(\'goal\',0,this.value)">'+ktEsc(d.goal||'')+'</textarea><div style="display:flex;gap:7px;margin-top:10px;"><button onclick="plMonthAIApprove()" style="flex:1;'+plBtn('linear-gradient(135deg,#0d9488,#14b8a6)','#fff')+'">✓ Батлаад 7 хоногт оруулах</button><button onclick="plMonthAIDiscard()" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'padding:0 12px;">Цуцлах</button></div></div>':'')+'</div>';}
 function plMonthHtml(){
   var ym=PL.ym||plYM(),m=plMonth(ym),y=ym.slice(0,4),mo=parseInt(ym.slice(5),10);
-  return plMiniCal()+plMonthSudHtml(m,mo)+plDistributionHtml(ym)+
+  return plMiniCal()+plMonthAIHtml(m,ym)+plMonthSudHtml(m,mo)+plDistributionHtml(ym)+
     '<div style="'+plCard()+'"><div style="'+plH2()+'">'+y+' оны '+mo+'-р сарын төлөвлөгөө</div>'+
       plStatusPicker('month',ym,m.status)+
       '<label style="'+plLabel()+'" for="plMTh">Гол сэдэв</label>'+
@@ -7203,11 +6979,12 @@ function plTplHtml(){
 function plAiHtml(){
   var f=PL.aiForm;
   return '<div style="'+plCard()+'"><div style="'+plH2()+'">✨ AI-аар төлөвлөгөө үүсгэх</div>'+
+    ((f.mainTheme||f.subTheme||f.sudText)?'<div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:13px;padding:10px;margin-bottom:11px;font-size:11px;color:#0f766e;line-height:1.6;"><b>Өдрийн төлөвлөгөөнөөс автоматаар авсан:</b>'+(f.mainTheme?'<br>Гол сэдэв: '+ktEsc(f.mainTheme):'')+(f.subTheme?'<br>7 хоногийн дэд сэдэв: '+ktEsc(f.subTheme):'')+(f.sudText?'<br>СҮД: '+f.sudText.split('\n').length+' сонгогдсон':'')+'<br><span style="color:#64748b;">AI зөвхөн эдгээр СҮД-д тулгуурлан үйл ажиллагааг дэлгэрүүлнэ.</span></div>':'')+
     '<div class="pl-two">'+
       '<div><label style="'+plLabel()+'" for="plAiAge">Нас</label><select id="plAiAge" style="'+plInput()+'" onchange="plAiSet(\'age\',this.value)">'+plAgeOpts(f.age)+'</select></div>'+
       '<div><label style="'+plLabel()+'" for="plAiCnt">Үйл ажиллагааны тоо</label><select id="plAiCnt" style="'+plInput()+'" onchange="plAiSet(\'count\',this.value)">'+
         ['3','4','5','6'].map(function(x){return '<option'+(f.count===x?' selected':'')+'>'+x+'</option>';}).join('')+'</select></div></div>'+
-    '<label style="'+plLabel()+'" for="plAiTh">Гол сэдэв</label>'+
+    '<label style="'+plLabel()+'" for="plAiTh">Энэ өдрийн сэдэв</label>'+
     '<input id="plAiTh" style="'+plInput()+'" placeholder="Жишээ: Намар, Ус, Гэр бүл" value="'+ktEsc(f.theme||'')+'" oninput="plAiSet(\'theme\',this.value)">'+
     '<label style="'+plLabel()+'">Суралцахуйн чиглэл</label>'+
     '<div style="display:flex;flex-wrap:wrap;gap:6px;">'+SECTIONS.map(function(s){var on=(f.domains||[]).indexOf(s.cls)>=0;
