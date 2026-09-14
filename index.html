@@ -2175,7 +2175,7 @@ async function joinTeam(){
 
 /* ===== Арга зүйчийн хяналтын самбар ===== */
 var MD={requests:[],profiles:{},data:{},feedback:[],selected:null,loading:false};
-function mdIsMethodologist(){return !!(DB.user&&(DB.user.plan==='kinder'||DB.user.plan==='kinder_year'));}
+function mdIsMethodologist(){return ktIsOwner()||!!(DB.user&&(DB.user.plan==='kinder'||DB.user.plan==='kinder_year'));}
 function mdInitial(name){return ((name||'Б').trim().charAt(0)||'Б').toUpperCase();}
 function mdDate(s){if(!s)return '—';try{return new Date(s).toLocaleDateString('mn-MN');}catch(e){return String(s);}}
 function mdLeafCount(v){
