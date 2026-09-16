@@ -1859,7 +1859,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
   <div class="modal-sh" style="max-height:85vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <div class="modal-title">👥 Миний баг</div>
-    <div class="modal-sub">Багш нартаа доорх кодыг өгнө үү (5 хүртэл)</div>
+    <div class="modal-sub">Багш нартаа доорх кодыг өгнө үү (10 хүртэл)</div>
     <div id="teamCodeBox"></div>
     <div id="teamList" style="margin-top:10px;"></div>
     <button onclick="closeModal('modal-team')" style="width:100%;padding:11px;border:none;background:#f1f5f9;color:#64748b;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;margin-top:10px;">Хаах</button>
@@ -2290,7 +2290,7 @@ async function openTeam(){
 function renderTeam(list){
   var w=$('teamList');if(!w)return;w.innerHTML='';
   var head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;';
-  head.innerHTML='<span style="font-weight:700;font-size:13px;">Багш нар ('+list.length+'/5)</span>';
+  head.innerHTML='<span style="font-weight:700;font-size:13px;">Багш нар ('+list.length+'/10)</span>';
   if(list.length){var rf=document.createElement('button');rf.textContent='Хугацаа шинэчлэх';rf.style.cssText='border:none;background:#f1f5f9;color:#475569;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:700;';rf.onclick=refreshTeam;head.appendChild(rf);}
   w.appendChild(head);
   if(!list.length){var e=document.createElement('div');e.className='note-disclaimer';e.style.textAlign='center';e.textContent='Одоогоор багш нэгдээгүй байна. Кодоо багш нартаа өгнө үү.';w.appendChild(e);return;}
