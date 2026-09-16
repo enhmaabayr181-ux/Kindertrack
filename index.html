@@ -1195,6 +1195,10 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 .md-advice-card{border:1px solid #e5e7eb;border-radius:11px;padding:9px;margin-bottom:6px}.md-advice-card>div{font-size:8.5px;font-weight:800;color:#6d28d9}.md-advice-card p{font-size:10px;line-height:1.5;color:#475569;margin:5px 0 0;white-space:pre-wrap}
 @media(max-width:430px){.md-detail-grid--6{grid-template-columns:repeat(2,1fr)!important}.md-assess-row{grid-template-columns:1.45fr repeat(3,.7fr)}}
 
+
+.rg-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rg-role{border:1.5px solid #e5e7eb;background:#fff;border-radius:15px;padding:11px 9px;text-align:left;font-family:inherit;color:#475569;cursor:pointer;min-height:104px}.rg-role.on{border-color:#0d9488;background:#f0fdfa;box-shadow:0 0 0 2px rgba(13,148,136,.08)}.rg-role-ic{display:block;font-size:22px;margin-bottom:5px}.rg-role b{display:block;font-size:13px;color:#1f2937}.rg-role.on b{color:#0f766e}.rg-role small{display:block;font-size:9.5px;line-height:1.35;color:#94a3b8;margin-top:4px}.rg-role-note{font-size:10.5px;line-height:1.45;color:#64748b;margin-top:7px;background:#f8fafc;border-radius:10px;padding:8px 9px}
+@media(max-width:380px){.rg-role-grid{grid-template-columns:1fr}.rg-role{min-height:auto}}
+
 </style>
 </head>
 <body>
@@ -1257,9 +1261,22 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       <div class="auth-title">Бүртгүүлэх</div>
       <div class="auth-sub">Эхний 7 хоног үнэгүй</div>
       <div id="reg-err"></div>
+      <div class="f-group">
+        <label class="f-label">Та ямар эрхээр бүртгүүлэх вэ?</label>
+        <div class="rg-role-grid">
+          <button type="button" id="rg-role-teacher" class="rg-role on" onclick="ktSetRegisterRole('teacher')">
+            <span class="rg-role-ic">👩‍🏫</span><b>Багш</b><small>Хүүхэд, ажиглалт, үнэлгээ, төлөвлөлт</small>
+          </button>
+          <button type="button" id="rg-role-methodologist" class="rg-role" onclick="ktSetRegisterRole('methodologist')">
+            <span class="rg-role-ic">🧭</span><b>Арга зүйч</b><small>Багш, анги, үнэлгээ, тайлангийн хяналт</small>
+          </button>
+        </div>
+        <input type="hidden" id="rg-role" value="teacher">
+        <div id="rg-role-note" class="rg-role-note">Багшаар бүртгүүлээд өөрийн анги, хүүхдүүдтэй ажиллана.</div>
+      </div>
       <div class="f-group"><label class="f-label">Бүтэн нэр</label><input class="f-input" type="text" id="rg-name" placeholder="Дорж Баатар"></div>
       <div class="f-group"><label class="f-label">Цэцэрлэгийн нэр</label><input class="f-input" type="text" id="rg-kinder" placeholder="Нарны туяа цэцэрлэг"></div>
-      <div class="f-group"><label class="f-label">Анги бүлэг</label><select class="f-select" id="rg-group"><option value="">Сонгох</option><option>Бага бүлэг</option><option>Дунд бүлэг</option><option>Ахлах бүлэг</option><option>Бэлтгэл бүлэг</option><option>Холимог бүлэг</option></select></div>
+      <div class="f-group" id="rg-group-wrap"><label class="f-label">Анги бүлэг</label><select class="f-select" id="rg-group"><option value="">Сонгох</option><option>Бага бүлэг</option><option>Дунд бүлэг</option><option>Ахлах бүлэг</option><option>Бэлтгэл бүлэг</option><option>Холимог бүлэг</option></select></div>
       <div class="f-group"><label class="f-label">Утасны дугаар</label><input class="f-input" type="tel" id="rg-phone" placeholder="9911XXXX"></div>
       <div class="f-group"><label class="f-label">И-мэйл</label><input class="f-input" type="email" id="rg-email" placeholder="bagsh@email.mn"></div>
       <div class="f-group"><label class="f-label">Нууц үг</label><input class="f-input" type="password" id="rg-pass" placeholder="••••••••"></div>
@@ -1445,7 +1462,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
         <div class="st-profile__id">
           <div class="st-profile__name" id="setName">—</div>
           <div class="st-profile__email" id="setEmail">—</div>
-          <div class="st-profile__row"><span class="st-badge" id="setKinder">—</span><span class="st-phone" id="setPhone">—</span></div>
+          <div class="st-profile__row"><span class="st-badge" id="setKinder">—</span><span class="st-phone" id="setPhone">—</span></div><div id="setRoleBadge" style="margin-top:7px;font-size:10.5px;font-weight:800;color:#6d28d9;"></div>
           <button type="button" onclick="openEditProfile()" style="margin-top:10px;border:1px solid #eceef0;background:#fff;color:#0d9488;border-radius:12px;padding:0 14px;min-height:40px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;">✏️ Мэдээлэл засах</button>
         </div>
       </div>
@@ -2242,7 +2259,7 @@ async function joinTeam(){
 
 /* ===== Арга зүйчийн хяналтын самбар ===== */
 var MD={requests:[],profiles:{},data:{},feedback:[],selected:null,tab:'overview',loading:false};
-function mdIsMethodologist(){return !!(DB.user&&(DB.user.plan==='kinder'||DB.user.plan==='kinder_year'));}
+function mdIsMethodologist(){return !!(DB.user&&(DB.user.plan==='kinder'||DB.user.plan==='kinder_year'||DB.user.accountRole==='methodologist'));}
 function mdInitial(name){return ((name||'Б').trim().charAt(0)||'Б').toUpperCase();}
 function mdDate(s){if(!s)return '—';try{return new Date(s).toLocaleDateString('mn-MN');}catch(e){return String(s);}}
 function mdLeafCount(v){
@@ -3104,10 +3121,26 @@ async function doLogin(){
   $('login-err').innerHTML='';
   enterApp();
 }
+
+function ktSetRegisterRole(role){
+  role=(role==='methodologist')?'methodologist':'teacher';
+  var inp=$('rg-role');if(inp)inp.value=role;
+  var tb=$('rg-role-teacher'),mb=$('rg-role-methodologist'),gw=$('rg-group-wrap'),note=$('rg-role-note');
+  if(tb)tb.classList.toggle('on',role==='teacher');
+  if(mb)mb.classList.toggle('on',role==='methodologist');
+  if(gw)gw.style.display=role==='teacher'?'block':'none';
+  if(role==='methodologist'&&$('rg-group'))$('rg-group').value='';
+  if(note)note.innerHTML=role==='methodologist'
+    ?'Арга зүйчээр бүртгүүлбэл <b>Арга зүйчийн самбар</b> шууд нээгдэж, багш нараа багийн кодоор холбоно.'
+    :'Багшаар бүртгүүлээд өөрийн анги, хүүхдүүдтэй ажиллана.';
+}
+
 async function doRegister(){
   var name=$('rg-name').value.trim(),kinder=$('rg-kinder').value.trim(),phone=$('rg-phone').value.trim(),email=$('rg-email').value.trim(),pass=$('rg-pass').value;
+  var role=($('rg-role')&&$('rg-role').value)||'teacher';
   var grp=($('rg-group')&&$('rg-group').value)||'';
   if(!name||!kinder||!phone||!email||!pass){$('reg-err').innerHTML='<div class="err-msg">Бүх талбарыг бөглөнө үү</div>';return;}
+  if(role==='teacher'&&!grp){$('reg-err').innerHTML='<div class="err-msg">Багш бол анги бүлгээ сонгоно уу</div>';return;}
   if(pass.length<6){$('reg-err').innerHTML='<div class="err-msg">Нууц үг 6-аас дээш тэмдэгт байх ёстой</div>';return;}
   $('reg-err').innerHTML='<div style="color:#9ca3af;font-size:13px;padding:6px 0;">Бүртгэж байна...</div>';
   var res=await ktSB.auth.signUp({email:email,password:pass});
@@ -3124,12 +3157,28 @@ async function doRegister(){
   loadDB();
   var prof=await ktEnsureProfile({name:name,kinder:kinder,phone:phone});
   if(!prof){$('reg-err').innerHTML='<div class="err-msg">Профайл үүсгэхэд алдаа гарлаа</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+(ktLastErr||'profiles хүснэгт үүсгэсэн SQL ажилласан эсэхээ шалгаарай')+'</div>';return;}
+  // Бүртгэлийн эрхийг хадгална.
+  // Одоогийн schema-д role багана байхгүй тул:
+  // teacher -> trial, methodologist -> kinder гэж одоогийн plan талбарыг ашиглана.
+  var upd={teacher_group:role==='teacher'?grp:null};
+  if(role==='methodologist'){
+    upd.plan='kinder';
+    if(!prof.team_code)upd.team_code=ktGenCode();
+  }
+  var ur=await ktSB.from('profiles').update(upd).eq('id',prof.id).select().single();
+  if(ur.error){
+    $('reg-err').innerHTML='<div class="err-msg">Эрхийн төрөл хадгалахад алдаа гарлаа</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;">⚙ '+ktEsc(ur.error.message||'')+'</div>';
+    return;
+  }
+  prof=ur.data||prof;
   ktApplyProfile(prof);
-  if(grp){try{await ktSB.from('profiles').update({teacher_group:grp}).eq('id',prof.id);}catch(e){}}
   if(!(await ktRegisterDevice(prof))){await ktBlockDevice();return;}
   await ktPullData(prof.id);
   $('reg-err').innerHTML='';
   enterApp();
+  if(role==='methodologist'){
+    setTimeout(function(){try{goPage('methodologist');}catch(e){}},120);
+  }
 }
 /* Trial дууссаны дараа төлбөр төлсний дараа дахин шалгах */
 async function recheckProfile(){
@@ -3170,6 +3219,7 @@ function enterApp(){
   $('userAvatar').textContent=DB.user.name?DB.user.name[0]:'Б';
   $('setName').textContent=DB.user.name;$('setEmail').textContent=DB.user.email;$('setKinder').textContent=DB.user.kinder;
   if($('setPhone'))$('setPhone').textContent=DB.user.phone||'—';
+  if($('setRoleBadge'))$('setRoleBadge').textContent=mdIsMethodologist()?'🧭 Арга зүйчийн эрх':'👩‍🏫 Багшийн эрх';
   $('setUserName').textContent=DB.user.name;
   ktApplyOwnerUI();
   ktCheckPushState();ktRefreshChatState();
