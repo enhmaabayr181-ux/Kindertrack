@@ -1199,6 +1199,11 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 .rg-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rg-role{border:1.5px solid #e5e7eb;background:#fff;border-radius:15px;padding:11px 9px;text-align:left;font-family:inherit;color:#475569;cursor:pointer;min-height:104px}.rg-role.on{border-color:#0d9488;background:#f0fdfa;box-shadow:0 0 0 2px rgba(13,148,136,.08)}.rg-role-ic{display:block;font-size:22px;margin-bottom:5px}.rg-role b{display:block;font-size:13px;color:#1f2937}.rg-role.on b{color:#0f766e}.rg-role small{display:block;font-size:9.5px;line-height:1.35;color:#94a3b8;margin-top:4px}.rg-role-note{font-size:10.5px;line-height:1.45;color:#64748b;margin-top:7px;background:#f8fafc;border-radius:10px;padding:8px 9px}
 @media(max-width:380px){.rg-role-grid{grid-template-columns:1fr}.rg-role{min-height:auto}}
 
+
+.md-role-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 16px 10px}.md-role-head b{display:block;font-size:21px;color:#1f2937}.md-role-head span{display:block;font-size:10.5px;color:#64748b;line-height:1.45;margin-top:3px}.md-role-head button{border:1px solid #ddd6fe;background:#f5f3ff;color:#6d28d9;border-radius:10px;width:38px;height:38px;font-size:18px}.md-page-summary{margin:0 16px 12px;background:linear-gradient(135deg,#f5f3ff,#ecfdf5);border:1px solid #ddd6fe;border-radius:14px;padding:11px}.md-page-summary b{display:block;font-size:12px;color:#5b21b6}.md-page-summary span{display:block;font-size:9.5px;color:#64748b;margin-top:3px;line-height:1.45}.md-role-card,.md-control-card,.md-report-teacher{margin-left:16px;margin-right:16px}
+.md-control-card{background:#fff;border:1px solid #e5e7eb;border-radius:15px;padding:12px;margin-bottom:9px;box-shadow:0 2px 8px rgba(16,24,40,.05)}.md-control-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.md-control-grid>div{background:#f8fafc;border-radius:10px;padding:8px;text-align:center}.md-control-grid b{display:block;font-size:13px;color:#334155}.md-control-grid span{font-size:7.5px;color:#94a3b8}.md-issue-list{display:flex;flex-direction:column;gap:4px;margin-top:8px}.md-issue-list span{font-size:9px;color:#c2410c;background:#fff7ed;border-radius:8px;padding:6px 7px}.md-good-line{font-size:9px;color:#047857;background:#ecfdf5;border-radius:8px;padding:6px 7px;margin-top:8px}.md-control-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}.md-control-actions button{min-height:34px;border:1px solid #e5e7eb;background:#fff;border-radius:9px;font-family:inherit;font-size:8.5px;font-weight:800;color:#475569}
+.md-report-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 16px 10px}.md-report-hero>div{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px;text-align:center}.md-report-hero span{display:block;font-size:7.5px;color:#94a3b8}.md-report-hero b{display:block;font-size:16px;color:#6d28d9;margin-top:2px}.md-combined-print{display:block;width:calc(100% - 32px);margin:0 16px 11px;min-height:42px;border:0;border-radius:11px;background:#5b21b6;color:#fff;font-family:inherit;font-size:10.5px;font-weight:900}.md-report-teacher{background:#fff;border:1px solid #e5e7eb;border-radius:15px;padding:12px;margin-bottom:9px}.md-report-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:9px}.md-report-metrics>div{background:#f8fafc;border-radius:9px;padding:7px;text-align:center}.md-report-metrics b{display:block;font-size:12px;color:#334155}.md-report-metrics span{font-size:7px;color:#94a3b8}.md-report-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.md-report-actions button{min-height:36px;border-radius:9px;border:1px solid #ddd6fe;background:#f5f3ff;color:#6d28d9;font-family:inherit;font-size:9px;font-weight:800}.md-report-actions button:last-child{background:#fff;color:#475569;border-color:#e5e7eb}
+
 </style>
 </head>
 <body>
@@ -1452,6 +1457,31 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       <div id="mdTeacherList"></div>
     </div>
 
+
+    <div class="page" id="pg-mdteachers">
+      <div class="md-role-head">
+        <div><b>Багш нар</b><span>Багш → анги → хүүхэд → ажиглалт, үнэлгээ, төлөвлөлт</span></div>
+        <button onclick="loadMethodologistDashboard(true);setTimeout(renderMdTeachersPage,120)">↻</button>
+      </div>
+      <div id="mdTeachersPage"></div>
+    </div>
+
+    <div class="page" id="pg-mdcontrol">
+      <div class="md-role-head">
+        <div><b>Хяналтын төв</b><span>Багш нарын ажиглалт, үнэлгээ, төлөвлөлт, тайлангийн бүрдэл</span></div>
+        <button onclick="loadMethodologistDashboard(true);setTimeout(renderMdControlPage,120)">↻</button>
+      </div>
+      <div id="mdControlPage"></div>
+    </div>
+
+    <div class="page" id="pg-mdreports">
+      <div class="md-role-head">
+        <div><b>Арга зүйчийн тайлан</b><span>Багш бүрийн болон нийт багийн хяналтын тайлан</span></div>
+        <button onclick="loadMethodologistDashboard(true);setTimeout(renderMdReportsPage,120)">↻</button>
+      </div>
+      <div id="mdReportsPage"></div>
+    </div>
+
     <div class="page" id="pg-settings">
       <div class="st-header">
         <div class="st-title">Тохиргоо</div>
@@ -1527,11 +1557,11 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
   </div>
 
   <div class="bottom-nav">
-    <button class="nav-item active" onclick="goPage('dashboard')" id="nv-dashboard"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>Нүүр</button>
-    <button class="nav-item" onclick="goPage('children')" id="nv-children"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>Хүүхдүүд</button>
-    <button class="nav-item" style="display:none" onclick="goPage('methodologist')" id="nv-methodologist"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 16 4-4 3 3 5-7"/></svg></div>Арга зүйч</button>
-    <button class="nav-item" onclick="goPage('reports')" id="nv-reports"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>Тайлан</button>
-    <button class="nav-item" onclick="goPage('settings')" id="nv-settings"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>Тохиргоо</button>
+    <button class="nav-item active" onclick="goRoleNav('home')" id="nv-dashboard"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span id="nvTxtDashboard">Нүүр</span></button>
+    <button class="nav-item" onclick="goRoleNav('people')" id="nv-children"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><span id="nvTxtChildren">Хүүхдүүд</span></button>
+    <button class="nav-item" style="display:none" onclick="goRoleNav('control')" id="nv-methodologist"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 16 4-4 3 3 5-7"/></svg></div><span id="nvTxtMethodologist">Арга зүйч</span></button>
+    <button class="nav-item" onclick="goRoleNav('reports')" id="nv-reports"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div><span id="nvTxtReports">Тайлан</span></button>
+    <button class="nav-item" onclick="goRoleNav('settings')" id="nv-settings"><div class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>Тохиргоо</button>
   </div>
 </div>
 
@@ -3224,14 +3254,103 @@ function enterApp(){
   ktApplyOwnerUI();
   ktCheckPushState();ktRefreshChatState();
   var isMd=mdIsMethodologist();
+  ktApplyRoleNav();
   if($('teamSetItem'))$('teamSetItem').style.display=isMd?'flex':'none';
-  if($('nv-methodologist'))$('nv-methodologist').style.display=isMd?'flex':'none';
   if($('joinTeamSetItem'))$('joinTeamSetItem').style.display=isMd?'none':'flex';
   if($('teacherAdviceSetItem'))$('teacherAdviceSetItem').style.display=isMd?'none':'flex';
   if(!isMd)mdRefreshTeacherAdviceBadge();
   var h=new Date().getHours(),g=h<12?'Өглөөний мэнд 👋':h<17?'Өдрийн мэнд ☀️':'Оройн мэнд 🌙';
   $('dashGreet').textContent=g+', '+DB.user.name+'!';
-  showScreen('app');renderDashboard();
+  showScreen('app');if(isMd){goPage('methodologist');}else{renderDashboard();}
+}
+
+
+function ktApplyRoleNav(){
+  var md=mdIsMethodologist();
+  var dash=$('nv-dashboard'),kids=$('nv-children'),ctrl=$('nv-methodologist'),rep=$('nv-reports');
+  if(dash)dash.style.display='flex';
+  if(kids)kids.style.display='flex';
+  if(ctrl)ctrl.style.display=md?'flex':'none';
+  if(rep)rep.style.display='flex';
+  if($('nvTxtDashboard'))$('nvTxtDashboard').textContent=md?'Арга зүйч':'Нүүр';
+  if($('nvTxtChildren'))$('nvTxtChildren').textContent=md?'Багш нар':'Хүүхдүүд';
+  if($('nvTxtMethodologist'))$('nvTxtMethodologist').textContent=md?'Хяналт':'Арга зүйч';
+  if($('nvTxtReports'))$('nvTxtReports').textContent=md?'Тайлан':'Тайлан';
+}
+function goRoleNav(slot){
+  var md=mdIsMethodologist();
+  if(!md){
+    var mp={home:'dashboard',people:'children',reports:'reports',settings:'settings',control:'dashboard'};
+    goPage(mp[slot]||'dashboard');return;
+  }
+  var mm={home:'methodologist',people:'mdteachers',control:'mdcontrol',reports:'mdreports',settings:'settings'};
+  goPage(mm[slot]||'methodologist');
+}
+function mdApprovedRequests(){
+  return (MD.requests||[]).filter(function(x){return x.status==='approved';});
+}
+function mdTeacherCard(uid,compact){
+  var p=MD.profiles[uid]||{},row=MD.data[uid]||{},m=mdMetrics(row.data||{}),warn=[];
+  if(!m.monthObs)warn.push('ажиглалт');
+  if(m.initial.completePct<100)warn.push('гарааны үнэлгээ');
+  if(!m.planStats.curDays)warn.push('төлөвлөлт');
+  return '<div class="md-teacher md-role-card"><div class="md-row"><div class="md-avatar">'+mdInitial(p.name)+'</div><div class="md-grow"><div class="md-name">'+ktEsc(p.name||'Багш')+'</div><div class="md-meta">'+ktEsc(p.teacher_group||'Бүлэг оруулаагүй')+' · '+ktEsc(p.kinder||DB.user.kinder||'Цэцэрлэг')+'</div></div>'+(warn.length?'<span class="md-warn-pill">Нягтлах</span>':'<span class="md-ok-pill">Хэвийн</span>')+'</div>'+
+    '<div class="md-mini md-mini--6"><div><b>'+m.children+'</b><span>хүүхэд</span></div><div><b>'+m.monthObs+'</b><span>ажиглалт</span></div><div><b>'+m.coverage+'%</b><span>хамрагдалт</span></div><div><b>'+m.initial.completePct+'%</b><span>гарааны</span></div><div><b>'+m.planStats.curDays+'</b><span>өдөр</span></div><div><b>'+m.planStats.monthSud+'</b><span>сарын СҮД</span></div></div>'+
+    (warn.length?'<div class="md-attention-line">⚠ Нягтлах: '+warn.join(', ')+'</div>':'')+
+    '<button class="md-btn md-btn--view" onclick="openMethodologistTeacher(\''+uid+'\')">Багшийн ажлыг нээх →</button></div>';
+}
+function renderMdTeachersPage(){
+  var root=$('mdTeachersPage');if(!root)return;
+  var arr=mdApprovedRequests();
+  root.innerHTML='<div class="md-page-summary"><b>'+arr.length+' багш</b><span>Багш бүрийн анги, хүүхэд, ажиглалт, үнэлгээ, төлөвлөлтийг нээнэ.</span></div>'+
+    (arr.length?arr.map(function(r){return mdTeacherCard(r.teacher_id,false);}).join(''):'<div class="md-empty">Одоогоор холбогдсон багш байхгүй.</div>');
+}
+function renderMdControlPage(){
+  var root=$('mdControlPage');if(!root)return;
+  var arr=mdApprovedRequests(),rows=[],attention=0;
+  arr.forEach(function(r){
+    var p=MD.profiles[r.teacher_id]||{},m=mdMetrics((MD.data[r.teacher_id]||{}).data||{});
+    var issues=[];
+    if(!m.monthObs)issues.push('Энэ сарын ажиглалт алга');
+    if(m.initial.completePct<100)issues.push('Гарааны үнэлгээ '+m.initial.completePct+'%');
+    if(!m.planStats.curDays)issues.push('Энэ сарын өдрийн төлөвлөгөө алга');
+    if(issues.length)attention++;
+    rows.push('<div class="md-control-card"><div class="md-row"><div class="md-avatar">'+mdInitial(p.name)+'</div><div class="md-grow"><div class="md-name">'+ktEsc(p.name||'Багш')+'</div><div class="md-meta">'+ktEsc(p.teacher_group||'Бүлэг')+'</div></div><span class="'+(issues.length?'md-warn-pill':'md-ok-pill')+'">'+(issues.length?'Нягтлах':'Хэвийн')+'</span></div>'+
+      '<div class="md-control-grid"><div><b>'+m.monthObs+'</b><span>ажиглалт</span></div><div><b>'+m.initial.completePct+'%</b><span>гарааны үнэлгээ</span></div><div><b>'+m.planStats.curWeeks+'</b><span>7 хоног</span></div><div><b>'+m.planStats.curDays+'</b><span>өдөр</span></div></div>'+
+      (issues.length?'<div class="md-issue-list">'+issues.map(function(x){return '<span>⚠ '+ktEsc(x)+'</span>';}).join('')+'</div>':'<div class="md-good-line">✓ Үндсэн хяналтын үзүүлэлтүүд хэвийн</div>')+
+      '<div class="md-control-actions"><button onclick="openMethodologistTeacher(\''+r.teacher_id+'\');setTimeout(function(){mdTeacherTab(\'observation\')},50)">Ажиглалт</button><button onclick="openMethodologistTeacher(\''+r.teacher_id+'\');setTimeout(function(){mdTeacherTab(\'assessment\')},50)">Үнэлгээ</button><button onclick="openMethodologistTeacher(\''+r.teacher_id+'\');setTimeout(function(){mdTeacherTab(\'planning\')},50)">Төлөвлөлт</button><button onclick="openMethodologistTeacher(\''+r.teacher_id+'\');setTimeout(function(){mdTeacherTab(\'report\')},50)">Тайлан</button></div></div>');
+  });
+  root.innerHTML='<div class="md-page-summary"><b>'+attention+' / '+arr.length+' багш нягтлах</b><span>Ажиглалт → үнэлгээ → төлөвлөлт → тайлангийн бүрдлийг хянана.</span></div>'+
+    (rows.length?rows.join(''):'<div class="md-empty">Хяналт хийх багш байхгүй.</div>');
+}
+function renderMdReportsPage(){
+  var root=$('mdReportsPage');if(!root)return;
+  var arr=mdApprovedRequests(),totKids=0,totObs=0,avgIni=0,avgCov=0;
+  var cards=arr.map(function(r){
+    var p=MD.profiles[r.teacher_id]||{},m=mdMetrics((MD.data[r.teacher_id]||{}).data||{});
+    totKids+=m.children;totObs+=m.monthObs;avgIni+=m.initial.completePct;avgCov+=m.coverage;
+    return '<div class="md-report-teacher"><div class="md-row"><div class="md-avatar">'+mdInitial(p.name)+'</div><div class="md-grow"><div class="md-name">'+ktEsc(p.name||'Багш')+'</div><div class="md-meta">'+ktEsc(p.teacher_group||'Бүлэг')+' · '+m.children+' хүүхэд</div></div></div>'+
+      '<div class="md-report-metrics"><div><b>'+m.monthObs+'</b><span>энэ сарын ажиглалт</span></div><div><b>'+m.initial.completePct+'%</b><span>гарааны үнэлгээ</span></div><div><b>'+m.coverage+'%</b><span>хамрагдалт</span></div><div><b>'+m.planStats.curDays+'</b><span>төлөвлөсөн өдөр</span></div></div>'+
+      '<div class="md-report-actions"><button onclick="openMethodologistTeacher(\''+r.teacher_id+'\');setTimeout(function(){mdTeacherTab(\'report\')},50)">Тайлан харах</button><button onclick="MD.selected=\''+r.teacher_id+'\';mdPrintTeacherReview()">🖨️ Хэвлэх</button></div></div>';
+  }).join('');
+  var n=arr.length||1;
+  root.innerHTML='<div class="md-report-hero"><div><span>Багш</span><b>'+arr.length+'</b></div><div><span>Хүүхэд</span><b>'+totKids+'</b></div><div><span>Энэ сарын ажиглалт</span><b>'+totObs+'</b></div><div><span>Гарааны үнэлгээ</span><b>'+Math.round(avgIni/n)+'%</b></div></div>'+
+    '<button class="md-combined-print" onclick="mdPrintCombinedReport()">🖨️ Нийт багшийн нэгтгэсэн тайлан хэвлэх</button>'+
+    (cards||'<div class="md-empty">Тайлан харах багш байхгүй.</div>');
+}
+function mdPrintCombinedReport(){
+  var arr=mdApprovedRequests(),rows=[],totalKids=0,totalObs=0;
+  arr.forEach(function(r){
+    var p=MD.profiles[r.teacher_id]||{},m=mdMetrics((MD.data[r.teacher_id]||{}).data||{});
+    totalKids+=m.children;totalObs+=m.monthObs;
+    rows.push('<tr><td>'+ktEsc(p.name||'Багш')+'</td><td>'+ktEsc(p.teacher_group||'Бүлэг')+'</td><td>'+m.children+'</td><td>'+m.monthObs+'</td><td>'+m.coverage+'%</td><td>'+m.initial.completePct+'%</td><td>'+m.planStats.curDays+'</td></tr>');
+  });
+  var h='<div style="font-family:Arial,sans-serif;color:#111;font-size:11px;"><h1 style="text-align:center;font-size:18px;">АРГА ЗҮЙЧИЙН НЭГДСЭН ХЯНАЛТЫН ТАЙЛАН</h1>'+
+    '<div style="text-align:center;margin-bottom:12px;">'+ktEsc((DB.user&&DB.user.kinder)||'Цэцэрлэг')+' · '+new Date().toLocaleDateString('mn-MN')+'</div>'+
+    '<table style="width:100%;border-collapse:collapse;"><tr><th style="border:1px solid #bbb;padding:6px;">Багш</th><th style="border:1px solid #bbb;padding:6px;">Бүлэг</th><th style="border:1px solid #bbb;padding:6px;">Хүүхэд</th><th style="border:1px solid #bbb;padding:6px;">Ажиглалт</th><th style="border:1px solid #bbb;padding:6px;">Хамрагдалт</th><th style="border:1px solid #bbb;padding:6px;">Гарааны үнэлгээ</th><th style="border:1px solid #bbb;padding:6px;">Төлөвлөсөн өдөр</th></tr>'+rows.join('')+'</table>'+
+    '<div style="margin-top:12px;"><b>Нийт багш:</b> '+arr.length+' &nbsp; <b>Нийт хүүхэд:</b> '+totalKids+' &nbsp; <b>Энэ сарын ажиглалт:</b> '+totalObs+'</div>'+
+    '<div style="margin-top:28px;">Арга зүйч: __________________________</div></div>';
+  offPrint(h,'landscape');
 }
 
 function goPage(p){
@@ -3239,11 +3358,22 @@ function goPage(p){
   $('pg-'+p).classList.add('active');
   if(p==='settings'){try{ktApplyOwnerUI();}catch(e){}}
   document.querySelectorAll('.nav-item').forEach(function(x){x.classList.remove('active');});
-  var nb=$('nv-'+p);if(nb)nb.classList.add('active');
+  var nb=null;
+  if(mdIsMethodologist()){
+    if(p==='methodologist')nb=$('nv-dashboard');
+    else if(p==='mdteachers')nb=$('nv-children');
+    else if(p==='mdcontrol')nb=$('nv-methodologist');
+    else if(p==='mdreports')nb=$('nv-reports');
+    else if(p==='settings')nb=$('nv-settings');
+  }else nb=$('nv-'+p);
+  if(nb)nb.classList.add('active');
   if(p==='dashboard')renderDashboard();
   if(p==='children')renderChildren();
   if(p==='reports')renderReportsPage();
   if(p==='methodologist')loadMethodologistDashboard();
+  if(p==='mdteachers'){loadMethodologistDashboard();setTimeout(renderMdTeachersPage,60);}
+  if(p==='mdcontrol'){loadMethodologistDashboard();setTimeout(renderMdControlPage,60);}
+  if(p==='mdreports'){loadMethodologistDashboard();setTimeout(renderMdReportsPage,60);}
   if(p==='attendance')renderAttendance();
   if(p==='timeline')renderTimelinePage(cur.childId);
   if(p==='newobs')renderNewObsPage();
