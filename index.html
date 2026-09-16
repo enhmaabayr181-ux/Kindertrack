@@ -1160,6 +1160,24 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 .kt-a79-support-row{display:flex;gap:7px;padding:8px 0;border-top:1px solid #ffedd5}.kt-a79-support-no{width:30px;height:25px;border-radius:8px;background:#fee2e2;color:#be123c;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:900;flex-shrink:0}.kt-a79-support-main{flex:1}.kt-a79-support-main>b{display:block;font-size:10px;color:#475569;line-height:1.35}.kt-a79-support-main>span{display:block;font-size:9px;color:#0f766e;line-height:1.4;margin-top:3px}.kt-a79-support-main .warn{color:#b45309}
 .kt-a79-addplan{width:100%;min-height:42px;border:0;border-radius:11px;background:#0d9488;color:#fff;font-family:inherit;font-size:10.5px;font-weight:900;margin-top:9px}.kt-a79-addplan:disabled{background:#cbd5e1}.kt-a79-support-hint{font-size:8.5px;color:#9a3412;line-height:1.4;margin-top:7px}
 
+
+.kt-a79-top-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 10px}.kt-a79-top-actions button{min-height:42px;border:0;border-radius:11px;background:#0d9488;color:#fff;font-family:inherit;font-size:10.5px;font-weight:900;cursor:pointer}.kt-a79-top-actions button.print{background:#1f2937}
+.kt-a79-result-card{display:flex;flex-direction:column;gap:10px}.kt-a79-result-head{display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(145deg,#0f766e,#14b8a6);color:#fff;border-radius:20px;padding:16px}.kt-a79-result-head span{display:block;font-size:9px;font-weight:900;letter-spacing:.07em;opacity:.8}.kt-a79-result-head b{display:block;font-size:20px;margin-top:3px}.kt-a79-result-head small{display:block;font-size:10px;opacity:.9;margin-top:2px}.kt-a79-result-pct{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}.kt-a79-result-pct strong{font-size:20px}.kt-a79-result-pct small{font-size:7.5px;margin-top:1px}
+.kt-a79-result-warn,.kt-a79-result-ok{border-radius:12px;padding:9px 10px;font-size:9.5px;line-height:1.45}.kt-a79-result-warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}.kt-a79-result-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.kt-a79-result-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.kt-a79-result-kpis>div{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:8px;text-align:center}.kt-a79-result-kpis span{display:block;font-size:8px;color:#94a3b8;font-weight:700}.kt-a79-result-kpis b{display:block;font-size:15px;color:#0f766e;margin-top:2px}
+.kt-a79-result-domains{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:11px}.kt-a79-result-domain{padding:8px 0;border-top:1px solid #f1f5f9}.kt-a79-result-domain:first-child{border-top:0}.kt-a79-result-domain>div:first-child{display:flex;justify-content:space-between;gap:8px}.kt-a79-result-domain span{font-size:10px;font-weight:800;color:#475569}.kt-a79-result-domain b{font-size:11px;color:#0f766e}.kt-a79-result-domain small{font-size:8.5px;color:#94a3b8}.kt-a79-result-bar{height:5px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin:5px 0}.kt-a79-result-bar i{display:block;height:100%;background:#14b8a6}
+.kt-a79-result-title{font-size:11.5px;font-weight:900;color:#334155;margin-top:3px}.kt-a79-result-item{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px}.kt-a79-result-item.no{border-left:4px solid #ef4444}.kt-a79-result-item.yes{border-left:4px solid #10b981}.kt-a79-result-item b{display:block;font-size:9px;color:#64748b}.kt-a79-result-item span{display:block;font-size:10.5px;line-height:1.4;color:#374151;margin-top:2px}.kt-a79-result-item small{display:block;font-size:9px;color:#9a3412;margin-top:4px}.kt-a79-result-empty{background:#f8fafc;border-radius:11px;padding:10px;text-align:center;font-size:9.5px;color:#94a3b8}.kt-a79-result-more{font-size:9px;color:#94a3b8;text-align:center}.kt-a79-result-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:2px}.kt-a79-result-actions button{min-height:43px;border:0;border-radius:11px;background:#1f2937;color:#fff;font-family:inherit;font-size:10.5px;font-weight:900}.kt-a79-result-actions button.secondary{background:#fff;color:#0f766e;border:1px solid #99f6e4}
+@media(max-width:430px){.kt-a79-result-kpis{grid-template-columns:repeat(2,1fr)}}
+
+
+.kt-a79-result-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#e2e8f0;padding:4px;border-radius:12px}.kt-a79-result-switch button{border:0;background:transparent;min-height:36px;border-radius:9px;font-family:inherit;font-size:10.5px;font-weight:900;color:#64748b}.kt-a79-result-switch button.on{background:#fff;color:#0f766e;box-shadow:0 1px 4px rgba(15,23,42,.08)}
+.kt-a79-result-head.class{background:linear-gradient(145deg,#115e59,#0d9488 55%,#14b8a6)}
+.kt-a79-class-ages{display:grid;grid-template-columns:1fr 1fr;gap:7px}.kt-a79-class-age{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px}.kt-a79-class-age>div{display:flex;justify-content:space-between;gap:6px}.kt-a79-class-age b{font-size:9.5px;color:#334155}.kt-a79-class-age span{font-size:8.5px;color:#94a3b8}.kt-a79-class-age strong{display:block;font-size:16px;color:#0f766e;margin-top:4px}.kt-a79-class-age small{display:block;font-size:8.5px;color:#94a3b8;margin-top:2px}
+.kt-a79-class-weak{display:grid;grid-template-columns:25px 1fr auto;gap:7px;align-items:start;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px}.kt-a79-class-weak>em{width:25px;height:25px;border-radius:8px;background:#fff1f2;color:#be123c;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:8.5px;font-weight:900}.kt-a79-class-weak div b{display:block;font-size:8.5px;color:#94a3b8}.kt-a79-class-weak div span{display:block;font-size:10px;line-height:1.35;color:#374151;margin-top:2px}.kt-a79-class-weak div small{display:block;font-size:8.5px;line-height:1.35;color:#0f766e;margin-top:3px}.kt-a79-class-weak>strong{font-size:9px;color:#be123c;white-space:nowrap}
+.kt-a79-plan-bridge{background:linear-gradient(135deg,#ecfdf5,#f0fdfa);border:1px solid #99f6e4;border-radius:15px;padding:11px}.kt-a79-plan-bridge>b{display:block;font-size:11.5px;color:#0f766e}.kt-a79-plan-bridge>span{display:block;font-size:9.5px;line-height:1.45;color:#475569;margin-top:3px}.kt-a79-plan-bridge>div{display:grid;grid-template-columns:1fr 1.5fr;gap:7px;margin-top:9px}.kt-a79-plan-bridge select,.kt-a79-plan-bridge button{min-height:40px;border-radius:10px;font-family:inherit;font-size:9.5px;font-weight:800}.kt-a79-plan-bridge select{border:1px solid #99f6e4;background:#fff;padding:0 7px;color:#0f766e}.kt-a79-plan-bridge button{border:0;background:#0d9488;color:#fff;padding:0 9px}
+.kt-a79-top-actions.three{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:430px){.kt-a79-class-ages{grid-template-columns:1fr}.kt-a79-plan-bridge>div{grid-template-columns:1fr}.kt-a79-top-actions.three{grid-template-columns:1fr 1fr}.kt-a79-top-actions.three .print{grid-column:1/-1}}
+
 </style>
 </head>
 <body>
@@ -5059,7 +5077,12 @@ function renderNewObsPage(){
        '</div>'+
      '</div>'+
 
-     '<div style="'+card+'"><div style="'+lbl+'">2. Ажиглалтын тэмдэглэл</div>'+
+     '<div style="'+card+'"><div style="'+lbl+'">2. Суралцахуйн чиглэл ба СҮД</div>'+
+       '<div id="nobsDomains" style="display:flex;flex-wrap:wrap;gap:7px;"></div>'+
+       '<div id="nobsOutcomeWrap" style="margin-top:12px;display:none;"></div>'+
+     '</div>'+
+
+     '<div style="'+card+'"><div style="'+lbl+'">3. Ажиглалтын тэмдэглэл</div>'+
        '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:9px;-webkit-overflow-scrolling:touch;">'+
          NOBS_STARTERS.map(function(s){return '<button type="button" onclick="nobsInsertStarter(\''+s+'\')" style="flex:0 0 auto;min-height:36px;padding:7px 12px;border-radius:18px;border:1px solid #eceef0;background:#f8fafc;color:#64748b;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">'+s+'</button>';}).join('')+
        '</div>'+
@@ -5073,7 +5096,7 @@ function renderNewObsPage(){
        '</div>'+
      '</div>'+
 
-     '<div style="'+card+'"><div style="'+lbl+'">3. Фото, видео, дуу</div>'+
+     '<div style="'+card+'"><div style="'+lbl+'">4. Фото, видео, дуу</div>'+
        '<input type="file" id="nobsPhotoInput" accept="image/*" multiple style="display:none" onchange="nobsPhotoChange(this)">'+
        '<div style="display:flex;gap:8px;">'+
          '<button type="button" onclick="nobsPickPhotos()" style="flex:1;min-height:46px;border:1px solid #eceef0;background:#fff;border-radius:13px;font-family:inherit;font-size:12.5px;font-weight:700;color:#374151;cursor:pointer;">📷 Зураг</button>'+
@@ -5083,11 +5106,6 @@ function renderNewObsPage(){
        '<div id="nobsPhotoRow" style="display:flex;gap:9px;overflow-x:auto;margin-top:11px;-webkit-overflow-scrolling:touch;"></div>'+
        '<div id="nobsMediaState" style="margin-top:10px;"></div>'+
        '<div style="font-size:11px;color:#9ca3af;margin-top:9px;line-height:1.45;">🎥 Видео хадгалалт дараагийн шинэчлэлтээр нэмэгдэнэ.</div>'+
-     '</div>'+
-
-     '<div style="'+card+'"><div style="'+lbl+'">4. Суралцахуйн чиглэл</div>'+
-       '<div id="nobsDomains" style="display:flex;flex-wrap:wrap;gap:7px;"></div>'+
-       '<div id="nobsOutcomeWrap" style="margin-top:12px;display:none;"></div>'+
      '</div>'+
 
      '<div style="'+card+'"><div style="'+lbl+'">5. Сэтгэл хөдлөл</div>'+
@@ -12474,6 +12492,8 @@ try{sync2Init();}catch(e){console.log('sync2',e);}
 
 var KT_A79_INITIAL={"2-3":{"level":"I","knowledge":["Чанаж болгоогүй хүнсийг идэж болохгүйг мэддэг.","Хүрээлэн байгаа орчноос болгоомжлох зүйлсийг таньдаг.","Зурагт номоос танил эд юмсыг нэрлэдэг.","Орчныхоо ургамал, амьтнаас заримыг нь нэрлэдэг.","Цаг агаарын үзэгдлийг таньж нэрлэдэг.","Өөрийн нэр, нас, биеийн эрхтнээ нэрлэдэг.","Үндэсний хувцас (дээл, гутал, малгай)-ыг нэрлэдэг.","Үндсэн гурван өнгийг нэрлэдэг.","Тоглоом, юмсын заасан байршил (дээр, доор)-ыг нэрлэдэг.","Болно, болохгүйг ойлгодог.","Бусдын нүүрний хувирал, гарын дохио, дуу авиа, үгээр илэрхийлсэн харилцааг ойлгодог."],"skill":["1-2 саадыг сүлжиж алхдаг (10 метр зайд).","Хоорондоо 20 см зайтай байрлуулсан зураасны дундуур шулуун чиглэлээр гүйдэг.","20 см зайтай зураасны хооронд дөрвөн хөллөж мөлхдөг.","Хоёр хөл дээрээ үсэрч буудаг.","Тоглоом, юмс (бөмбөг, базсан цаас гэх мэт)-ыг тодорхой чиглэлд (урагш, дээш гэх мэт) шидэж дамжуулдаг.","Гар, нүүр, шүдээ угаах, хоолой амаа зайлах үйлийг бусдын дэмжлэгтэйгээр хийж чаддаг.","Хоолны хэрэгслийг зориулалтын дагуу хэрэглэдэг.","Бусдын яриаг сонсож ойлгоод, үг, үйлдэл, дохио зангаагаар харилцдаг.","Энгийн өгүүлбэрийг дуурайн хэлдэг.","Авиа, үгийг сонсоод давтан хэлдэг.","Ярилцах болон тоглох явцад асуулт асуухыг оролддог.","3 хүртэлх тоглоом, юмсыг тоолдог.","Том, жижгийг ялгадаг.","Юмсыг нэг ижил шинжээр нь ангилдаг.","Харандаагаар мөр, зураас гаргадаг.","Бусдын үйлийг ажиглаж дуурайдаг.","Бэлдэц дүрс ашиглан бусдын дэмжлэгтэй наамал хийдэг.","Хэв ашиглан хэлбэр гаргадаг.","Тоглоом, эд юмсыг бусдын дэмжлэгтэй өрдөг.","Өөрийн хэрэгцээ, биеийн зарим мэдрэмжээ нүүрний хувирал, биеийн хөдөлгөөн, үгээр илэрхийлдэг.","Хүн, амьтны дуу авиаг сонсоод ялгадаг.","Дуу, хөгжмийн хэмнэлийг хөдөлгөөн (алга таших, өвдөг цохих гэх мэт)-өөр илэрхийлдэг."],"disposition":["Бусдын бүтээлийг ажиглаж сонирхдог.","Хогийг хогийн саванд хийдэг.","Өөр хэн нэгэн аргадах (уурлаж тавгүйтсэн, уйлсан үед)-д тайвширдаг.","Хэрэглэсэн эд зүйл, тоглоомоо хураадаг."]},"3-4":{"level":"II","knowledge":["Гэмтэж болзошгүй үйлдлийг ойлгодог.","Хоорондоо хамааралтай хоёр юмыг таньдаг.","Орчиндоо байгаа зурган тэмдэглэгээ (гэрлэн дохио, гарц, ангид баримтлах дүрмийг харуулсан зураг гэх мэт)-г ойлгодог.","Таван хошуу мал, гэрийн тэжээмэл амьтны үр төлийг нэрлэдэг.","Үндэсний баяр ёслолын зарим үйл (золгох, бөх барилдах гэх мэт)-ийг нэрлэдэг.","Дараалан байрлуулсан тоглоом, дүрс, юмсыг ажиглаж, зүй тогтлыг тайлбарладаг.","Тоглоом, юмсын байршил (дотор, гадна)-ыг нэрлэдэг.","Уран зураг, баримлын бүтээлд юу дүрсэлснийг нэрлэдэг."],"skill":["Сэтгэл хөдлөлөө үг, эсвэл үйлдлээр илэрхийлдэг.","Өөрийн хийх дуртай болон дургүй зүйлсээ илэрхийлдэг.","Алхалтын үед гарын хөдөлгөөнийг өөрчилж (гараа алдлах, өргөх гэх мэт) гүйцэтгэдэг.","Хоорондоо 15 см зайтай байрлуулсан зураасны дундуур шулуун чиглэлээр гүйдэг.","Зааврын дагуу 2-3 саадыг сүлжиж мөлхдөг (10 метр зайд).","Хоёр хөл дээрээ 5 хүртэлх зураас дээгүүр давж үсэрдэг.","0.5-1 метр зайнаас шидсэн тоглоом, бөмбөг, эд юмсыг барьж авдаг.","Зааврын дагуу өдөр тутмын хувийн ариун цэвэр сахих үйл (гар, нүүр, ам угаах)-ийг бие даан гүйцэтгэдэг.","Жимс, хүнсний ногоог насанд хүрэгчдийн тусламжтай угаадаг.","3-4 үгтэй өгүүлбэрийг давтаж хэлдэг.","Сургалт, үйл ажиллагаанд оролцох, хамтдаа тоглох явцад асуулт асуудаг.","Яриандаа өнгө, хэмжээ, тоо ширхэг заасан үгсийг хэрэглэдэг.","5 хүртэл тоглоом, юмсыг тоолдог.","Олон ба цөөн тооны тоглоом, юмсыг зааж хэлдэг.","3 хүртэлх тооны юмсыг уртаар нь харьцуулдаг.","Тоглоомыг 2 ижил шинж (өнгө, дүрс, хэмжээ гэх мэт)-ээр нь ангилдаг.","Байгалийн үзэгдлийг ажиглаж, санаа бодлоо илэрхийлдэг.","Өөрийн болон гэр бүлийн гишүүдийн талаар ярьдаг.","Хялбар, ойлгомжтой заавар, дүрмийг ойлгож тайлбарладаг.","Өөрийн дуртай зүйлээ зурж (зураас, толбо, дардас гэх мэт) дүрсэлдэг.","Баримлын шавраар хоёр хэсгээс бүтсэн зүйлийг бие даан барьдаг.","Бэлдэц дүрс ашиглан багшийн заавраар наамал хийдэг.","Тоглоом, эд юмс (блокон тоглоом, шагай, савх гэх мэт)-ыг бие даан бүтээл хийж, тайлбарладаг.","Байгаль, эд юмсын дуу чимээг сонсоод ялгадаг.","Тоглоом, хэрэглэгдэхүүн ашиглан аялгуунд тохируулж жигд хэмнэлээр дуугаргадаг.","Хэмнэл, аянд тохирсон хөдөлгөөн хийдэг.","Үлгэр, зохиолын танил дүрд тоглодог."],"disposition":["Хооллож дууссаны дараа хоолны хэрэгслийг хураадаг.","Бусдад өөрийн санаачилгаар тусалдаг.","Бусадтай хамтран үйл ажиллагаанд оролцдог.","Энгийн заавар, дүрэм (ус хэмнэх, хогийг ангилж хаях гэх мэт)-ийг биелүүлдэг.","Тасалгааны ургамлын тоосыг арчиж, усалдаг.","Дууг бусадтай хамтран дуулдаг."]},"4-5":{"level":"III","knowledge":["Эрүүл мэндэд тустай хоол, хүнсийг нэрлэдэг.","Өөрийн болон бусдын биеийн хүрч болох, болохгүй хэсгийг мэддэг.","Ухаалаг төхөөрөмжийг зохистой хэрэглэхийг мэддэг.","Сэтгэл хөдлөл илэрхийлсэн 2-3 зургаас таатай, таагүй байгааг тайлбарладаг.","Тайвшрахад туслах аргуудыг мэддэг.","Хоёр зүйлийн хоорондын хамаарлыг тайлбарладаг.","10 хүртэл цээжээр тоолдог.","Чиглэл заасан үгсийн утгыг ойлгодог.","Гэр бүлийн гишүүдийг нэрлэж, ажил мэргэжлийг нь хэлдэг."],"skill":["Вандан сандал дээр тэнцвэрээ хадгалан алхдаг (Вандан сандлын өндөр нь 25 см, өргөн нь 20 см байна).","5-6 саадыг сүлжиж гүйдэг (10 метр зайд).","Өвдөг, тохойгоор 3-4 нуман доогуур мөлхдөг.","10-15 см өндөрт байрлуулсан зүйлд үсэрч хүрдэг.","Бөмбөгийг 1-1.5 метр зайд бие бие рүүгээ газарт ойлгон дамжуулдаг.","Бусдын сануулгаар ариун цэврийг сахих үйлүүдийг бие даан гүйцэтгэдэг.","Анхааруулах тэмдэг, тэмдэглэгээ нь ямар аюул, эрсдэл байгааг анхааруулсныг тайлбарладаг.","Өөрийн хэрэгцээ, чадах, чадахгүй, дуртай, дургүй зүйлсээ ярьдаг.","Хийж болох, болохгүй үйлдлийн учир шалтгааныг тайлбарладаг.","Үгийг сонсоод, урт ба богино авианы дуудлагыг ялган дуурайдаг.","Тоглоом, юмсын 2-3 онцлог шинжийг тоочиж ярьдаг.","Юмсын учир шалтгааныг өөрийн ойлгосноор тайлбарладаг.","Ном, үлгэр, зохиолын гол санааг ойлгож, үйл явдлыг тайлбарладаг.","5 хүртэлх тооны юмсыг оноож тоолдог.","Дараалан байрлуулсан тоглоом, дүрс, юмсыг ажиглаж, зүй тогтлыг үргэлжлүүлдэг.","Юмсыг хэмжээ (урт, хүнд)-гээр нь харьцуулдаг.","Өглөө, өдөр, орой хийдэг үйл явдлыг харуулсан 4 зургийг зөв дараалалд оруулдаг.","Тоглоом, эд юмсыг нэг шинжээр нь 4 хүртэлх хэсэгт ангилдаг.","Дугуй, дөрвөлжин, гурвалжин дүрсийг ялган нэрлэдэг.","Дүрс ба биетийг ялгадаг.","Зурган зааварчилгааг ойлгож тайлбарладаг.","Амьтдын амьдрах орчныг ялгадаг.","Цаг агаарын байдалд тохируулан хувцаслаж, үйл ажиллагаанд оролцдог.","Зураг бүтээлээ толбо, дардсаар чимэглэдэг.","Хүн, амьтан, эд юмсыг өөрийн төсөөллөөр зохиомжлон барьдаг (баримлын шавар, элс, гурилан зуурмаг гэх мэт).","Биет наамал урладаг.","Өрж байгуулдаг, эвлүүлж, угсардаг тоглоом, савх, харандаа (байшин, барилга, гудамж талбай, тээврийн хэрэгсэл гэх мэт)-гаар зохион бүтээдэг.","Дууг ая хэмнэлийн дагуу дуулдаг.","Хэмнэлийн өөрчлөлтийг мэдэрч, хөгжмийн энгийн зэмсгээр тоглодог.","Ая, хэмнэл солигдоход хөдөлгөөнөө тохируулдаг.","Үлгэр зохиолын дүрээс сонгон онцлог шинжийг илэрхийлдэг."],"disposition":["Бусдын сэтгэлийн хөдөлгөөн өөр, өөр байдгийг мэдэн зохицож харилцдаг.","Бусадтай тоглоом, наадгай, эд зүйлсээ хуваалцан хамтарч тоглодог.","Өдөр тутмын үйл ажиллагаанд бие даан оролцдог.","Харилцан ярианд идэвх санаачилга (тодруулах асуулт асуух, хариу өгөх, санаагаа илэрхийлэх)-тай оролцдог.","Тасалгааны ургамлыг арчлахад оролцдог.","Үндэсний тоглоом, наадгайгаар тоглодог (шагай, хөлөгт тоглоом зэрэг)."]},"5-6":{"level":"IV","knowledge":["Аюултай нөхцөлд (галаас хол байх, шатаар болгоомжтой явах г.м) юу хийхийг мэддэг.","Хүмүүсийн хоорондын харилцаа хэрхэн өрнөж байгааг ойлгодог.","20 хүртэл цээжээр тоолдог.","Долоо хоногийн гарагийг дарааллаар нь нэрлэдэг.","Тоглоом, юмсын ижил ба ялгаатай шинжийг нэрлэдэг.","Ургамлын ургалтад хэрэгтэй зүйлийг нэрлэдэг.","Улирлын онцлог хүмүүсийн амьдралд хэрхэн нөлөөлж байгааг тайлбарладаг.","Уран зураг, уран баримлын бүтээлийг хайрлан хамгаалахыг мэддэг."],"skill":["Вандан сандал дээгүүр алхахдаа гарын хөдөлгөөн (гараа алдлах, өргөх г.м)-ийг хослуулдаг.","7-8 саадыг сүлжиж гүйдэг (10 метр зайд).","Вандан сандал дээр элгээр гулсаж мөлхдөг.","30 см өндөртэй тавцан дээрээс техникийн дагуу үсэрч буудаг.","1.5-2 метр зайд байгаа хүүхдэд бөмбөгийг газарт ойлгож өгөх, газарт ойлгож өгсөн бөмбөгийг барьж авдаг.","Сургалт, үйл ажиллагааны явцад тодорхой үйл, үйлдлийг хийж чадах, чадахгүй шалтгаанаа тайлбарладаг.","Өөрийн хэрэгцээгээ илэрхийлдэг.","Гэр бүлийн гишүүдээ танилцуулж, ажил хөдөлмөрт нь хэрхэн тусалдаг талаар тайлбарлан ярьдаг.","Тайвшрахад туслах аргуудыг багшийн тусламжтай хэрэглэдэг.","Нэрлэсэн үгийн эхэнд ба төгсгөлд орсон авиаг ялгадаг.","Ном болон үлгэр, зохиол, болсон үйл явдлыг дэс дараатай тайлбарладаг.","Үлгэр зохиолын төгсгөлийг өөрийн төсөөллөөр үргэлжлүүлэн зохиож ярьдаг.","Өөрийн нэрийн дармал үсгийг дагуулж бичдэг.","Ном болон үлгэр, зохиол, болсон үйл явдлыг дэс дараатай тайлбарладаг.","10 хүртэлх эд юмсыг оноож тоолдог.","Өгөгдсөн тооноос 20 дотор нэгээр нэмэгдүүлж, хорогдуулж тоолдог.","10 хүртэлх тооны дарааллаас орхигдсон 1-2 тоог олдог.","Нэг юмсын байрлалаар нөгөө юмсын байрлалыг тодорхойлдог.","Юмсын хэмжээ (урт, хүнд, багтаамж)-гээр нь таамаглан харьцуулдаг.","Юмсыг шинж чанараар нь бүлэглэн учрыг тайлбарладаг.","Сэдвийн хүрээнд үйл явдал (байгалийн үзэгдэл, үлгэр г.м)-ыг бүтээлчээр зохиомжлон зурдаг.","Баримлын шавар, байгалийн материал зэргээр сэдэвт баримал барьдаг.","Өгөгдсөн сэдвийн хүрээнд наамал хийдэг.","Эд зүйлсээр юмсыг зохиомжлон бүтээж, дүрслэлийг баяжуулдаг.","Хөгжмийн энгийн зэмсгийг дуугаралтаар нь ялгаж нэрлэдэг","Гарын дохионы дагуу дууны өндөрлөг, хурдыг зохицуулан дуулдаг.","Хөгжмийн энгийн зэмсгээр аялгууны хэмнэлд нийцүүлэн хөгжимддөг.","Хөгжмийн аялгуунд нийцсэн хөдөлгөөн хийдэг."],"disposition":["Хувийн ариун цэвэр сахихын ач холбогдлыг ойлгож, тогтмол дагаж мөрддөг.","Хоол хүнс, зууш бэлтгэхэд өөрийн хэмжээнд оролцож тусалдаг.","Бохирдсон хоолны хэрэгслийг насанд хүрэгчидтэй хамтран цэвэрлэдэг.","Ухаалаг төхөөрөмжийг хэрэглэх үедээ бусдын заавар, дүрмийг мөрддөг.","Тоглоомын дүрэм баримтлан хамтран тоглодог.","Гэр бүл, цэцэрлэг, анги, олон нийтийн газарт тогтсон дүрмийг баримталдаг.","Өөрийнх нь үйлдэл бусдын сэтгэлийн хөдөлгөөнд нөлөөлж буйг мэдэж зохицон харилцдаг.","Харилцан ярианд идэвх санаачилга (асуулт асуух гэх мэт)-тай оролцдог.","Амьтдыг хайрлан хамгаалдаг.","Бусдын сонирхол, ялгаатай байдалд хүндэтгэлтэй ханддаг.","Орчиндоо хариуцлагатай байж, хог ангилж, байгаль бохирдуулахгүй байх үйлийг хийдэг.","Үндэсний соёл, зан заншлын зарим үйлийг бие даан болон найз нөхөдтэйгээ хамтран хийдэг.","Дүрийн зан чанарын талаар харилцан ярилцдаг."]}};
 var KT_A79_SCOPE='all';
+var KT_A79_SHOW_RESULT=false;
+var KT_A79_RESULT_VIEW='child';
 var KT_A79_PLAN_YM=(typeof plYM==='function'?plYM():getLocalDateKey().slice(0,7));
 function ktA79AgeKey(age){var a=parseInt(age,10);if(a<=2)return'2-3';if(a===3)return'3-4';if(a===4)return'4-5';return'5-6';}
 function ktA79AgeLabel(k){return k.replace('-','–')+' нас';}
@@ -12586,15 +12606,211 @@ function ktA79MonthSupportCard(m){
     list.map(function(s){return '<div style="border:1px solid #fed7aa;background:#fff7ed;border-radius:13px;padding:9px;margin-bottom:7px;"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;"><div style="font-size:10px;font-weight:900;color:#c2410c;">'+ktEsc(s.code||'СҮД')+(s.a79ChildName?' · '+ktEsc(s.a79ChildName):'')+'</div><span style="font-size:8.5px;font-weight:900;color:#0f766e;background:#ccfbf1;border-radius:999px;padding:3px 6px;">'+(s.week||1)+'-р 7 хоног</span></div><div style="font-size:11px;font-weight:700;color:#374151;line-height:1.4;margin-top:3px;">'+ktEsc(s.text||'')+'</div>'+(s.a79Criterion?'<div style="font-size:9px;color:#9a3412;margin-top:4px;">А/79: '+ktEsc(s.a79Criterion)+'</div>':'')+'</div>';}).join('')+'</div>';
 }
 
+
+function ktA79ResultData(child){
+  var x=ktA79Cfg(child),cfg=x.cfg,st=ktA79Store(child.id),all=ktA79Stats(cfg,st,'all');
+  var groups=[['knowledge','Мэдлэг','🧠'],['skill','Чадвар','🛠️'],['disposition','Төлөвшил','🌱']];
+  var gs=groups.map(function(g){
+    var s=ktA79Stats(cfg,st,g[0]);
+    return {key:g[0],label:g[1],icon:g[2],stats:s};
+  });
+  var rows=ktA79Flat(cfg),zero=[],one=[],blank=[];
+  rows.forEach(function(r){
+    var v=st.answers[String(r.no)];
+    var item={row:r,note:st.notes[String(r.no)]||'',value:v};
+    if(v===1)one.push(item);else if(v===0)zero.push(item);else blank.push(item);
+  });
+  return {x:x,cfg:cfg,st:st,all:all,groups:gs,rows:rows,zero:zero,one:one,blank:blank};
+}
+
+function ktA79ClassResultData(){
+  var kids=(DB.children||[]).slice(),total=0,done=0,one=0,zero=0;
+  var domain={
+    knowledge:{label:'Мэдлэг',icon:'🧠',total:0,done:0,one:0,zero:0},
+    skill:{label:'Чадвар',icon:'🛠️',total:0,done:0,one:0,zero:0},
+    disposition:{label:'Төлөвшил',icon:'🌱',total:0,done:0,one:0,zero:0}
+  };
+  var ages={},weakMap={};
+  kids.forEach(function(c){
+    var x=ktA79Cfg(c),st=ktA79Store(c.id),flat=ktA79Flat(x.cfg);
+    if(!ages[x.key])ages[x.key]={key:x.key,level:x.cfg.level,kids:0,total:0,done:0,one:0,zero:0};
+    ages[x.key].kids++;
+    flat.forEach(function(r){
+      total++;ages[x.key].total++;domain[r.scope].total++;
+      var v=st.answers[String(r.no)];
+      if(v===1||v===0){
+        done++;ages[x.key].done++;domain[r.scope].done++;
+        if(v===1){one++;ages[x.key].one++;domain[r.scope].one++;}
+        else{
+          zero++;ages[x.key].zero++;domain[r.scope].zero++;
+          var wk=x.key+'|'+r.no+'|'+r.text;
+          if(!weakMap[wk])weakMap[wk]={ageKey:x.key,level:x.cfg.level,row:r,count:0,children:[]};
+          weakMap[wk].count++;
+          weakMap[wk].children.push(c.name||'');
+        }
+      }
+    });
+  });
+  var weak=Object.keys(weakMap).map(function(k){return weakMap[k];});
+  weak.sort(function(a,b){return b.count-a.count||a.row.no-b.row.no;});
+  return {
+    kids:kids,total:total,done:done,one:one,zero:zero,
+    pct:done?Math.round(one/done*100):0,
+    completePct:total?Math.round(done/total*100):0,
+    domain:domain,
+    ages:['2-3','3-4','4-5','5-6'].map(function(k){return ages[k]||{key:k,level:KT_A79_INITIAL[k].level,kids:0,total:0,done:0,one:0,zero:0};}),
+    weak:weak
+  };
+}
+function ktA79ClassSupportSud(){
+  var d=ktA79ClassResultData(),map={};
+  d.weak.forEach(function(w){
+    var s=ktA79BestSud(w.row,w.ageKey);
+    if(!s)return;
+    var key=w.ageKey+'|'+(s.code||s.text);
+    if(!map[key])map[key]={ageKey:w.ageKey,level:ktA79LevelNum(w.ageKey),sud:s,count:0,criteria:[],children:[]};
+    map[key].count+=w.count;
+    map[key].criteria.push('А/79 №'+w.row.no+': '+w.row.text);
+    w.children.forEach(function(n){if(map[key].children.indexOf(n)<0)map[key].children.push(n);});
+  });
+  var arr=Object.keys(map).map(function(k){return map[k];});
+  arr.sort(function(a,b){return b.count-a.count;});
+  return arr;
+}
+function ktA79OpenPlannerMonth(){
+  PL.ym=KT_A79_PLAN_YM||plYM();
+  PL.tab='month';PL.view='home';
+  goPage('planner');
+}
+function ktA79ClassAddToPlan(){
+  var ym=KT_A79_PLAN_YM||plYM(),m=plMonth(ym),items=ktA79ClassSupportSud(),seen={},n=0;
+  (m.sud||[]).forEach(function(s){if(s.a79ClassKey)seen[s.a79ClassKey]=1;});
+  items.forEach(function(x){
+    var key='CLASS|'+x.ageKey+'|'+(x.sud.code||x.sud.text);
+    if(seen[key])return;
+    var autoWeek=typeof ktA79ChooseSupportWeek==='function'?ktA79ChooseSupportWeek(m,x.sud.dir||''):((n%4)+1);
+    m.sud.push({
+      id:'msa79class'+Date.now()+n,sourceId:'A79-CLASS-'+x.ageKey,kind:'support',
+      code:x.sud.code||'',text:x.sud.text||'',dir:x.sud.dir||'',level:x.level||'',age:x.ageKey,week:autoWeek,
+      area:'Гарааны үнэлгээ',subArea:'Ангийн нэгдсэн',
+      a79Criterion:x.criteria.join(' | '),a79ClassKey:key,a79Class:true,
+      a79ChildName:'Ангийн нэгдсэн · '+x.count+' илрэл',
+      a79Children:x.children.slice(),teacherEdited:false,sourceVersion:1
+    });
+    seen[key]=1;n++;
+  });
+  m.lastSyncedAt=new Date().toISOString();saveDB();
+  PL.ym=ym;PL.tab='month';PL.view='home';
+  toast(n?n+' дэмжих СҮД ангийн үр дүнгээс төлөвлөгөөнд нэмэгдлээ ✓':'Шинээр нэмэх СҮД алга');
+  goPage('planner');
+}
+function ktA79ClassResultHtml(){
+  var d=ktA79ClassResultData(),domains=[d.domain.knowledge,d.domain.skill,d.domain.disposition],support=ktA79ClassSupportSud();
+  var domHtml=domains.map(function(x){
+    var p=x.done?Math.round(x.one/x.done*100):0;
+    return '<div class="kt-a79-result-domain"><div><span>'+x.icon+' '+x.label+'</span><b>'+x.one+'/'+x.total+'</b></div><div class="kt-a79-result-bar"><i style="width:'+p+'%"></i></div><small>Хангасан '+x.one+' · Хангаагүй '+x.zero+' · Үнэлээгүй '+(x.total-x.done)+'</small></div>';
+  }).join('');
+  var ageHtml=d.ages.map(function(a){
+    var p=a.done?Math.round(a.one/a.done*100):0,cp=a.total?Math.round(a.done/a.total*100):0;
+    return '<div class="kt-a79-class-age"><div><b>'+ktA79AgeLabel(a.key)+' · '+a.level+' түвшин</b><span>'+a.kids+' хүүхэд</span></div><strong>'+p+'%</strong><small>Хангасан '+a.one+' · 0: '+a.zero+' · Бөглөлт '+cp+'%</small></div>';
+  }).join('');
+  var weakHtml=d.weak.length?d.weak.slice(0,15).map(function(w,i){
+    var s=ktA79BestSud(w.row,w.ageKey);
+    return '<div class="kt-a79-class-weak"><em>'+(i+1)+'</em><div><b>'+ktA79AgeLabel(w.ageKey)+' · №'+w.row.no+' · '+w.row.scopeLabel+'</b><span>'+ktEsc(w.row.text)+'</span>'+(s?'<small>→ '+s.icon+' '+ktEsc(s.code||'')+' '+ktEsc(s.text||'')+'</small>':'')+'</div><strong>'+w.count+' хүүхэд</strong></div>';
+  }).join(''):'<div class="kt-a79-result-empty">0 авсан шалгуур одоогоор байхгүй.</div>';
+  return '<div class="kt-a79-result-card">'+
+    '<div class="kt-a79-result-switch"><button onclick="KT_A79_RESULT_VIEW=\'child\';renderInitialAssessment()">👤 Хүүхэд</button><button class="on" onclick="KT_A79_RESULT_VIEW=\'class\';renderInitialAssessment()">👥 Ангийн нэгдсэн</button></div>'+
+    '<div class="kt-a79-result-head class"><div><span>АНГИЙН НЭГДСЭН ГАРААНЫ ҮНЭЛГЭЭ</span><b>'+(DB.user&&DB.user.group?ktEsc(DB.user.group):'Нийт анги')+'</b><small>'+d.kids.length+' хүүхэд · А/79 I–IV түвшин</small></div><div class="kt-a79-result-pct"><strong>'+d.pct+'%</strong><small>хангасан</small></div></div>'+
+    (d.done<d.total?'<div class="kt-a79-result-warn">⚠️ Ангийн үнэлгээ бүрэн дуусаагүй: '+d.done+'/'+d.total+' шалгуур бөглөгдсөн. Хувь нь зөвхөн үнэлсэн шалгуурт үндэслэж байна.</div>':'<div class="kt-a79-result-ok">✅ Ангийн бүх хүүхдийн гарааны үнэлгээ бүрэн дууссан.</div>')+
+    '<div class="kt-a79-result-kpis"><div><span>Хүүхэд</span><b>'+d.kids.length+'</b></div><div><span>Хангасан</span><b>'+d.one+'</b></div><div><span>Хангаагүй</span><b>'+d.zero+'</b></div><div><span>Бөглөлт</span><b>'+d.completePct+'%</b></div></div>'+
+    '<div class="kt-a79-result-domains">'+domHtml+'</div>'+
+    '<div class="kt-a79-result-title">Насны бүлгээр</div><div class="kt-a79-class-ages">'+ageHtml+'</div>'+
+    '<div class="kt-a79-result-title">🎯 Ангийн хэмжээнд түлхүү дэмжих шалгуур</div>'+weakHtml+
+    '<div class="kt-a79-plan-bridge"><b>📅 Дараагийн шат — Төлөвлөлт</b><span>0 авсан шалгууруудаас санал болгосон СҮД-үүдийг сарын төлөвлөгөөнд оруулж, 4 долоо хоногт хуваарилна.</span><div><select onchange="KT_A79_PLAN_YM=this.value">'+ktA79MonthOptions()+'</select><button onclick="ktA79ClassAddToPlan()">СҮД-үүдийг нэмээд төлөвлөлт рүү →</button></div></div>'+
+    '<div class="kt-a79-result-actions"><button onclick="ktA79PrintClassResult()">🖨️ Ангийн үр дүн хэвлэх</button><button class="secondary" onclick="KT_A79_SHOW_RESULT=false;KT_A79_RESULT_VIEW=\'child\';renderInitialAssessment()">← Үнэлгээ рүү</button></div>'+
+  '</div>';
+}
+function ktA79PrintClassResult(){
+  var d=ktA79ClassResultData(),u=DB.user||{},school=ktEsc(u.kinder||u.school||'Цэцэрлэг');
+  var ageRows=d.ages.map(function(a){var p=a.done?Math.round(a.one/a.done*100):0,cp=a.total?Math.round(a.done/a.total*100):0;return '<tr><td>'+ktA79AgeLabel(a.key)+'</td><td>'+a.level+'</td><td>'+a.kids+'</td><td>'+a.one+'</td><td>'+a.zero+'</td><td>'+(a.total-a.done)+'</td><td>'+p+'%</td><td>'+cp+'%</td></tr>';}).join('');
+  var weak=d.weak.slice(0,20).map(function(w){return '<tr><td>'+ktA79AgeLabel(w.ageKey)+'</td><td>'+w.row.no+'</td><td>'+w.row.scopeLabel+'</td><td>'+ktEsc(w.row.text)+'</td><td>'+w.count+'</td></tr>';}).join('');
+  var h='<style>.cp{font-family:Arial,sans-serif;color:#111;font-size:10.5px}.cp h1{text-align:center;font-size:17px;margin:5px}.cp .sub{text-align:center;color:#555;margin-bottom:12px}.cp .sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}.cp .sum div{border:1px solid #ccc;padding:8px;text-align:center}.cp .sum b{display:block;font-size:16px;color:#0f766e}.cp table{width:100%;border-collapse:collapse;margin:8px 0 14px}.cp th,.cp td{border:1px solid #bbb;padding:5px;vertical-align:top}.cp th{background:#f3f4f6}.cp h2{font-size:13px;color:#0f766e;margin:14px 0 5px}@media print{.cp tr{break-inside:avoid}}</style>'+
+  '<div class="cp"><div style="text-align:center;">'+school+'</div><h1>АНГИЙН НЭГДСЭН ГАРААНЫ ҮНЭЛГЭЭНИЙ ҮР ДҮН</h1><div class="sub">А/79 — I–IV түвшин · '+d.kids.length+' хүүхэд</div>'+
+  '<div class="sum"><div><b>'+d.pct+'%</b>Хангасан</div><div><b>'+d.completePct+'%</b>Бөглөлт</div><div><b>'+d.one+'</b>1 оноо</div><div><b>'+d.zero+'</b>0 оноо</div></div>'+
+  '<h2>1. Насны бүлгийн нэгтгэл</h2><table><tr><th>Нас</th><th>Түвшин</th><th>Хүүхэд</th><th>1</th><th>0</th><th>Үнэлээгүй</th><th>Хангасан %</th><th>Бөглөлт %</th></tr>'+ageRows+'</table>'+
+  '<h2>2. Ангийн хэмжээнд түлхүү дэмжих шалгуур</h2><table><tr><th>Нас</th><th>№</th><th>Хүрээ</th><th>Шалгуур</th><th>0 авсан хүүхэд</th></tr>'+weak+'</table></div>';
+  offPrint(h,'landscape');
+}
+
+function ktA79ResultHtml(child){
+  var d=ktA79ResultData(child),a=d.all;
+  var resultPct=a.done?Math.round(a.one/a.done*100):0;
+  var complete=a.done===a.total;
+  var groupHtml=d.groups.map(function(g){
+    var s=g.stats,p=s.done?Math.round(s.one/s.done*100):0;
+    return '<div class="kt-a79-result-domain"><div><span>'+g.icon+' '+g.label+'</span><b>'+s.one+'/'+s.total+'</b></div>'+
+      '<div class="kt-a79-result-bar"><i style="width:'+p+'%"></i></div>'+
+      '<small>Хангасан '+s.one+' · Хангаагүй '+s.zero+' · Үнэлээгүй '+(s.total-s.done)+'</small></div>';
+  }).join('');
+  var zeroHtml=d.zero.length?d.zero.map(function(it){
+    return '<div class="kt-a79-result-item no"><b>№'+it.row.no+' · '+it.row.scopeLabel+'</b><span>'+ktEsc(it.row.text)+'</span>'+(it.note?'<small>📝 '+ktEsc(it.note)+'</small>':'')+'</div>';
+  }).join(''):'<div class="kt-a79-result-empty">0 гэж үнэлэгдсэн шалгуур байхгүй.</div>';
+  var oneHtml=d.one.length?d.one.slice(0,8).map(function(it){
+    return '<div class="kt-a79-result-item yes"><b>№'+it.row.no+' · '+it.row.scopeLabel+'</b><span>'+ktEsc(it.row.text)+'</span></div>';
+  }).join(''):'<div class="kt-a79-result-empty">1 гэж үнэлэгдсэн шалгуур одоогоор байхгүй.</div>';
+  return '<div class="kt-a79-result-card">'+
+    '<div class="kt-a79-result-switch"><button class="on" onclick="KT_A79_RESULT_VIEW=\'child\';renderInitialAssessment()">👤 Хүүхэд</button><button onclick="KT_A79_RESULT_VIEW=\'class\';renderInitialAssessment()">👥 Ангийн нэгдсэн</button></div>'+
+    '<div class="kt-a79-result-head"><div><span>ГАРААНЫ ҮНЭЛГЭЭНИЙ ҮР ДҮН</span><b>'+ktEsc(child.name||'Хүүхэд')+'</b><small>'+ktA79AgeLabel(d.x.key)+' · '+d.cfg.level+' түвшин</small></div>'+
+      '<div class="kt-a79-result-pct"><strong>'+resultPct+'%</strong><small>үнэлсэн шалгуурт</small></div></div>'+
+    (!complete?'<div class="kt-a79-result-warn">⚠️ Үнэлгээ бүрэн дуусаагүй байна: '+a.done+'/'+a.total+' шалгуур бөглөсөн. Үр дүн нь одоогоор бөглөсөн шалгуурт үндэслэж байна.</div>':'<div class="kt-a79-result-ok">✅ Бүх '+a.total+' шалгуурыг үнэлж дууссан.</div>')+
+    '<div class="kt-a79-result-kpis"><div><span>Хангасан</span><b>'+a.one+'</b></div><div><span>Хангаагүй</span><b>'+a.zero+'</b></div><div><span>Үнэлээгүй</span><b>'+(a.total-a.done)+'</b></div><div><span>Нийт</span><b>'+a.total+'</b></div></div>'+
+    '<div class="kt-a79-result-domains">'+groupHtml+'</div>'+
+    '<div class="kt-a79-result-title">🎯 Дэмжлэг хэрэгтэй шалгуур ('+d.zero.length+')</div>'+zeroHtml+
+    '<div class="kt-a79-result-title">✅ Хангасан шалгуур ('+d.one.length+')</div>'+oneHtml+
+    (d.one.length>8?'<div class="kt-a79-result-more">Дэлгэц дээр эхний 8-ыг харууллаа. Хэвлэхэд бүх шалгуур орно.</div>':'')+
+    '<div class="kt-a79-result-actions"><button onclick="ktA79PrintResult()">🖨️ Үр дүн хэвлэх</button><button class="secondary" onclick="KT_A79_SHOW_RESULT=false;renderInitialAssessment()">← Үнэлгээ рүү буцах</button></div>'+
+  '</div>';
+}
+function ktA79PrintResult(){
+  var child=ktInitialChild();if(!child){toast('Хүүхэд сонгоно уу');return;}
+  var d=ktA79ResultData(child),a=d.all,u=DB.user||{},resultPct=a.done?Math.round(a.one/a.done*100):0;
+  var school=ktEsc(u.kinder||u.school||'Цэцэрлэг'),teacher=ktEsc(u.name||'—');
+  var date=d.st.updatedAt?formatLocalDateTime(d.st.updatedAt):formatLocalDateTime(new Date().toISOString());
+  var groupRows=d.groups.map(function(g){
+    var s=g.stats,p=s.done?Math.round(s.one/s.done*100):0;
+    return '<tr><td>'+g.icon+' '+g.label+'</td><td>'+s.one+'</td><td>'+s.zero+'</td><td>'+(s.total-s.done)+'</td><td>'+s.total+'</td><td>'+p+'%</td></tr>';
+  }).join('');
+  var allRows=d.rows.map(function(r){
+    var v=d.st.answers[String(r.no)],status=v===1?'1 — Хангасан':v===0?'0 — Хангаагүй':'— Үнэлээгүй';
+    var cls=v===1?'yes':v===0?'no':'blank',note=d.st.notes[String(r.no)]||'';
+    return '<tr class="'+cls+'"><td style="text-align:center;">'+r.no+'</td><td>'+r.scopeLabel+'</td><td>'+ktEsc(r.text)+(note?'<div class="pn">Тэмдэглэл: '+ktEsc(note)+'</div>':'')+'</td><td style="white-space:nowrap;">'+status+'</td></tr>';
+  }).join('');
+  var support=d.zero.length?'<ol>'+d.zero.map(function(it){return '<li>'+ktEsc(it.row.text)+(it.note?' <span class="pn">— '+ktEsc(it.note)+'</span>':'')+'</li>';}).join('')+'</ol>':'<p>0 гэж үнэлэгдсэн шалгуур байхгүй.</p>';
+  var h='<style>'+
+    '.a79p{font-family:Arial,sans-serif;color:#111;font-size:11px}.a79p h1{text-align:center;font-size:18px;margin:4px 0}.a79p .sub{text-align:center;color:#555;margin-bottom:12px}.a79p .meta{display:grid;grid-template-columns:1fr 1fr;gap:5px 18px;border:1px solid #ddd;padding:10px;margin-bottom:12px}.a79p .sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}.a79p .sum div{border:1px solid #ddd;padding:8px;text-align:center}.a79p .sum b{display:block;font-size:16px;color:#0f766e}.a79p table{width:100%;border-collapse:collapse;margin:8px 0 14px}.a79p th,.a79p td{border:1px solid #ccc;padding:6px;vertical-align:top}.a79p th{background:#f3f4f6}.a79p tr.yes td:last-child{color:#047857;font-weight:700}.a79p tr.no td:last-child{color:#be123c;font-weight:700}.a79p .pn{font-size:9px;color:#666;margin-top:3px}.a79p h2{font-size:13px;margin:14px 0 6px;color:#0f766e}.a79p ol{padding-left:20px}.a79p li{margin:4px 0;line-height:1.4}.a79p .foot{display:flex;justify-content:space-between;margin-top:24px;padding-top:12px;border-top:1px solid #aaa}.a79p .notice{border:1px solid #f59e0b;background:#fffbeb;padding:7px;margin:8px 0;color:#92400e}@media print{.a79p tr{break-inside:avoid;}.a79p h2{break-after:avoid;}}'+
+    '</style><div class="a79p">'+
+    '<div style="text-align:center;font-size:11px;">'+school+'</div><h1>ГАРААНЫ ҮНЭЛГЭЭНИЙ ҮР ДҮН</h1>'+
+    '<div class="sub">А/79 — Суралцагчийн хөгжлийн үнэлгээний шалгуур</div>'+
+    '<div class="meta"><div><b>Хүүхэд:</b> '+ktEsc(child.name||'')+'</div><div><b>Нас:</b> '+ktA79AgeLabel(d.x.key)+'</div><div><b>Түвшин:</b> '+d.cfg.level+'</div><div><b>Үнэлгээ хийсэн:</b> '+ktEsc(date)+'</div><div><b>Багш:</b> '+teacher+'</div><div><b>Нийт шалгуур:</b> '+a.total+'</div></div>'+
+    (a.done<a.total?'<div class="notice">Анхааруулга: Үнэлгээ бүрэн бус — '+a.done+'/'+a.total+' шалгуур бөглөсөн.</div>':'')+
+    '<div class="sum"><div><b>'+a.one+'</b>Хангасан</div><div><b>'+a.zero+'</b>Хангаагүй</div><div><b>'+(a.total-a.done)+'</b>Үнэлээгүй</div><div><b>'+resultPct+'%</b>Үнэлсэн шалгуурын хангасан хувь</div></div>'+
+    '<h2>1. Үнэлгээний хүрээний нэгтгэл</h2><table><thead><tr><th>Хүрээ</th><th>1</th><th>0</th><th>Үнэлээгүй</th><th>Нийт</th><th>Хангасан %</th></tr></thead><tbody>'+groupRows+'</tbody></table>'+
+    '<h2>2. Дэмжлэг хэрэгтэй шалгуур</h2>'+support+
+    '<h2>3. Шалгуур тус бүрийн үнэлгээ</h2><table><thead><tr><th>№</th><th>Хүрээ</th><th>Шалгуур</th><th>Үнэлгээ</th></tr></thead><tbody>'+allRows+'</tbody></table>'+
+    '<div class="foot"><div>Багш: ____________________</div><div>Огноо: ____________________</div></div></div>';
+  offPrint(h,'portrait');
+}
+
 function ktA79Child(){
  var child=ktInitialChild();if(!child)return'<div class="kt-ia-empty">Эхлээд хүүхэд сонгоно уу.</div>';
+ if(KT_A79_SHOW_RESULT)return KT_A79_RESULT_VIEW==='class'?ktA79ClassResultHtml():ktA79ResultHtml(child);
  var x=ktA79Cfg(child),cfg=x.cfg,st=ktA79Store(child.id),all=ktA79Stats(cfg,st,'all');
  var groups=[['knowledge','Мэдлэг','🧠'],['skill','Чадвар','🛠️'],['disposition','Төлөвшил','🌱']];
  var tabs='<div class="kt-a79-scopes"><button class="'+(KT_A79_SCOPE==='all'?'on':'')+'" onclick="KT_A79_SCOPE=\'all\';renderInitialAssessment()">Бүгд '+all.done+'/'+all.total+'</button>'+groups.map(function(g){var s=ktA79Stats(cfg,st,g[0]);return'<button class="'+(KT_A79_SCOPE===g[0]?'on':'')+'" onclick="KT_A79_SCOPE=\''+g[0]+'\';renderInitialAssessment()">'+g[2]+' '+g[1]+' '+s.done+'/'+s.total+'</button>';}).join('')+'</div>';
  var rows=ktA79Flat(cfg).filter(function(r){return KT_A79_SCOPE==='all'||r.scope===KT_A79_SCOPE;});
  var list=rows.map(function(r){var v=st.answers[String(r.no)],note=st.notes[String(r.no)]||'';return'<div class="kt-a79-row '+(v===1?'yes':v===0?'no':'')+'"><div class="kt-a79-num">'+r.no+'</div><div class="kt-a79-body"><div class="kt-a79-scope">'+r.scopeLabel+'</div><div class="kt-a79-text">'+ktEsc(r.text)+'</div><div class="kt-a79-actions"><button class="'+(v===1?'on yes':'')+'" onclick="ktA79Set('+r.no+',1)">1<span>Хангасан</span></button><button class="'+(v===0?'on no':'')+'" onclick="ktA79Set('+r.no+',0)">0<span>Хангаагүй</span></button><button onclick="ktA79Clear('+r.no+')" '+((v===1||v===0)?'':'disabled')+'>↺</button></div><textarea class="kt-a79-note" placeholder="Ажиглалтын тэмдэглэл (заавал биш)" oninput="ktA79Note('+r.no+',this.value)">'+ktEsc(note)+'</textarea></div></div>';}).join('');
  var sums=groups.map(function(g){var s=ktA79Stats(cfg,st,g[0]);return'<div><span>'+g[2]+' '+g[1]+'</span><b>'+s.one+'/'+s.total+'</b><small>1 оноо · үнэлсэн '+s.done+'</small></div>';}).join('');
- return'<div class="kt-a79-hero"><div><span>ГАРААНЫ ҮНЭЛГЭЭ · А/79</span><b>'+ktEsc(child.name||'Хүүхэд')+'</b><small>'+ktA79AgeLabel(x.key)+' · '+cfg.level+' түвшин · '+all.total+' шалгуур</small></div><div class="kt-a79-score"><strong>'+all.one+'</strong><small>/'+all.total+'</small></div></div><div class="kt-a79-info">Энэ хүүхдэд зөвхөн <b>'+ktA79AgeLabel(x.key)+'</b>-ны <b>'+cfg.level+' түвшний</b> шалгуур гарна. <b>1 = хангасан</b>, <b>0 = хангаагүй/илрээгүй</b>. Үнэлээгүйг хоосон үлдээнэ.</div><div class="kt-a79-overview"><div><span>Бөглөсөн</span><b>'+all.done+'/'+all.total+'</b></div><div><span>1 оноо</span><b>'+all.one+'</b></div><div><span>0 оноо</span><b>'+all.zero+'</b></div><div><span>Бөглөлт</span><b>'+all.completePct+'%</b></div></div><div class="kt-a79-progress"><i style="width:'+all.completePct+'%"></i></div><div class="kt-a79-sumgrid">'+sums+'</div>'+ktA79SupportHtml(child)+tabs+'<div class="kt-a79-list">'+list+'</div><div class="kt-a79-foot">Сүүлд шинэчилсэн: '+(st.updatedAt?formatLocalDateTime(st.updatedAt):'—')+'</div>';
+ return'<div class="kt-a79-hero"><div><span>ГАРААНЫ ҮНЭЛГЭЭ · А/79</span><b>'+ktEsc(child.name||'Хүүхэд')+'</b><small>'+ktA79AgeLabel(x.key)+' · '+cfg.level+' түвшин · '+all.total+' шалгуур</small></div><div class="kt-a79-score"><strong>'+all.one+'</strong><small>/'+all.total+'</small></div></div><div class="kt-a79-info">Энэ хүүхдэд зөвхөн <b>'+ktA79AgeLabel(x.key)+'</b>-ны <b>'+cfg.level+' түвшний</b> шалгуур гарна. <b>1 = хангасан</b>, <b>0 = хангаагүй/илрээгүй</b>. Үнэлээгүйг хоосон үлдээнэ.</div><div class="kt-a79-overview"><div><span>Бөглөсөн</span><b>'+all.done+'/'+all.total+'</b></div><div><span>1 оноо</span><b>'+all.one+'</b></div><div><span>0 оноо</span><b>'+all.zero+'</b></div><div><span>Бөглөлт</span><b>'+all.completePct+'%</b></div></div><div class="kt-a79-progress"><i style="width:'+all.completePct+'%"></i></div><div class="kt-a79-sumgrid">'+sums+'</div><div class="kt-a79-top-actions three"><button onclick="KT_A79_SHOW_RESULT=true;KT_A79_RESULT_VIEW=\'child\';renderInitialAssessment()">📊 Хүүхдийн үр дүн</button><button onclick="KT_A79_SHOW_RESULT=true;KT_A79_RESULT_VIEW=\'class\';renderInitialAssessment()">👥 Ангийн үр дүн</button><button class="print" onclick="ktA79PrintResult()">🖨️ Хэвлэх</button></div>'+ktA79SupportHtml(child)+tabs+'<div class="kt-a79-list">'+list+'</div><div class="kt-a79-foot">Сүүлд шинэчилсэн: '+(st.updatedAt?formatLocalDateTime(st.updatedAt):'—')+'</div>';
 }
 function renderInitialAssessment(){var root=$('initialAssessRoot');if(!root)return;root.innerHTML=ktA79Child();}
 
