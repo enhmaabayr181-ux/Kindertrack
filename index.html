@@ -1220,6 +1220,15 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 
 .owner-role-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}.owner-role-summary>div{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:8px;text-align:center}.owner-role-summary b{display:block;font-size:15px;color:#0f766e}.owner-role-summary span{display:block;font-size:7.5px;color:#64748b;margin-top:2px}@media(max-width:430px){.owner-role-summary{grid-template-columns:repeat(2,1fr)}}
 
+
+.owner-rp-head{background:linear-gradient(135deg,#0f766e,#6d28d9);color:#fff;border-radius:18px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.owner-rp-head span{display:block;font-size:8px;font-weight:900;letter-spacing:1.3px;opacity:.8}.owner-rp-head b{display:block;font-size:18px;margin-top:2px}.owner-rp-head small{display:block;font-size:9px;opacity:.82;margin-top:3px;line-height:1.4}.owner-rp-head button{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;border-radius:10px;padding:8px 10px;font-family:inherit;font-size:9px;font-weight:800;white-space:nowrap}
+.owner-rp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}.owner-rp-stats>div{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px;text-align:center}.owner-rp-stats b{display:block;font-size:17px;color:#0f766e}.owner-rp-stats span{display:block;font-size:8px;color:#64748b;margin-top:2px}
+.owner-rp-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}.owner-rp-tabs button{border:1px solid #e5e7eb;background:#fff;color:#64748b;border-radius:12px;padding:10px 8px;font-family:inherit;font-size:10px;font-weight:850}.owner-rp-tabs button.on{border-color:#0d9488;background:#f0fdfa;color:#0f766e}.owner-rp-tabs em{font-style:normal;background:#e2e8f0;border-radius:999px;padding:2px 6px;margin-left:3px}.owner-rp-tabs button.on em{background:#ccfbf1;color:#0f766e}
+.owner-rp-section-title{margin:6px 1px 9px}.owner-rp-section-title b{display:block;font-size:13px;color:#1e293b}.owner-rp-section-title span{display:block;font-size:9px;color:#94a3b8;margin-top:2px}
+.owner-rp-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:11px;margin-bottom:8px}.owner-rp-row{display:flex;align-items:center;gap:8px}.owner-rp-avatar{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex-shrink:0}.owner-rp-avatar.teacher{background:#ecfdf5;color:#047857}.owner-rp-avatar.md{background:#f3e8ff;color:#7c3aed}.owner-rp-grow{flex:1;min-width:0}.owner-rp-grow b{display:block;font-size:11px;color:#1e293b}.owner-rp-grow span{display:block;font-size:8.5px;color:#64748b;margin-top:1px}.owner-rp-grow small{display:block;font-size:7.5px;color:#94a3b8;margin-top:1px;word-break:break-all}.owner-rp-row i{font-style:normal;font-size:7.5px;font-weight:900;border-radius:999px;padding:4px 6px;white-space:nowrap}.owner-rp-row i.ok{background:#dcfce7;color:#166534}.owner-rp-row i.trial{background:#fef3c7;color:#92400e}.owner-rp-row i.expired{background:#fee2e2;color:#991b1b}
+.owner-rp-mini{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:9px}.owner-rp-mini--4{grid-template-columns:repeat(4,1fr)}.owner-rp-mini>div{background:#f8fafc;border-radius:9px;padding:6px 3px;text-align:center}.owner-rp-mini b{display:block;font-size:10px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.owner-rp-mini span{display:block;font-size:6.8px;color:#94a3b8;margin-top:1px;line-height:1.25}.owner-rp-loading{text-align:center;color:#94a3b8;padding:30px 10px;font-size:12px}
+@media(max-width:430px){.owner-rp-stats{grid-template-columns:repeat(2,1fr)}.owner-rp-mini{grid-template-columns:repeat(3,1fr)}.owner-rp-mini--4{grid-template-columns:repeat(2,1fr)}}
+
 </style>
 </head>
 <body>
@@ -1269,6 +1278,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       <div class="auth-sub">Тавтай морил!</div>
       <div id="login-err"></div>
       <div id="knownEmails" style="margin-bottom:10px;"></div>
+      <div id="rememberEmailHint" style="display:none;background:#f0fdfa;border:1px solid #ccfbf1;border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#0f766e;">💾 Сүүлд нэвтэрсэн и-мэйл сануулагдлаа. Нууц үгийг хадгалахгүй.</div>
       <div class="f-group"><label class="f-label" for="li-email">И-мэйл</label><input class="f-input" type="email" id="li-email" autocomplete="username" placeholder="bagsh@kindertrack.mn"></div>
       <div class="f-group"><label class="f-label">Нууц үг</label><input class="f-input" type="password" id="li-pass" placeholder="••••••••"></div>
       <button class="btn-submit" onclick="doLogin()">Нэвтрэх</button>
@@ -1446,6 +1456,8 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
     </div>
 
     <div class="page" id="pg-reports">
+      <div id="ownerReportsDashboard" style="display:none;"></div>
+      <div id="teacherReportsContent">
       <div class="rp-header">
         <div class="rp-title">Тайлангууд</div>
         <div class="rp-sub">Аналитик самбар, улирлын болон жилийн тайлан</div>
@@ -1457,6 +1469,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       <div id="a79Dashboard" style="margin-top:8px;"></div>
       <div class="rp-banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span>Үр дүнгийн үнэлгээ болон Фото портфолио харахын тулд эхлээд доороос хүүхдээ сонгоно уу.</span></div>
       <div id="reportsChildList" style="margin-top:8px;"></div>
+      </div>
     </div>
 
     <div class="page" id="pg-methodologist">
@@ -3219,7 +3232,7 @@ var pendingMeetType=null;
 
 function $(id){return document.getElementById(id);}
 function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});$('scr-'+id).classList.add('active');}
-function showAuth(type){showScreen('auth');try{ktRenderKnownEmails();}catch(e){}if(type==='register'){$('form-login').style.display='none';$('form-register').style.display='block';}else{$('form-login').style.display='block';$('form-register').style.display='none';}}
+function showAuth(type){showScreen('auth');try{ktRenderKnownEmails();ktPrefillLastEmail();}catch(e){}if(type==='register'){$('form-login').style.display='none';$('form-register').style.display='block';}else{$('form-login').style.display='block';$('form-register').style.display='none';}}
 function toggleAuth(){var l=$('form-login'),r=$('form-register');if(l.style.display==='none'){l.style.display='block';r.style.display='none';}else{l.style.display='none';r.style.display='block';}}
 function toast(msg){var t=$('toastEl');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
 var _ktModalStack=[],_ktLastFocus=null;
@@ -3386,19 +3399,36 @@ function ktSavedEmails(){
   try{var r=JSON.parse(localStorage.getItem('kt_known_emails')||'[]');return Array.isArray(r)?r:[];}
   catch(e){return [];}
 }
+function ktLastEmail(){
+  try{return localStorage.getItem('kt_last_email')||'';}catch(e){return '';}
+}
+function ktPrefillLastEmail(){
+  var email=ktLastEmail(),el=$('li-email'),hint=$('rememberEmailHint');
+  if(email&&el&&!el.value){
+    el.value=email;
+    if(hint)hint.style.display='block';
+  }else if(hint){
+    hint.style.display='none';
+  }
+}
+
 function ktRememberEmail(email,name){
   if(!email)return;
   try{
     var list=ktSavedEmails().filter(function(x){return x&&x.email!==email;});
     list.unshift({email:email,name:name||'',at:Date.now()});
     localStorage.setItem('kt_known_emails',JSON.stringify(list.slice(0,4)));
+    localStorage.setItem('kt_last_email',email);
   }catch(e){}
 }
 function ktForgetEmail(email){
   try{
     localStorage.setItem('kt_known_emails',JSON.stringify(ktSavedEmails().filter(function(x){return x.email!==email;})));
+    if(localStorage.getItem('kt_last_email')===email)localStorage.removeItem('kt_last_email');
   }catch(e){}
   ktRenderKnownEmails();
+  var el=$('li-email');if(el&&el.value===email)el.value='';
+  var h=$('rememberEmailHint');if(h)h.style.display='none';
 }
 function ktUseEmail(email){
   var el=$('li-email');
@@ -3619,7 +3649,7 @@ function ktApplyRoleNav(){
   if($('nvTxtDashboard'))$('nvTxtDashboard').textContent=owner?'Нүүр':(md?'Арга зүйч':'Нүүр');
   if($('nvTxtChildren'))$('nvTxtChildren').textContent=md?'Багш нар':'Хүүхдүүд';
   if($('nvTxtMethodologist'))$('nvTxtMethodologist').textContent=owner?'Админ':(md?'Хяналт':'Арга зүйч');
-  if($('nvTxtReports'))$('nvTxtReports').textContent='Тайлан';
+  if($('nvTxtReports'))$('nvTxtReports').textContent=owner?'Самбар':'Тайлан';
 }
 function goRoleNav(slot){
   var owner=(typeof ktIsOwner==='function'&&ktIsOwner()),md=mdIsMethodologist();
@@ -4092,7 +4122,116 @@ function renderAttMonth(){
   });
   var lg=document.createElement('div');lg.style.cssText='font-size:11px;color:#9ca3af;margin-top:8px;text-align:center;';lg.textContent='Ирсэн · Ирээгүй · Чөлөө';w.appendChild(lg);
 }
+
+var OWNER_RP={tab:'teachers',profiles:[],data:{},loading:false};
+
+function ownerRpStatus(u){
+  var now=new Date();now.setHours(0,0,0,0);
+  var paid=u.paid_until?new Date(u.paid_until):null;
+  var trial=u.trial_end?new Date(u.trial_end):null;
+  if(paid)paid.setHours(0,0,0,0);
+  if(trial)trial.setHours(0,0,0,0);
+  if(paid&&paid>=now)return {t:'Төлбөртэй',c:'ok'};
+  if(trial&&trial>=now)return {t:'Туршилт',c:'trial'};
+  return {t:'Хугацаа дууссан',c:'expired'};
+}
+function ownerRpRole(u){
+  return u.role||((u.team_code&&String(u.team_code).trim())?'methodologist':'teacher');
+}
+function ownerRpSetTab(tab){
+  OWNER_RP.tab=tab;ownerRpPaint();
+}
+async function renderOwnerReportsDashboard(force){
+  var root=$('ownerReportsDashboard');if(!root)return;
+  if(OWNER_RP.loading)return;
+  if(!OWNER_RP.profiles.length||force){
+    OWNER_RP.loading=true;
+    root.innerHTML='<div class="owner-rp-loading">Мэдээлэл шинэчилж байна…</div>';
+    try{
+      var pr=await ktSB.from('profiles')
+        .select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan')
+        .order('name',{ascending:true});
+      if(pr.error)throw pr.error;
+      OWNER_RP.profiles=pr.data||[];
+      OWNER_RP.data={};
+      var teacherIds=OWNER_RP.profiles.filter(function(u){return ownerRpRole(u)==='teacher';}).map(function(u){return u.id;});
+      if(teacherIds.length){
+        try{
+          var ad=await ktSB.from('app_data').select('user_id,data,updated_at').in('user_id',teacherIds);
+          if(!ad.error)(ad.data||[]).forEach(function(x){OWNER_RP.data[x.user_id]={data:x.data||{},updated_at:x.updated_at};});
+        }catch(e){}
+      }
+    }catch(e){
+      root.innerHTML='<div class="md-alert">Эзэн самбарын мэдээлэл уншихад алдаа: '+ktEsc(e.message||String(e))+'</div>';
+      OWNER_RP.loading=false;return;
+    }
+    OWNER_RP.loading=false;
+  }
+  ownerRpPaint();
+}
+function ownerRpPaint(){
+  var root=$('ownerReportsDashboard');if(!root)return;
+  var teachers=OWNER_RP.profiles.filter(function(u){return ownerRpRole(u)==='teacher';});
+  var methodologists=OWNER_RP.profiles.filter(function(u){return ownerRpRole(u)==='methodologist';});
+  var now=new Date();now.setHours(0,0,0,0);
+  var active=OWNER_RP.profiles.filter(function(u){var s=ownerRpStatus(u);return s.c!=='expired';}).length;
+
+  var head='<div class="owner-rp-head"><div><span>ЭЗЭН / АДМИН</span><b>Хэрэглэгчийн самбар</b><small>Багш болон арга зүйчийн бүртгэл, идэвх, ажлын тойм</small></div><button onclick="renderOwnerReportsDashboard(true)">↻ Шинэчлэх</button></div>'+
+    '<div class="owner-rp-stats">'+
+      '<div><b>'+OWNER_RP.profiles.length+'</b><span>Нийт хэрэглэгч</span></div>'+
+      '<div><b>'+teachers.length+'</b><span>👩‍🏫 Багш</span></div>'+
+      '<div><b>'+methodologists.length+'</b><span>🧭 Арга зүйч</span></div>'+
+      '<div><b>'+active+'</b><span>Идэвхтэй</span></div>'+
+    '</div>'+
+    '<div class="owner-rp-tabs">'+
+      '<button class="'+(OWNER_RP.tab==='teachers'?'on':'')+'" onclick="ownerRpSetTab(\'teachers\')">👩‍🏫 Багшийн самбар <em>'+teachers.length+'</em></button>'+
+      '<button class="'+(OWNER_RP.tab==='methodologists'?'on':'')+'" onclick="ownerRpSetTab(\'methodologists\')">🧭 Арга зүйчийн самбар <em>'+methodologists.length+'</em></button>'+
+    '</div>';
+
+  root.innerHTML=head+'<div id="ownerRpBody"></div>';
+  var body=$('ownerRpBody');
+  if(OWNER_RP.tab==='methodologists')body.innerHTML=ownerRpMethodologistsHtml(methodologists);
+  else body.innerHTML=ownerRpTeachersHtml(teachers);
+}
+function ownerRpTeachersHtml(list){
+  if(!list.length)return '<div class="md-empty">Багш бүртгэлгүй байна.</div>';
+  return '<div class="owner-rp-section-title"><b>Багшийн самбар</b><span>Бүх багшийн бүлэг, идэвх болон ажлын тойм</span></div>'+
+    list.map(function(u){
+      var st=ownerRpStatus(u),d=(OWNER_RP.data[u.id]||{}).data||{},m=null;
+      try{m=mdMetrics(d);}catch(e){m={children:(d.children||[]).length,monthObs:0,coverage:0,initial:{completePct:0},planStats:{curDays:0}};}
+      return '<div class="owner-rp-card">'+
+        '<div class="owner-rp-row"><div class="owner-rp-avatar teacher">'+mdInitial(u.name)+'</div><div class="owner-rp-grow"><b>'+ktEsc(u.name||'Багш')+'</b><span>'+ktEsc(u.kinder||'Цэцэрлэг оруулаагүй')+(u.teacher_group?' · '+ktEsc(u.teacher_group):'')+'</span><small>'+ktEsc(u.email||'')+'</small></div><i class="'+st.c+'">'+st.t+'</i></div>'+
+        '<div class="owner-rp-mini"><div><b>'+m.children+'</b><span>хүүхэд</span></div><div><b>'+m.monthObs+'</b><span>энэ сарын ажиглалт</span></div><div><b>'+m.coverage+'%</b><span>хамрагдалт</span></div><div><b>'+m.initial.completePct+'%</b><span>гарааны</span></div><div><b>'+m.planStats.curDays+'</b><span>төлөвлөсөн өдөр</span></div></div>'+
+      '</div>';
+    }).join('');
+}
+function ownerRpMethodologistsHtml(list){
+  if(!list.length)return '<div class="md-empty">Арга зүйч бүртгэлгүй байна.</div>';
+  return '<div class="owner-rp-section-title"><b>Арга зүйчийн самбар</b><span>Арга зүйч бүрийн баг болон холбогдсон багшийн тоо</span></div>'+
+    list.map(function(u){
+      var st=ownerRpStatus(u);
+      var members=OWNER_RP.profiles.filter(function(x){return ownerRpRole(x)==='teacher'&&x.team_owner===u.id;});
+      var activeMembers=members.filter(function(x){return ownerRpStatus(x).c!=='expired';}).length;
+      var groups={};members.forEach(function(x){if(x.teacher_group)groups[x.teacher_group]=1;});
+      return '<div class="owner-rp-card">'+
+        '<div class="owner-rp-row"><div class="owner-rp-avatar md">'+mdInitial(u.name)+'</div><div class="owner-rp-grow"><b>'+ktEsc(u.name||'Арга зүйч')+'</b><span>'+ktEsc(u.kinder||'Цэцэрлэг оруулаагүй')+'</span><small>'+ktEsc(u.email||'')+'</small></div><i class="'+st.c+'">'+st.t+'</i></div>'+
+        '<div class="owner-rp-mini owner-rp-mini--4"><div><b>'+members.length+'</b><span>холбогдсон багш</span></div><div><b>'+activeMembers+'</b><span>идэвхтэй багш</span></div><div><b>'+Object.keys(groups).length+'</b><span>бүлэг</span></div><div><b>'+(u.team_code?ktEsc(u.team_code):'—')+'</b><span>багийн код</span></div></div>'+
+      '</div>';
+    }).join('');
+}
+
 function renderReportsPage(){
+  // Эзэн/админд л Багш + Арга зүйчийн нэгдсэн самбар харагдана.
+  if(typeof ktIsOwner==='function'&&ktIsOwner()){
+    var oc=$('ownerReportsDashboard'),tc=$('teacherReportsContent');
+    if(oc)oc.style.display='block';
+    if(tc)tc.style.display='none';
+    renderOwnerReportsDashboard();
+    return;
+  }
+  var oc=$('ownerReportsDashboard'),tc=$('teacherReportsContent');
+  if(oc)oc.style.display='none';
+  if(tc)tc.style.display='block';
   try{renderReportsAnalytics();}catch(e){console.log('analytics',e);}
   var w=$('reportsChildList');w.innerHTML='';
   if(!DB.children.length){w.innerHTML='<div class="rp-empty"><div class="rp-empty__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="rp-empty__t">Хүүхэд бүртгэлгүй байна</div><div class="rp-empty__s">Тайлан харахын тулд эхлээд хүүхэд нэмнэ үү</div><button class="ks-btn ks-btn--primary rp-empty__btn" onclick="openModal(&#39;modal-add&#39;)">＋ Хүүхэд нэмэх</button></div>';return;}
