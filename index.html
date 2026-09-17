@@ -1297,7 +1297,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
     </div>
     <div id="form-register" style="display:none">
       <div class="auth-title">Бүртгүүлэх</div>
-      <div class="auth-sub">Эхний 7 хоног үнэгүй</div>
+      <div class="auth-sub">Багш, арга зүйч аль аль нь эхний 7 хоног үнэгүй</div>
       <div id="reg-err"></div>
       <div class="f-group">
         <label class="f-label">Та ямар эрхээр бүртгүүлэх вэ?</label>
@@ -1535,7 +1535,6 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       </div>
       <div class="set-section">
         <div class="set-title">Баг ба төхөөрөмж</div>
-</div>
         <div class="set-item" id="passSetItem" onclick="openChangePass()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="set-info"><div class="set-name">Нууц үг солих</div><div class="set-sub">Нэвтрэх нууц үгээ шинэчлэх</div></div></div>
         <div class="set-item" id="chatSetItem" onclick="openMyChat()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="set-info"><div class="set-name">Админд хандах <span id="chatState" style="font-size:11px;color:#0d9488;font-weight:700;"></span></div><div class="set-sub">Асуулт/санал бичих, тусламж авах</div></div></div>
         <div class="set-item set-item--admin" id="notifySetItem" style="display:none" onclick="openSendNotify()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div><div class="set-info"><div class="set-name">Мэдэгдэл илгээх <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Бүх багшид зарлал/мэдэгдэл илгээх</div></div></div>
@@ -3541,8 +3540,8 @@ function ktSetRegisterRole(role){
   if(gw)gw.style.display=role==='teacher'?'block':'none';
   if(role==='methodologist'&&$('rg-group'))$('rg-group').value='';
   if(note)note.innerHTML=role==='methodologist'
-    ?'Арга зүйчээр бүртгүүлбэл <b>Арга зүйчийн самбар</b> шууд нээгдэж, багш нараа багийн кодоор холбоно.'
-    :'Багшаар бүртгүүлээд өөрийн анги, хүүхдүүдтэй ажиллана.';
+    ?'Арга зүйчээр бүртгүүлбэл <b>7 хоног үнэгүй туршина</b>. Арга зүйчийн самбар нээгдэж, багш нараа багийн кодоор холбоно.'
+    :'Багшаар бүртгүүлбэл <b>7 хоног үнэгүй туршина</b>. Өөрийн анги, хүүхдүүдтэй ажиллана.';
 }
 
 async function doRegister(){
@@ -3567,9 +3566,8 @@ async function doRegister(){
   loadDB();
   var prof=await ktEnsureProfile({name:name,kinder:kinder,phone:phone});
   if(!prof){$('reg-err').innerHTML='<div class="err-msg">Профайл үүсгэхэд алдаа гарлаа</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+(ktLastErr||'profiles хүснэгт үүсгэсэн SQL ажилласан эсэхээ шалгаарай')+'</div>';return;}
-  // Бүртгэлийн эрхийг хадгална.
-  // Одоогийн schema-д role багана байхгүй тул:
-  // teacher -> trial, methodologist -> kinder гэж одоогийн plan талбарыг ашиглана.
+  // Бүртгэлийн эрхийг тусдаа role баганад хадгална.
+  // Багш, арга зүйч хоёулаа ktEnsureProfile()-ийн 7 хоногийн trial хугацааг адил ашиглана.
   var upd={role:role,teacher_group:role==='teacher'?grp:null};
   if(role==='methodologist'){
     if(!prof.team_code)upd.team_code=ktGenCode();
