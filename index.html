@@ -1229,6 +1229,13 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 .owner-rp-mini{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:9px}.owner-rp-mini--4{grid-template-columns:repeat(4,1fr)}.owner-rp-mini>div{background:#f8fafc;border-radius:9px;padding:6px 3px;text-align:center}.owner-rp-mini b{display:block;font-size:10px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.owner-rp-mini span{display:block;font-size:6.8px;color:#94a3b8;margin-top:1px;line-height:1.25}.owner-rp-loading{text-align:center;color:#94a3b8;padding:30px 10px;font-size:12px}
 @media(max-width:430px){.owner-rp-stats{grid-template-columns:repeat(2,1fr)}.owner-rp-mini{grid-template-columns:repeat(3,1fr)}.owner-rp-mini--4{grid-template-columns:repeat(2,1fr)}}
 
+
+.pl-age-summary{background:#f8fafc;border:1px solid #e5e7eb;border-radius:13px;padding:11px;margin-bottom:10px}.pl-age-summary-title{font-size:11.5px;font-weight:900;color:#334155}.pl-age-summary-note{font-size:9.5px;color:#64748b;line-height:1.45;margin:4px 0 8px}.pl-age-summary-chips{display:flex;gap:7px;flex-wrap:wrap}.pl-age-summary-chips span{border-radius:20px;padding:5px 10px;font-size:10.5px;font-weight:850}
+.pl-type-help{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:9px 10px;margin-bottom:10px;font-size:9.5px;color:#92400e;line-height:1.5}.pl-type-help b{display:block;margin-bottom:3px}.pl-type-help span{display:block}.pl-type-help strong{font-weight:900}
+.pl-sud-card{border:1px solid #e5e7eb;border-left:4px solid #cbd5e1;border-radius:14px;padding:11px;margin-bottom:9px}.pl-sud-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.pl-sud-head b{font-size:11px;color:#1e293b}.pl-sud-head span{font-size:9px;font-weight:800;color:#94a3b8}.pl-sud-grid{display:grid;grid-template-columns:1fr 1fr 38px;gap:7px;align-items:end}.pl-sud-grid label,.pl-sud-text-label{display:block;font-size:8.5px;font-weight:850;color:#64748b;margin-bottom:4px}.pl-sud-grid select,.pl-sud-grid input,.pl-sud-card textarea{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:9px 10px;font-family:inherit;font-size:11.5px;background:#fff;color:#1f2937}.pl-sud-card textarea{min-height:62px;resize:vertical}.pl-sud-del{height:39px;border:1px solid #fecdd3;background:#fff1f2;color:#e11d48;border-radius:10px}.pl-sud-dir{font-size:9px;color:#64748b;margin-top:5px}
+.pl-auto-box,.pl-teacher-box{border-radius:13px;padding:10px;margin-top:10px}.pl-auto-box{background:#f8fafc;border:1px solid #e2e8f0}.pl-teacher-box{background:#fff;border:1px solid #ccfbf1}.pl-box-title{font-size:10.5px;font-weight:900;color:#334155;margin-bottom:3px}.pl-teacher-box .pl-box-title{color:#0f766e}.pl-box-note{font-size:9px;color:#94a3b8;line-height:1.4}
+@media(max-width:430px){.pl-sud-grid{grid-template-columns:1fr 1fr 36px}.pl-sud-grid select,.pl-sud-grid input{font-size:10.5px}}
+
 </style>
 </head>
 <body>
@@ -1528,7 +1535,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       </div>
       <div class="set-section">
         <div class="set-title">Баг ба төхөөрөмж</div>
-        <div class="set-item set-item--admin" id="ownerSetItem" style="display:none" onclick="openOwner()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20h14"/><path d="M3 7l4.5 4L12 5l4.5 6L21 7l-2 11H5z"/></svg></div><div class="set-info"><div class="set-name">Эзэн самбар <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Төлбөр төлсөн хэрэглэгчдийг идэвхжүүлэх</div></div></div>
+</div>
         <div class="set-item" id="passSetItem" onclick="openChangePass()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="set-info"><div class="set-name">Нууц үг солих</div><div class="set-sub">Нэвтрэх нууц үгээ шинэчлэх</div></div></div>
         <div class="set-item" id="chatSetItem" onclick="openMyChat()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="set-info"><div class="set-name">Админд хандах <span id="chatState" style="font-size:11px;color:#0d9488;font-weight:700;"></span></div><div class="set-sub">Асуулт/санал бичих, тусламж авах</div></div></div>
         <div class="set-item set-item--admin" id="notifySetItem" style="display:none" onclick="openSendNotify()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div><div class="set-info"><div class="set-name">Мэдэгдэл илгээх <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Бүх багшид зарлал/мэдэгдэл илгээх</div></div></div>
@@ -7964,20 +7971,22 @@ function plDayHtml(){
         '<div style="font-size:11.5px;color:#9ca3af;">'+plLongDate(ds)+'</div></div>'+
         '<button onclick="plOpenDay(\''+plAddDays(ds,1)+'\')" aria-label="Дараах өдөр" style="'+plBtn('#fff','#64748b','1px solid #eceef0')+'width:38px;min-height:38px;">›</button></div>'+
       plStatusPicker('day',ds,d.status)+
-      '<div class="pl-two" style="margin-top:11px;">'+
+      '<div class="pl-auto-box" style="margin-top:11px;"><div class="pl-box-title">🔄 7 хоногоос татагдах мэдээлэл</div><div class="pl-box-note">Бүлэг, нас, сэдвийг 7 хоногийн төлөвлөгөөнөөс автоматаар авна.</div>'+
+      '<div class="pl-two" style="margin-top:8px;">'+
         '<div><label style="'+plLabel()+'" for="plDGroup">Бүлэг</label><input id="plDGroup" style="'+plInput()+'" placeholder="Жишээ: Дунд бүлэг" value="'+ktEsc(d.group||'')+'" oninput="plDaySet(\'group\',this.value)"></div>'+
         '<div><label style="'+plLabel()+'" for="plDAge">Насны бүлэг</label><select id="plDAge" style="'+plInput()+'" onchange="plDaySet(\'age\',this.value)"><option value="">—</option>'+plAgeOpts(d.age)+'</select></div>'+
       '</div>'+
       '<label style="'+plLabel()+'" for="plDTheme">Гол сэдэв</label>'+
       '<input id="plDTheme" style="'+plInput()+'" placeholder="'+(plActiveTheme(ds)?'Идэвхтэй: '+ktEsc(plActiveTheme(ds).name):'Жишээ: Намрын өнгө')+'" value="'+ktEsc(d.theme||'')+'" oninput="plDaySet(\'theme\',this.value)">'+
       '<label style="'+plLabel()+'" for="plDSub">Дэд сэдэв</label>'+
-      '<input id="plDSub" style="'+plInput()+'" placeholder="Заавал биш" value="'+ktEsc(d.subTheme||'')+'" oninput="plDaySet(\'subTheme\',this.value)">'+
+      '<input id="plDSub" style="'+plInput()+'" placeholder="Заавал биш" value="'+ktEsc(d.subTheme||'')+'" oninput="plDaySet(\'subTheme\',this.value)"></div>'+
+      '<div class="pl-teacher-box"><div class="pl-box-title">✍️ Багшийн бөглөх хэсэг</div>'+
       '<label style="'+plLabel()+'" for="plDObj">Өдрийн зорилго</label>'+
       '<textarea id="plDObj" style="'+plInput()+'height:74px;" placeholder="Хүүхэд юу сурах вэ?" oninput="plDaySet(\'objective\',this.value)">'+ktEsc(d.objective||'')+'</textarea>'+
       '<label style="'+plLabel()+'" for="plDMat">Материал</label>'+
       '<textarea id="plDMat" style="'+plInput()+'height:64px;" placeholder="Бэлтгэх зүйлс" oninput="plDaySet(\'materials\',this.value)">'+ktEsc(d.materials||'')+'</textarea>'+
       '<label style="'+plLabel()+'" for="plDPar">Эцэг эхэд мэдэгдэх</label>'+
-      '<textarea id="plDPar" style="'+plInput()+'height:64px;" placeholder="Заавал биш" oninput="plDaySet(\'parentNote\',this.value)">'+ktEsc(d.parentNote||'')+'</textarea>'+
+      '<textarea id="plDPar" style="'+plInput()+'height:64px;" placeholder="Заавал биш" oninput="plDaySet(\'parentNote\',this.value)">'+ktEsc(d.parentNote||'')+'</textarea></div>'+
       '<div style="font-size:11px;color:#9ca3af;margin-top:8px;">Багш: '+ktEsc((DB.user&&DB.user.name)||'')+' • Бичихэд автоматаар хадгалагдана.</div>'+
       (st.total?'<div style="display:flex;align-items:center;gap:9px;margin-top:11px;"><div style="flex:1;height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden;"><div style="width:'+Math.round(st.done/st.total*100)+'%;height:100%;background:#10b981;"></div></div>'+
         '<span style="font-size:11.5px;font-weight:800;color:#374151;">'+st.done+'/'+st.total+'</span></div>':'')+
@@ -8203,8 +8212,8 @@ function plWeekSudHtml(ws){
   return '<div style="'+plCard()+'">'+
     '<div style="'+plH2()+'">Сарын СҮД-ээс энэ 7 хоногт сонгох</div>'+
     '<div style="font-size:12px;color:#64748b;line-height:1.6;margin-bottom:10px;">'+
-      mo+'-р сарын төлөвлөгөөнд <b>'+list.length+'</b> СҮД байна. Энэ 7 хоногт хийхээ чагтална. '+
-      'Сонгосон: <b style="color:#0d9488;">'+chosen+'</b></div>'+
+      mo+'-р сарын төлөвлөгөөнд <b>'+list.length+'</b> СҮД байна. Энэ 7 хоногт хэрэгжүүлэх СҮД-ээ сонгоно. '+
+      'Сонгосон: <b style="color:#0d9488;">'+chosen+'</b><br><span style="font-size:10.5px;color:#94a3b8;">Үндсэн = голлон хэрэгжүүлэх · Уялдах = бусад чиглэлтэй холбох · Давтагдах = бататгах</span></div>'+
     (list.length?
       plLevelSummary(list)+'<div style="max-height:280px;overflow-y:auto;border:1px solid #eceef0;border-radius:12px;padding:6px;">'+
       list.map(function(s){
@@ -8244,11 +8253,13 @@ function plWeekHtml(){
         '<button onclick="plShiftWeek(1)" aria-label="Дараах 7 хоног" style="'+plBtn('#fff','#64748b','1px solid #eceef0')+'width:38px;min-height:38px;">›</button></div>'+
       plStatusPicker('week',ws,w.status)+
       '<button onclick="plCreateDaysFromWeek(\''+ws+'\')" style="width:100%;margin-top:10px;'+plBtn('linear-gradient(135deg,#0d9488,#8b5cf6)','#fff')+'">📝 7 хоногоос өдрийн төлөвлөгөөнүүд үүсгэх</button>'+
-      '<div class="pl-two" style="margin-top:11px;">'+
+      '<div class="pl-auto-box"><div class="pl-box-title">🔄 Автоматаар татагдах мэдээлэл</div><div class="pl-box-note">Сарын төлөвлөгөөнөөс ирсэн мэдээлэл. Шаардлагатай бол засаж болно.</div>'+
+      '<div class="pl-two" style="margin-top:8px;">'+
         '<div><label style="'+plLabel()+'" for="plWGrp">Бүлэг</label><input id="plWGrp" style="'+plInput()+'" value="'+ktEsc(w.group||'')+'" oninput="plWeekSet(\'group\',this.value)"></div>'+
         '<div><label style="'+plLabel()+'" for="plWAge">Нас</label><select id="plWAge" style="'+plInput()+'" onchange="plWeekSet(\'age\',this.value)"><option value="">—</option>'+plAgeOpts(w.age)+'</select></div></div>'+
       '<label style="'+plLabel()+'" for="plWMainTh">Сарын гол сэдэв</label>'+
-      '<input id="plWMainTh" style="'+plInput()+'" placeholder="Сарын төлөвлөгөөнөөс татагдана" value="'+ktEsc(w.mainTheme||'')+'" oninput="plWeekSet(\'mainTheme\',this.value)">'+
+      '<input id="plWMainTh" style="'+plInput()+'" placeholder="Сарын төлөвлөгөөнөөс татагдана" value="'+ktEsc(w.mainTheme||'')+'" oninput="plWeekSet(\'mainTheme\',this.value)"></div>'+
+      '<div class="pl-teacher-box"><div class="pl-box-title">✍️ Багшийн бөглөх хэсэг</div>'+
       '<label style="'+plLabel()+'" for="plWTh">7 хоногийн дэд сэдэв</label>'+
       '<input id="plWTh" style="'+plInput()+'" placeholder="Жишээ: Намрын ургац" value="'+ktEsc(w.subTheme||w.theme||'')+'" oninput="plWeekSet(\'subTheme\',this.value);plWeekSet(\'theme\',this.value)">'+
       '<label style="'+plLabel()+'" for="plWG">7 хоногийн зорилго</label>'+
@@ -8257,7 +8268,7 @@ function plWeekHtml(){
       '<div style="display:flex;flex-wrap:wrap;gap:6px;">'+SECTIONS.map(function(s){var on=w.domains.indexOf(s.cls)>=0;
         return '<button onclick="plWeekDomain(\''+s.cls+'\')" aria-pressed="'+on+'" style="min-height:38px;padding:0 12px;border-radius:19px;border:1.5px solid '+(on?SEC_BORDER[s.cls]:'#eceef0')+';background:'+(on?SEC_BORDER[s.cls]:'#fff')+';color:'+(on?'#fff':'#64748b')+';font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;">'+s.icon+' '+ktEsc(s.label.split(',')[0].split(' ')[0])+'</button>';}).join('')+'</div>'+
       '<label style="'+plLabel()+'" for="plWO">Хүлээгдэх үр дүн</label>'+
-      '<textarea id="plWO" style="'+plInput()+'height:70px;" oninput="plWeekSet(\'outcomes\',this.value)">'+ktEsc(w.outcomes||'')+'</textarea>'+
+      '<textarea id="plWO" style="'+plInput()+'height:70px;" oninput="plWeekSet(\'outcomes\',this.value)">'+ktEsc(w.outcomes||'')+'</textarea></div>'+
     '</div>'+
     plWeekSudHtml(ws)+
     '<div style="'+plCard()+'">'+
@@ -8360,13 +8371,43 @@ function plLevelSummary(list){
   var c={};(list||[]).forEach(function(s){var k=s.level||'—';c[k]=(c[k]||0)+1;});
   var keys=Object.keys(c).sort();
   if(keys.length<2)return '';
-  return '<div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin-bottom:10px;">'+
-    '<div style="font-size:11.5px;font-weight:800;color:#475569;margin-bottom:6px;">Холимог бүлэг — түвшин тус бүрээр</div>'+
-    '<div style="display:flex;gap:7px;flex-wrap:wrap;">'+keys.map(function(k){
-      return '<span style="background:'+plLevelColor(k)+'1a;color:'+plLevelColor(k)+';border-radius:20px;padding:4px 11px;font-size:11.5px;font-weight:800;">'+
-        (k==='—'?'Түвшингүй':k+'-р түвшин'+(plLevelAge(k)?' ('+plLevelAge(k)+')':''))+': '+c[k]+'</span>';}).join('')+'</div></div>';
+  return '<div class="pl-age-summary">'+
+    '<div class="pl-age-summary-title">Энэ бүлгийн СҮД — насны ангиллаар</div>'+
+    '<div class="pl-age-summary-note">Холимог насны бүлэг бол нас бүрийн СҮД тусдаа харагдана. Хүүхдийн гарааны үнэлгээ нь хүүхэд бүрийн өөрийн насаар хийгдэнэ.</div>'+
+    '<div class="pl-age-summary-chips">'+keys.map(function(k){
+      return '<span style="background:'+plLevelColor(k)+'1a;color:'+plLevelColor(k)+';">'+
+        (k==='—'?'Насны ангилалгүй':k+'-р түвшин'+(plLevelAge(k)?' · '+plLevelAge(k):''))+': '+c[k]+'</span>';}).join('')+'</div></div>';
 }
-function plMonthSudHtml(m,mo){var src=plAnnualSud(mo),names={main:'Үндсэн',link:'Уялдах',repeat:'Давтагдах'};return '<div style="'+plCard()+'"><div style="'+plH2()+'">Жилийн файлаас СҮД татах</div><div style="font-size:12px;color:#64748b;line-height:1.55;margin-bottom:10px;">'+mo+'-р сард жилийн CSV файлаас <b>'+src.length+'</b> СҮД олдлоо.</div><button onclick="plImportMonthSud()" '+(!src.length?'disabled':'')+' style="width:100%;'+plBtn(src.length?'#ecfdf5':'#f3f4f6',src.length?'#047857':'#9ca3af','1px solid '+(src.length?'#a7f3d0':'#e5e7eb'))+'">📥 Жилийн файлаас СҮД татах</button>'+(!src.length?'<div style="font-size:10.5px;color:#9ca3af;margin-top:8px;">“Файл” хэсэгт CSV загвараар жилийн СҮД-ээ оруулна уу.</div>':'')+'</div>'+(m.sud.length?'<div style="'+plCard()+'"><div style="'+plH2()+'">Энэ сарын СҮД ('+m.sud.length+')</div>'+plLevelSummary(m.sud)+m.sud.map(function(s){return '<div style="border:1px solid #e5e7eb;border-radius:14px;padding:10px;margin-bottom:9px;border-left:4px solid '+plLevelColor(s.level)+';">'+(s.level?'<div style="font-size:10.5px;font-weight:800;color:'+plLevelColor(s.level)+';margin-bottom:5px;">'+s.level+'-р түвшин'+(plLevelAge(s.level)?' • '+plLevelAge(s.level):'')+'</div>':'')+'<div style="display:flex;gap:7px;align-items:center;"><select aria-label="СҮД төрөл" style="'+plInput()+'margin:0;flex:0 0 120px;" onchange="plMonthSudSet(\''+s.id+'\',\'kind\',this.value)">'+['main','link','repeat','support'].map(function(k){return '<option value="'+k+'"'+(s.kind===k?' selected':'')+'>'+names[k]+'</option>';}).join('')+'</select><input aria-label="СҮД код" style="'+plInput()+'margin:0;min-width:0;" value="'+ktEsc(s.code||'')+'" placeholder="Код" oninput="plMonthSudSet(\''+s.id+'\',\'code\',this.value)"><button onclick="plMonthSudDel(\''+s.id+'\')" aria-label="СҮД устгах" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'width:38px;min-height:38px;">🗑</button></div><textarea aria-label="СҮД тайлбар" style="'+plInput()+'height:62px;margin-top:7px;" oninput="plMonthSudSet(\''+s.id+'\',\'text\',this.value)">'+ktEsc(s.text||'')+'</textarea>'+(s.dir?'<div style="font-size:10.5px;color:#64748b;">'+ktEsc(s.dir)+'</div>':'')+'</div>';}).join('')+'<div style="font-size:10.5px;color:#9ca3af;">Татсан СҮД-үүдийг энд шууд засварлаж болно. Өөрчлөлт автоматаар хадгалагдана.</div></div>':'');}
+function plMonthSudHtml(m,mo){
+  var src=plAnnualSud(mo),names={main:'Үндсэн',link:'Уялдах',repeat:'Давтагдах',support:'Гарааны үнэлгээ'};
+  var typeHelp='<div class="pl-type-help"><b>СҮД-ийн төрөл</b><span><strong>Үндсэн</strong> — энэ сарын голлон хэрэгжүүлэх</span><span><strong>Уялдах</strong> — бусад чиглэлтэй холбон хэрэгжүүлэх</span><span><strong>Давтагдах</strong> — өмнөхийг бататгах</span></div>';
+  return '<div style="'+plCard()+'">'+
+    '<div style="'+plH2()+'">Жилийн төлөвлөгөөнөөс энэ сарын СҮД татах</div>'+
+    '<div style="font-size:12px;color:#64748b;line-height:1.55;margin-bottom:10px;">'+mo+'-р сард жилийн төлөвлөгөөнөөс <b>'+src.length+'</b> СҮД олдлоо.</div>'+
+    '<button onclick="plImportMonthSud()" '+(!src.length?'disabled':'')+' style="width:100%;'+plBtn(src.length?'#ecfdf5':'#f3f4f6',src.length?'#047857':'#9ca3af','1px solid '+(src.length?'#a7f3d0':'#e5e7eb'))+'">📥 Энэ сарын СҮД-ээ татах</button>'+
+    (!src.length?'<div style="font-size:10.5px;color:#9ca3af;margin-top:8px;">Эхлээд <b>Жилийн СҮД</b> хэсэгт Word эсвэл Excel төлөвлөгөөгөө оруулна уу.</div>':'')+
+  '</div>'+
+  (m.sud.length?'<div style="'+plCard()+'"><div style="'+plH2()+'">Энэ сарын СҮД ('+m.sud.length+')</div>'+
+    plLevelSummary(m.sud)+typeHelp+
+    m.sud.map(function(s,i){
+      return '<div class="pl-sud-card" style="border-left-color:'+plLevelColor(s.level)+';">'+
+        '<div class="pl-sud-head"><b>СҮД '+(i+1)+'</b>'+
+          (s.level?'<span style="color:'+plLevelColor(s.level)+';">'+s.level+'-р түвшин'+(plLevelAge(s.level)?' · '+plLevelAge(s.level):'')+'</span>':'<span>Насны ангилалгүй</span>')+
+        '</div>'+
+        '<div class="pl-sud-grid">'+
+          '<div><label>Төрөл</label><select aria-label="СҮД төрөл" onchange="plMonthSudSet(\''+s.id+'\',\'kind\',this.value)">'+
+            ['main','link','repeat','support'].map(function(k){return '<option value="'+k+'"'+(s.kind===k?' selected':'')+'>'+names[k]+'</option>';}).join('')+
+          '</select></div>'+
+          '<div><label>СҮД код</label><input aria-label="СҮД код" value="'+ktEsc(s.code||'')+'" placeholder="Жишээ: ХЯ1.1а" oninput="plMonthSudSet(\''+s.id+'\',\'code\',this.value)"></div>'+
+          '<button onclick="plMonthSudDel(\''+s.id+'\')" aria-label="СҮД устгах" class="pl-sud-del">🗑</button>'+
+        '</div>'+
+        '<label class="pl-sud-text-label">СҮД тайлбар</label>'+
+        '<textarea aria-label="СҮД тайлбар" oninput="plMonthSudSet(\''+s.id+'\',\'text\',this.value)">'+ktEsc(s.text||'')+'</textarea>'+
+        (s.dir?'<div class="pl-sud-dir">Чиглэл: '+ktEsc(s.dir)+'</div>':'')+
+      '</div>';
+    }).join('')+
+    '<div style="font-size:10.5px;color:#9ca3af;">Энд хийсэн өөрчлөлт автоматаар хадгалагдана.</div></div>':'');
+}
 
 /* ---- Сарын сэдвийг AI-аар санал болгох, батлах ---- */
 function plParseAIThemeJSON(text){
@@ -13336,7 +13377,12 @@ async function ktSignedPhoto(path,imgEl){
 
 /* ===== ТӨЛӨВЛӨЛТИЙН ЭНГИЙН УРСГАЛ: ЖИЛ → САР → 7 ХОНОГ → ӨДӨР ===== */
 function plSimpleFlow(active){
-  var steps=[['year','1','Жил','Файл оруулах'],['month','2','Сар','СҮД татах'],['week','3','7 хоног','Хуваарилах'],['day','4','Өдөр','Дэлгэрүүлэх']];
+  var steps=[
+    ['year','1','Жилийн СҮД','Файл оруулах'],
+    ['month','2','Сарын СҮД','Сонгох'],
+    ['week','3','7 хоног','Хуваарилах'],
+    ['day','4','Өдөр','Төлөвлөгөө үүсгэх']
+  ];
   return '<div style="'+plCard()+'padding:13px;border:1px solid #99f6e4;background:linear-gradient(135deg,#f0fdfa,#fff);"><div style="font-size:14px;font-weight:900;color:#0f766e;margin-bottom:10px;">Төлөвлөлтийн дараалал</div><div style="display:flex;align-items:stretch;gap:4px;overflow-x:auto;">'+steps.map(function(s,i){var on=s[0]===active;return '<button onclick="plSetTab(\''+s[0]+'\')" style="flex:1;min-width:74px;border:'+(on?'2px solid #0d9488':'1px solid #d1fae5')+';background:'+(on?'#0d9488':'#fff')+';color:'+(on?'#fff':'#475569')+';border-radius:12px;padding:8px 5px;font-family:inherit;cursor:pointer;"><span style="display:block;font-size:9px;font-weight:900;opacity:.8;">АЛХАМ '+s[1]+'</span><b style="display:block;font-size:11.5px;margin-top:2px;">'+s[2]+'</b><span style="display:block;font-size:8.5px;margin-top:2px;opacity:.8;white-space:nowrap;">'+s[3]+'</span></button>'+(i<3?'<span style="align-self:center;color:#14b8a6;font-weight:900;">›</span>':'');}).join('')+'</div></div>';
 }
 function plSimpleFilesCard(){
@@ -13344,7 +13390,7 @@ function plSimpleFilesCard(){
   return '<div style="'+plCard()+'border:1px solid #99f6e4;"><div style="'+plH2()+'font-size:16px;">1. Жилийн төлөвлөгөөгөө оруулна</div><div style="font-size:12px;color:#475569;line-height:1.65;margin-bottom:11px;">Цэцэрлэгийнхээ батлагдсан жилийн төлөвлөгөөг <b>Word (.docx)</b>, <b>Excel (.xlsx/.xls)</b> эсвэл <b>CSV</b> хэлбэрээр оруулна. Апп хүснэгт дэх сар, долоо хоног, нас, түвшин, СҮД код, суралцахуйн үр дүнг уншина.</div><label for="plPlanFile" style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:58px;border:2px dashed #14b8a6;border-radius:16px;background:#f0fdfa;color:#0f766e;font-size:13px;font-weight:900;cursor:pointer;">📎 Word / Excel жилийн төлөвлөгөө сонгох</label><input id="plPlanFile" type="file" multiple accept=".docx,.xlsx,.xls,.csv,.pdf,.jpg,.jpeg,.png" onchange="plUploadFile(this)" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"><button onclick="plDownloadAnnualTemplate()" style="width:100%;margin-top:8px;'+plBtn('#fff7ed','#c2410c','1px solid #fed7aa')+'">⬇️ Хүснэгтийн загвар татах</button><div style="font-size:10.5px;color:#64748b;line-height:1.55;margin-top:9px;">PDF болон зураг лавлах файлаар хадгалагдана. Автоматаар унших файл нь Word, Excel эсвэл CSV байна.</div></div>'+ 
   '<div style="'+plCard()+'"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px;"><div style="'+plH2()+'margin:0;">Оруулсан жилийн төлөвлөгөө</div>'+(recognized?'<span style="background:#d1fae5;color:#047857;border-radius:14px;padding:4px 8px;font-size:10px;font-weight:900;">'+recognized+' СҮД</span>':'')+'</div>'+(files.length?files.map(function(f){return '<div style="display:flex;align-items:center;gap:9px;border:1px solid #e5e7eb;border-radius:14px;padding:10px;margin-bottom:8px;"><span style="font-size:23px;">'+plFileIcon(f.name)+'</span><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:800;color:#1f2937;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+ktEsc(f.name)+'</div><div style="font-size:10px;color:'+(f.sudCount?'#047857':'#9ca3af')+';margin-top:3px;">'+(f.sudCount?'✓ '+f.sudCount+' СҮД танигдсан':'Зөвхөн хавсралтаар хадгалагдсан')+'</div></div><button onclick="plOpenFile(\''+f.id+'\',false)" style="'+plBtn('#f0fdfa','#0d9488','1px solid #99f6e4')+'min-height:36px;padding:0 9px;">Нээх</button><button onclick="plDeleteFile(\''+f.id+'\')" aria-label="Устгах" style="'+plBtn('#fff1f2','#e11d48','1px solid #fecdd3')+'width:36px;min-height:36px;">🗑</button></div>';}).join('')+'<button onclick="plSetTab(\'month\')" style="width:100%;margin-top:5px;'+plBtn('linear-gradient(135deg,#0d9488,#14b8a6)','#fff')+'">Дараагийн алхам: Сарын төлөвлөгөө →</button>':'<div style="text-align:center;color:#9ca3af;font-size:12px;padding:20px 8px;">Жилийн төлөвлөгөө оруулаагүй байна.</div>')+'</div>';
 }
-function plSimpleManualCard(){var a=plAnnualMatrix(),count=(a.rows||[]).filter(function(r){return !r.autoFullYear;}).length;return '<details style="'+plCard()+'padding:0;overflow:hidden;"><summary style="cursor:pointer;padding:15px;font-size:13px;font-weight:900;color:#2563eb;background:#eff6ff;">✏️ Файлгүй бол гараар төлөвлөх '+(count?'• '+count+' мөр':'')+'</summary><div style="padding:13px;"><div style="font-size:11.5px;color:#64748b;line-height:1.6;margin-bottom:10px;">Бүлэг, нас, сар, долоо хоногоо сонгоод СҮД-ээ өөрөө нэмнэ.</div>'+plAnnualSetupCompactHtml()+plAnnualCompactRowsHtml()+plAnnualActionsHtml()+'</div></details>';}
+function plSimpleManualCard(){var a=plAnnualMatrix(),count=(a.rows||[]).filter(function(r){return !r.autoFullYear;}).length;return '<details style="'+plCard()+'padding:0;overflow:hidden;"><summary style="cursor:pointer;padding:15px;font-size:13px;font-weight:900;color:#2563eb;background:#eff6ff;">✏️ Файлгүй бол гараар төлөвлөх '+(count?'• '+count+' мөр':'')+'</summary><div style="padding:13px;"><div style="font-size:11.5px;color:#64748b;line-height:1.6;margin-bottom:10px;">Бүлэг, нас, сар, долоо хоногоо сонгоод СҮД-ээ өөрөө нэмнэ. Холимог насны бүлэг бол хүүхэд бүрийн нас тусдаа хадгалагдаж, гарааны үнэлгээ нь хүүхдийн өөрийн насаар хийгдэнэ.</div>'+plAnnualSetupCompactHtml()+plAnnualCompactRowsHtml()+plAnnualActionsHtml()+'</div></details>';}
 plYearHtml=function(){return plSimpleFlow('year')+plSimpleFilesCard()+plSimpleManualCard();};
 
 /* Үнэлгээний дүн болон автомат нооргийн мөрийг цааш төлөвлөлтөд ашиглахгүй. */
