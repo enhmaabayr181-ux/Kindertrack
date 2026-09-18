@@ -1290,7 +1290,12 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       <div id="knownEmails" style="margin-bottom:10px;"></div>
       <div id="rememberEmailHint" style="display:none;background:#f0fdfa;border:1px solid #ccfbf1;border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#0f766e;">💾 Сүүлд нэвтэрсэн и-мэйл сануулагдлаа. Нууц үгийг хадгалахгүй.</div>
       <div class="f-group"><label class="f-label" for="li-email">И-мэйл</label><input class="f-input" type="email" id="li-email" autocomplete="username" placeholder="bagsh@kindertrack.mn"></div>
-      <div class="f-group"><label class="f-label">Нууц үг</label><input class="f-input" type="password" id="li-pass" placeholder="••••••••"></div>
+      <div class="f-group"><label class="f-label">Нууц үг</label>
+        <div style="position:relative;">
+          <input class="f-input" type="password" id="li-pass" autocomplete="current-password" placeholder="••••••••" style="padding-right:52px;">
+          <button type="button" onclick="ktTogglePass('li-pass',this)" aria-label="Нууц үг харах" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:#f1f5f9;color:#64748b;border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12px;cursor:pointer;">Харах</button>
+        </div>
+      </div>
       <button class="btn-submit" onclick="doLogin()">Нэвтрэх</button>
       <div style="text-align:center;margin-top:12px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
         <a onclick="ktForgotPass()" style="color:#0d9488;font-size:13px;font-weight:600;cursor:pointer;">Нууц үг мартсан уу?</a>
@@ -1324,7 +1329,19 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       <div class="f-group" id="rg-group-wrap"><label class="f-label">Анги бүлэг</label><select class="f-select" id="rg-group"><option value="">Сонгох</option><option>Бага бүлэг</option><option>Дунд бүлэг</option><option>Ахлах бүлэг</option><option>Бэлтгэл бүлэг</option><option>Холимог бүлэг</option></select></div>
       <div class="f-group"><label class="f-label">Утасны дугаар</label><input class="f-input" type="tel" id="rg-phone" placeholder="9911XXXX"></div>
       <div class="f-group"><label class="f-label">И-мэйл</label><input class="f-input" type="email" id="rg-email" placeholder="bagsh@email.mn"></div>
-      <div class="f-group"><label class="f-label">Нууц үг</label><input class="f-input" type="password" id="rg-pass" placeholder="••••••••"></div>
+      <div class="f-group"><label class="f-label">Нууц үг</label>
+        <div style="position:relative;">
+          <input class="f-input" type="password" id="rg-pass" autocomplete="new-password" placeholder="6-аас дээш тэмдэгт" style="padding-right:52px;">
+          <button type="button" onclick="ktTogglePass('rg-pass',this)" aria-label="Нууц үг харах" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:#f1f5f9;color:#64748b;border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12px;cursor:pointer;">Харах</button>
+        </div>
+      </div>
+      <div class="f-group"><label class="f-label">Нууц үгээ давтан оруулна уу</label>
+        <div style="position:relative;">
+          <input class="f-input" type="password" id="rg-pass2" autocomplete="new-password" placeholder="Нууц үгээ дахин оруулна уу" style="padding-right:52px;">
+          <button type="button" onclick="ktTogglePass('rg-pass2',this)" aria-label="Нууц үг харах" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);border:none;background:#f1f5f9;color:#64748b;border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12px;cursor:pointer;">Харах</button>
+        </div>
+        <div style="font-size:11px;color:#64748b;margin-top:5px;line-height:1.45;">⚠️ Хоёр талбарт яг ижил нууц үг оруулна. Ингэснээр анх бүртгүүлэхдээ буруу шивсэнээс болж дараа нь нэвтрэхгүй болохоос хамгаална.</div>
+      </div>
       <button class="btn-submit" onclick="doRegister()">Бүртгүүлэх</button>
       <div class="auth-switch">Бүртгэл байна уу? <a onclick="ktGoLoginWithEmail(($(&quot;rg-email&quot;)||{}).value||&quot;&quot;)">Нэвтрэх</a></div>
     </div>
@@ -3032,31 +3049,120 @@ async function ktPushData(){
     await ktSB.from('app_data').upsert({user_id:ktUid,data:ktExtractData(),updated_at:new Date().toISOString()});
   }catch(e){console.error('cloud push',e);}
 }
-/* Үүлээс татах / анхны шилжүүлэлт */
-async function ktPullData(uid){
-  ktReady=false;
+
+/* ===== Тогтвортой cloud load: network/RLS алдаа үед хоосон датагаар дарж бичихээс хамгаална ===== */
+function ktTimeout(p,ms,label){
+  return Promise.race([
+    p,
+    new Promise(function(_,reject){
+      setTimeout(function(){
+        var e=new Error((label||'Хүсэлт')+' хугацаа хэтэрлээ');
+        e.code='KT_TIMEOUT';
+        reject(e);
+      },ms||7000);
+    })
+  ]);
+}
+function ktResetUserDataFor(uid){
+  KT_DATA_FIELDS.forEach(function(k){
+    if(k==='children'||k==='songs'||k==='homework'||k==='docs'||k==='staff')DB[k]=[];
+    else DB[k]={};
+  });
+  DB.children=[];
+  DB._owner=uid||null;
+  saveDBLocal();
+}
+function ktRenderAfterCloudPull(){
   try{
-    var res=await ktSB.from('app_data').select('data').eq('user_id',uid).maybeSingle();
-    if(res.error){console.error('cloud pull',res.error);}
-    if(res.data&&res.data.data){
-      // Үүлд дата байна → үүл нь эх сурвалж
-      ktApplyData(res.data.data);
-      DB._owner=uid; saveDBLocal();
-    }else{
-      // Үүлд байхгүй → энэ хэрэглэгчийн локал дата мөн бол шилжүүлнэ, эс бол цэвэрхэн эхэлнэ
-      var mine = (DB._owner===uid) && DB.children && DB.children.length>0;
-      if(!mine){
-        KT_DATA_FIELDS.forEach(function(k){ DB[k]=Array.isArray(DB[k])?[]:{}; });
-        DB.children=[];
-      }
-      DB._owner=uid; saveDBLocal();
-      await ktPushData(); // үүлд мөр үүсгэнэ
+    if($('scr-app')&&$('scr-app').classList.contains('active')){
+      if(typeof renderDashboard==='function')renderDashboard();
+      if(typeof renderChildren==='function'&&$('page-children')&&$('page-children').classList.contains('active'))renderChildren();
     }
-    try{if(!DB.syncSettings)DB.syncSettings={};DB.syncSettings.lastSync=new Date().toISOString();saveDBLocal();}catch(e){}
-  }catch(e){console.error('pull fail (offline?)',e);}
-  ktReady=true;
-  try{if(typeof setSyncIndicator==='function')setSyncIndicator();
-    if(typeof processMediaQueue==='function')processMediaQueue();}catch(e){}
+  }catch(e){console.log('post-pull render',e);}
+}
+var KT_PULL_RETRY_TIMER=null;
+function ktSchedulePullRetry(uid){
+  clearTimeout(KT_PULL_RETRY_TIMER);
+  KT_PULL_RETRY_TIMER=setTimeout(async function(){
+    if(!uid||uid!==ktUid||!navigator.onLine)return;
+    var r=await ktPullData(uid,{background:true,timeout:9000});
+    if(r&&r.ok){
+      ktRenderAfterCloudPull();
+      try{toast('Мэдээлэл шинэчлэгдлээ ✓');}catch(e){}
+    }
+  },3500);
+}
+/* Үүлээс татах / анхны шилжүүлэлт */
+async function ktPullData(uid,opt){
+  opt=opt||{};
+  ktReady=false;
+  var sameOwner=(DB._owner===uid);
+  try{
+    var res=await ktTimeout(
+      ktSB.from('app_data').select('data,updated_at').eq('user_id',uid).maybeSingle(),
+      opt.timeout||7000,
+      'Үүлэн мэдээлэл'
+    );
+
+    /* ЧУХАЛ: RLS/network error бол "дата байхгүй" гэж үзэж болохгүй. */
+    if(res.error){
+      console.error('cloud pull',res.error);
+      ktReady=true;
+      if(!sameOwner){
+        /* Өмнөх хэрэглэгчийн мэдээллийг шинэ хэрэглэгчид хэзээ ч харуулахгүй. */
+        ktResetUserDataFor(uid);
+      }
+      try{
+        SYNC2.lastErr=sync2ErrKind(res.error);
+        SYNC2.lastErrAt=Date.now();
+        setSyncIndicator();
+      }catch(e){}
+      if(!opt.background)ktSchedulePullRetry(uid);
+      return {ok:false,error:res.error,temporary:true};
+    }
+
+    if(res.data&&res.data.data){
+      ktApplyData(res.data.data);
+      DB._owner=uid;
+      try{
+        if(!DB.syncSettings)DB.syncSettings={};
+        DB.syncSettings.lastSync=res.data.updated_at||new Date().toISOString();
+      }catch(e){}
+      saveDBLocal();
+      ktReady=true;
+      try{setSyncIndicator();processMediaQueue();}catch(e){}
+      return {ok:true,source:'cloud'};
+    }
+
+    /* Сервер амжилттай хариулсан бөгөөд үнэхээр мөр байхгүй үед л анхны мөр үүсгэнэ. */
+    if(!sameOwner){
+      ktResetUserDataFor(uid);
+    }else{
+      DB._owner=uid;saveDBLocal();
+    }
+    ktReady=true;
+    try{
+      var push=await ktTimeout(
+        ktSB.from('app_data').upsert({user_id:uid,data:ktExtractData(),updated_at:new Date().toISOString()}),
+        7000,
+        'Анхны хадгалалт'
+      );
+      if(push&&push.error)console.error('initial cloud row',push.error);
+    }catch(e){console.error('initial cloud row',e);}
+    try{setSyncIndicator();}catch(e){}
+    return {ok:true,source:'new'};
+  }catch(e){
+    console.error('pull fail',e);
+    ktReady=true;
+    if(!sameOwner)ktResetUserDataFor(uid);
+    try{
+      SYNC2.lastErr=(e&&e.code==='KT_TIMEOUT')?'timeout':sync2ErrKind(e);
+      SYNC2.lastErrAt=Date.now();
+      setSyncIndicator();
+    }catch(_){}
+    if(!opt.background)ktSchedulePullRetry(uid);
+    return {ok:false,error:e,temporary:true};
+  }
 }
 /* Дансны дугаар хуулах */
 function ktCopy(t){
@@ -3643,24 +3749,59 @@ async function doLogin(){
   var email=$('li-email').value.trim().toLowerCase(),pass=$('li-pass').value;
   if(!email||!pass){$('login-err').innerHTML='<div class="err-msg">Бүх талбарыг бөглөнө үү</div>';return;}
   $('login-err').innerHTML='<div style="color:#9ca3af;font-size:13px;padding:6px 0;">Нэвтэрч байна...</div>';
-  var res=await ktSB.auth.signInWithPassword({email:email,password:pass});
-  if(res.error){
-    var m=res.error.message||'';
-    var msg;
-    if(/not confirmed/i.test(m))msg='И-мэйл баталгаажаагүй байна. И-мэйл дэх баталгаажуулах холбоосоо шалгана уу.';
-    else if(/invalid|credentials/i.test(m))msg='И-мэйл эсвэл нууц үг буруу байна. Нууц үгээ мартсан бол доорх “Нууц үг мартсан уу?”-г дарна уу.';
-    else msg=m;
-    $('login-err').innerHTML='<div class="err-msg">'+msg+'</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+m+'</div>';return;
+  var res;
+  try{
+    res=await ktTimeout(ktSB.auth.signInWithPassword({email:email,password:pass}),10000,'Нэвтрэх хүсэлт');
+  }catch(e){
+    $('login-err').innerHTML='<div class="err-msg">Сервертэй холбогдоход удаж байна.</div><div style="font-size:11.5px;color:#6b7280;margin-top:6px;">Интернэтээ шалгаад дахин оролдоно уу. Апп гацсан биш, хүсэлт хугацаа хэтэрсэн.</div>';
+    return;
   }
+  if(res.error){
+    var m=res.error.message||'',msg;
+    if(/not confirmed/i.test(m))msg='И-мэйл баталгаажаагүй байна. И-мэйл дэх баталгаажуулах холбоосоо шалгана уу.';
+    else if(/invalid|credentials/i.test(m))msg='И-мэйл эсвэл нууц үг буруу байна. Нууц үгээ мартсан бол “Нууц үг мартсан уу?”-г дарна уу.';
+    else msg=m;
+    $('login-err').innerHTML='<div class="err-msg">'+ktEsc(msg)+'</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+ktEsc(m)+'</div>';
+    return;
+  }
+
   loadDB();
-  var prof=await ktEnsureProfile();
-  if(!prof){$('login-err').innerHTML='<div class="err-msg">Профайл уншихад алдаа гарлаа</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+(ktLastErr||'тодорхойгүй')+'</div>';return;}
+
+  var prof;
+  try{prof=await ktTimeout(ktEnsureProfile(),8000,'Профайл');}
+  catch(e){
+    $('login-err').innerHTML='<div class="err-msg">Профайл ачаалахад удаж байна.</div><div style="font-size:11.5px;color:#6b7280;margin-top:6px;">Дахин оролдоно уу. Таны мэдээлэл устахгүй.</div>';
+    return;
+  }
+  if(!prof){
+    $('login-err').innerHTML='<div class="err-msg">Профайл уншихад алдаа гарлаа</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;word-break:break-word;">⚙ '+ktEsc(ktLastErr||'тодорхойгүй')+'</div>';
+    return;
+  }
+
+  var previousOwner=DB._owner;
   ktApplyProfile(prof);
-  if(!(await ktRegisterDevice(prof))){await ktBlockDevice();return;}
-  await ktPullData(prof.id);
+
+  /* Өмнөх хүний local data-г шинэ хэрэглэгчид харуулахгүй. */
+  if(previousOwner&&previousOwner!==prof.id)ktResetUserDataFor(prof.id);
+
+  try{
+    var deviceOk=await ktTimeout(ktRegisterDevice(prof),6500,'Төхөөрөмж шалгах');
+    if(deviceOk===false){await ktBlockDevice();return;}
+  }catch(e){
+    console.warn('device check timeout',e);
+    /* Device шалгалт удааширсан ч аппыг бүхэлд нь гацуулахгүй. */
+  }
+
+  $('login-err').innerHTML='<div style="color:#0d9488;font-size:13px;padding:6px 0;">Мэдээлэл ачаалж байна...</div>';
+  var pull=await ktPullData(prof.id,{timeout:7500});
+
   ktRememberEmail(email,prof.name||'');
   $('login-err').innerHTML='';
   enterApp();
+
+  if(!pull||!pull.ok){
+    try{toast('Апп нээгдлээ. Үүлэн мэдээллийг дахин татаж байна…');}catch(e){}
+  }
 }
 
 function ktSetRegisterRole(role){
@@ -3676,15 +3817,30 @@ function ktSetRegisterRole(role){
     :'Багшаар бүртгүүлбэл <b>7 хоног үнэгүй туршина</b>. Өөрийн анги, хүүхдүүдтэй ажиллана.';
 }
 
+function ktTogglePass(id,btn){
+  var el=$(id);if(!el)return;
+  var show=el.type==='password';
+  el.type=show?'text':'password';
+  if(btn)btn.textContent=show?'Нуух':'Харах';
+}
+
 async function doRegister(){
-  var name=$('rg-name').value.trim(),kinder=$('rg-kinder').value.trim(),phone=$('rg-phone').value.trim(),email=$('rg-email').value.trim().toLowerCase(),pass=$('rg-pass').value;
+  var name=$('rg-name').value.trim(),kinder=$('rg-kinder').value.trim(),phone=$('rg-phone').value.trim(),email=$('rg-email').value.trim().toLowerCase(),pass=$('rg-pass').value,pass2=(($('rg-pass2')&&$('rg-pass2').value)||'');
   var role=($('rg-role')&&$('rg-role').value)||'teacher';
   var grp=($('rg-group')&&$('rg-group').value)||'';
   if(!name||!kinder||!phone||!email||!pass){$('reg-err').innerHTML='<div class="err-msg">Бүх талбарыг бөглөнө үү</div>';return;}
   if(role==='teacher'&&!grp){$('reg-err').innerHTML='<div class="err-msg">Багш бол анги бүлгээ сонгоно уу</div>';return;}
   if(pass.length<6){$('reg-err').innerHTML='<div class="err-msg">Нууц үг 6-аас дээш тэмдэгт байх ёстой</div>';return;}
+  if(pass!==pass.trim()){$('reg-err').innerHTML='<div class="err-msg">Нууц үгийн эхлэл эсвэл төгсгөлд хоосон зай байна. Зайгаа арилгаад дахин оруулна уу.</div>';return;}
+  if(pass!==pass2){$('reg-err').innerHTML='<div class="err-msg">Хоёр нууц үг таарахгүй байна. Дахин шалгана уу.</div>';return;}
   $('reg-err').innerHTML='<div style="color:#9ca3af;font-size:13px;padding:6px 0;">Бүртгэж байна...</div>';
-  var res=await ktSB.auth.signUp({email:email,password:pass});
+  var res;
+  try{
+    res=await ktTimeout(ktSB.auth.signUp({email:email,password:pass}),10000,'Бүртгүүлэх хүсэлт');
+  }catch(e){
+    $('reg-err').innerHTML='<div class="err-msg">Сервертэй холбогдоход удаж байна.</div><div style="font-size:11.5px;color:#6b7280;margin-top:6px;">Интернэтээ шалгаад дахин оролдоно уу. Давхар бүртгүүлэх хэрэггүй.</div>';
+    return;
+  }
   if(res.error){
     var m=res.error.message||'';
     var exists=/registered|exists|already/i.test(m);
@@ -3733,6 +3889,7 @@ async function doRegister(){
   }
   prof=ur.data||prof;
   ktApplyProfile(prof);
+  ktRememberEmail(email,prof.name||name||'');
   if(!(await ktRegisterDevice(prof))){await ktBlockDevice();return;}
   await ktPullData(prof.id);
   $('reg-err').innerHTML='';
@@ -3743,8 +3900,17 @@ async function doRegister(){
 }
 /* Trial дууссаны дараа төлбөр төлсний дараа дахин шалгах */
 async function recheckProfile(){
-  var prof=await ktEnsureProfile();
-  if(prof){ktApplyProfile(prof);if(!(await ktRegisterDevice(prof))){await ktBlockDevice();return;}await ktPullData(prof.id);enterApp();}
+  var prof;
+  try{prof=await ktTimeout(ktEnsureProfile(),8000,'Профайл');}catch(e){toast('Сервертэй холбогдоход удаж байна');return;}
+  if(prof){
+    ktApplyProfile(prof);
+    try{
+      var d=await ktTimeout(ktRegisterDevice(prof),6500,'Төхөөрөмж шалгах');
+      if(d===false){await ktBlockDevice();return;}
+    }catch(e){}
+    await ktPullData(prof.id,{timeout:7500});
+    enterApp();
+  }
 }
 async function doLogout(){
   try{await ktSB.auth.signOut();}catch(e){}
@@ -13702,8 +13868,21 @@ try{sync2Init();}catch(e){console.log('sync2',e);}
 
     var s=await ktSB.auth.getSession();
     if(s&&s.data&&s.data.session){
-      var prof=await ktEnsureProfile();
-      if(prof){ktApplyProfile(prof);if(!(await ktRegisterDevice(prof))){await ktBlockDevice();return;}await ktPullData(prof.id);enterApp();return;}
+      var prof;
+      try{prof=await ktTimeout(ktEnsureProfile(),8000,'Профайл');}catch(e){prof=null;}
+      if(prof){
+        var oldOwner=DB._owner;
+        ktApplyProfile(prof);
+        if(oldOwner&&oldOwner!==prof.id)ktResetUserDataFor(prof.id);
+        try{
+          var devOk=await ktTimeout(ktRegisterDevice(prof),6500,'Төхөөрөмж шалгах');
+          if(devOk===false){await ktBlockDevice();return;}
+        }catch(e){}
+        var pr=await ktPullData(prof.id,{timeout:7500});
+        enterApp();
+        if(!pr||!pr.ok)try{toast('Үүлэн мэдээллийг дахин татаж байна…');}catch(e){}
+        return;
+      }
     }
   }catch(e){console.error('session restore',e);}
   showScreen('landing');
