@@ -2109,6 +2109,42 @@ function ktRecoveryUrlDetected(){
     return q.get('recovery')==='1'||q.has('code')||h.get('type')==='recovery'||h.has('access_token');
   }catch(e){return false;}
 }
+
+async function ktProcessRecoveryUrl(){
+  if(!ktRecoveryUrlDetected())return null;
+  KT_RECOVERY_MODE=true;
+  try{
+    var first=await ktSB.auth.getSession();
+    if(first&&first.data&&first.data.session)return first.data.session;
+  }catch(e){console.log('recovery pre-session',e);}
+
+  try{
+    var u=new URL(location.href);
+    var code=u.searchParams.get('code');
+    if(code){
+      var ex=await ktSB.auth.exchangeCodeForSession(code);
+      if(ex&&ex.data&&ex.data.session)return ex.data.session;
+      if(ex&&ex.error)console.log('recovery exchange',ex.error);
+    }
+  }catch(e){console.log('recovery code',e);}
+
+  try{
+    var h=new URLSearchParams((location.hash||'').replace(/^#/,''));
+    var at=h.get('access_token'),rt=h.get('refresh_token');
+    if(at&&rt){
+      var ss=await ktSB.auth.setSession({access_token:at,refresh_token:rt});
+      if(ss&&ss.data&&ss.data.session)return ss.data.session;
+      if(ss&&ss.error)console.log('recovery setSession',ss.error);
+    }
+  }catch(e){console.log('recovery hash',e);}
+
+  await new Promise(function(resolve){setTimeout(resolve,700);});
+  try{
+    var last=await ktSB.auth.getSession();
+    return last&&last.data&&last.data.session?last.data.session:null;
+  }catch(e){return null;}
+}
+
 function ktOpenRecoveryModal(msg){
   KT_RECOVERY_MODE=true;
   try{showAuth('login');}catch(e){try{showScreen('auth');}catch(_){}}
@@ -3482,6 +3518,8 @@ async function ktSetNewPass(){
       u.hash='';
       u.searchParams.delete('recovery');
       u.searchParams.delete('code');
+      u.searchParams.delete('token');
+      u.searchParams.delete('type');
       history.replaceState(null,'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():''));
     }catch(e){}
     try{await ktSB.auth.signOut();}catch(e){}
@@ -13650,27 +13688,19 @@ try{sync2Init();}catch(e){console.log('sync2',e);}
   }catch(e){console.error('share param',e);}
   try{
     var recoveryHint=ktRecoveryUrlDetected();
-    var s=await ktSB.auth.getSession();
-
     if(recoveryHint){
-      KT_RECOVERY_MODE=true;
-      if(s&&s.data&&s.data.session){
-        ktOpenRecoveryModal('✓ Сэргээх холбоос баталгаажлаа. Шинэ нууц үгээ оруулна уу.');
-        return;
-      }
-      /* Supabase URL token/code-г боловсруулж амжаагүй байж болно. PASSWORD_RECOVERY эвентэд богино хугацаа өгнө. */
-      await new Promise(function(resolve){setTimeout(resolve,900);});
-      var s2=await ktSB.auth.getSession();
-      if(s2&&s2.data&&s2.data.session){
+      var recoverySession=await ktProcessRecoveryUrl();
+      if(recoverySession){
         ktOpenRecoveryModal('✓ Сэргээх холбоос баталгаажлаа. Шинэ нууц үгээ оруулна уу.');
         return;
       }
       showAuth('login');
       if($('login-err'))$('login-err').innerHTML='<div class="err-msg">Сэргээх холбоос хүчингүй эсвэл хугацаа дууссан байна.</div>'+
-        '<div style="font-size:11.5px;color:#6b7280;margin-top:6px;line-height:1.55;">“Нууц үг мартсан уу?” дээр дарж шинэ холбоос авна уу.</div>';
+        '<div style="font-size:11.5px;color:#6b7280;margin-top:6px;line-height:1.55;">“Нууц үг мартсан уу?” дээр дарж <b>шинэ холбоос</b> аваад, хамгийн сүүлд ирсэн холбоосоо нээнэ үү.</div>';
       return;
     }
 
+    var s=await ktSB.auth.getSession();
     if(s&&s.data&&s.data.session){
       var prof=await ktEnsureProfile();
       if(prof){ktApplyProfile(prof);if(!(await ktRegisterDevice(prof))){await ktBlockDevice();return;}await ktPullData(prof.id);enterApp();return;}
