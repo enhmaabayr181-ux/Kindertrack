@@ -1660,6 +1660,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
         <div class="set-item" id="passSetItem" onclick="openChangePass()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="set-info"><div class="set-name">Шинэ нууц үг</div><div class="set-sub">Нэвтрэх нууц үгээ шинэчлэх</div></div></div>
         <div class="set-item" id="chatSetItem" onclick="openMyChat()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="set-info"><div class="set-name">Админд хандах <span id="chatState" style="font-size:11px;color:#0d9488;font-weight:700;"></span></div><div class="set-sub">Асуулт/санал бичих, тусламж авах</div></div></div>
         <div class="set-item" id="assistantManagerSetItem" onclick="openAssistantManager()"><div class="set-icon">🤝</div><div class="set-info"><div class="set-name">Багшийн туслах</div><div class="set-sub">Туслах урих, холбогдсон туслахын ажлыг харах</div></div></div>
+        <div class="set-item set-item--admin" id="ownerModeSetItem" style="display:none" onclick="ktOpenOwnerModeMenu()"><div class="set-icon">🎛️</div><div class="set-info"><div class="set-name">Ажлын самбар солих <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Админ · Бүлгийн багш · Арга зүйч · Багшийн туслах</div></div></div>
         <div class="set-item set-item--admin" id="notifySetItem" style="display:none" onclick="openSendNotify()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div><div class="set-info"><div class="set-name">Мэдэгдэл илгээх <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Бүх багшид зарлал/мэдэгдэл илгээх</div></div></div>
         <div class="set-item set-item--admin" id="inboxSetItem" style="display:none" onclick="openAdminInbox()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><div class="set-info"><div class="set-name">Асуултын хайрцаг <span id="inboxState" style="font-size:11px;color:#0d9488;font-weight:700;"></span> <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Багш нарын асуултад хариулах</div></div></div>
         <div class="set-item set-item--team" id="teamSetItem" style="display:none" onclick="openTeam()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="set-info"><div class="set-name">Миний баг</div><div class="set-sub">Багш нараа кодоор урих (10 хүртэл)</div></div></div>
@@ -2354,7 +2355,7 @@ function ktIsOwner(){
 }
 function ktApplyOwnerUI(){
   var on=ktIsOwner()?'flex':'none';
-  ['ownerSetItem','notifySetItem','inboxSetItem'].forEach(function(id){
+  ['ownerSetItem','ownerModeSetItem','notifySetItem','inboxSetItem'].forEach(function(id){
     var el=document.getElementById(id);
     if(el)el.style.display=on;
   });
@@ -2818,7 +2819,7 @@ async function mdRefreshMethodologistChatBadge(){
 /* ===== Арга зүйчийн хяналтын самбар ===== */
 var MD={requests:[],profiles:{},data:{},feedback:[],selected:null,tab:'overview',loading:false};
 function mdIsMethodologist(){
-  if(typeof ktIsOwner==='function'&&ktIsOwner())return false;
+  if(typeof ktIsOwner==='function'&&ktIsOwner())return ktOwnerAs('methodologist');
   if(!DB.user)return false;
   if(DB.user.accountRole)return DB.user.accountRole==='methodologist';
   return !!DB.user.teamCode;
@@ -4276,8 +4277,61 @@ async function doLogout(){
     if(last&&$('li-email'))$('li-email').value=last;
   }catch(e){}
 }
+var KT_OWNER_WORKMODE='admin';
+function ktOwnerWorkMode(){
+  if(!ktIsOwner())return '';
+  try{KT_OWNER_WORKMODE=localStorage.getItem('kt_owner_workmode')||KT_OWNER_WORKMODE||'admin';}catch(e){}
+  if(['admin','teacher','methodologist','assistant'].indexOf(KT_OWNER_WORKMODE)<0)KT_OWNER_WORKMODE='admin';
+  return KT_OWNER_WORKMODE;
+}
+function ktOwnerAs(mode){return ktIsOwner()&&ktOwnerWorkMode()===mode;}
+function ktOwnerAdminMode(){return ktIsOwner()&&ktOwnerWorkMode()==='admin';}
+function ktOwnerModeLabel(){
+  var m=ktOwnerWorkMode();
+  return m==='teacher'?'👩‍🏫 Бүлгийн багш':m==='methodologist'?'🧭 Арга зүйч':m==='assistant'?'🤝 Багшийн туслах':'👑 Админ';
+}
+function ktSetOwnerWorkMode(mode){
+  if(!ktIsOwner())return;
+  if(['admin','teacher','methodologist','assistant'].indexOf(mode)<0)return;
+  KT_OWNER_WORKMODE=mode;
+  try{localStorage.setItem('kt_owner_workmode',mode);}catch(e){}
+  ktCloseOwnerModeMenu();
+  try{ktApplyRoleNav();}catch(e){}
+  try{ktRenderOwnerModeButton();}catch(e){}
+  if(mode==='admin'){renderDashboard();goPage('dashboard');return;}
+  if(mode==='teacher'){renderDashboard();goPage('dashboard');return;}
+  if(mode==='methodologist'){goPage('methodologist');return;}
+  if(mode==='assistant'){
+    KT_ASSISTANT_GROUP_CHILDREN=[];KT_ASSISTANT_LINK=null;
+    goPage('assistant');return;
+  }
+}
+function ktCloseOwnerModeMenu(){var e=document.getElementById('ktOwnerModeMenu');if(e)e.remove();}
+function ktOpenOwnerModeMenu(){
+  if(!ktIsOwner())return;
+  ktCloseOwnerModeMenu();
+  var cur=ktOwnerWorkMode();
+  var ov=document.createElement('div');ov.id='ktOwnerModeMenu';
+  ov.style.cssText='position:fixed;inset:0;z-index:10050;background:rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:center;padding:12px;';
+  function card(mode,icon,title,sub){var active=cur===mode;return '<button data-mode="'+mode+'" onclick="ktSetOwnerWorkMode(this.getAttribute(\'data-mode\'))" style="width:100%;text-align:left;border:1px solid '+(active?'#0d9488':'#e5e7eb')+';background:'+(active?'#f0fdfa':'#fff')+';border-radius:14px;padding:12px;font-family:inherit;display:flex;gap:10px;align-items:flex-start;cursor:pointer"><span style="font-size:24px">'+icon+'</span><span><b style="display:block;font-size:13px;color:#1f2937">'+title+'</b><small style="display:block;font-size:10.5px;color:#64748b;line-height:1.45;margin-top:3px">'+sub+'</small></span></button>';}
+  ov.innerHTML='<div style="width:min(640px,100%);background:#fff;border-radius:22px;padding:17px;box-shadow:0 20px 60px rgba(15,23,42,.3)"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><div><b style="font-size:19px">👑 Админы ажлын горим</b><div style="font-size:10.5px;color:#64748b;margin-top:3px">Яг тухайн хэрэглэгч шиг самбарыг нээж, багш нарт зааварлахдаа ашиглана.</div></div><button onclick="ktCloseOwnerModeMenu()" style="border:0;background:#f1f5f9;border-radius:10px;width:36px;height:36px">✕</button></div><div style="display:grid;gap:8px">'+
+    card('admin','👑','Админ','Хэрэглэгч, эрх, төлбөр, мэдэгдэл болон админ удирдлага')+
+    card('teacher','👩‍🏫','Бүлгийн багш','Хүүхэд, ажиглалт, үнэлгээ, төлөвлөлт, багшийн бичиг баримтын төв')+
+    card('methodologist','🧭','Арга зүйч','Арга зүйчийн самбар, багшийн хяналт, тайлан, зөвлөгөөний урсгал')+
+    card('assistant','🤝','Багшийн туслах','Өдөр тутмын ажил, асаргаа, дадал, аюулгүй байдал, цэвэрлэгээ, тайлан')+
+    '</div><div style="font-size:9.5px;color:#64748b;background:#f8fafc;border-radius:10px;padding:8px 10px;margin-top:10px">ℹ️ Энэ нь таны админ эрхийг солихгүй. Зөвхөн ямар ажлын самбар харахыг өөрчилнө.</div></div>';
+  ov.addEventListener('click',function(e){if(e.target===ov)ktCloseOwnerModeMenu();});document.body.appendChild(ov);
+}
+function ktRenderOwnerModeButton(){
+  var old=document.getElementById('ktOwnerModeButton');if(old)old.remove();
+  if(!ktIsOwner()||document.getElementById('scr-app').classList.contains('active')===false)return;
+  var b=document.createElement('button');b.id='ktOwnerModeButton';b.type='button';b.onclick=ktOpenOwnerModeMenu;
+  b.textContent=ktOwnerModeLabel()+' ▾';
+  b.style.cssText='position:fixed;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:9000;border:1px solid #d1fae5;background:rgba(255,255,255,.96);color:#0f766e;border-radius:999px;padding:8px 11px;font-family:inherit;font-size:10.5px;font-weight:900;box-shadow:0 4px 18px rgba(15,23,42,.12);backdrop-filter:blur(10px);';
+  document.body.appendChild(b);
+}
 function ktRole(){return (DB.user&&DB.user.accountRole)||'teacher';}
-function ktIsAssistantTeacher(){return ktRole()==='assistant_teacher';}
+function ktIsAssistantTeacher(){return ktOwnerAs('assistant')||ktRole()==='assistant_teacher';}
 function ktAssistantBlocked(msg){toast(msg||'Энэ үйлдлийг үндсэн багш гүйцэтгэнэ.');return false;}
 function ktApplyAssistantUI(){
   if(!ktIsAssistantTeacher())return;
@@ -4312,7 +4366,7 @@ function enterApp(){
   $('userAvatar').textContent=DB.user.name?DB.user.name[0]:'Б';
   $('setName').textContent=DB.user.name;$('setEmail').textContent=DB.user.email;$('setKinder').textContent=DB.user.kinder;
   if($('setPhone'))$('setPhone').textContent=DB.user.phone||'—';
-  if($('setRoleBadge'))$('setRoleBadge').textContent=ktIsOwner()?'👑 Админ / Эзэн':(mdIsMethodologist()?'🧭 Арга зүйчийн эрх':(ktIsAssistantTeacher()?'🤝 Багшийн туслахын эрх':'👩‍🏫 Багшийн эрх'));
+  if($('setRoleBadge'))$('setRoleBadge').textContent=ktIsOwner()?('👑 Админ / Эзэн · '+ktOwnerModeLabel()):(mdIsMethodologist()?'🧭 Арга зүйчийн эрх':(ktIsAssistantTeacher()?'🤝 Багшийн туслахын эрх':'👩‍🏫 Багшийн эрх'));
   $('setUserName').textContent=DB.user.name;
   ktApplyOwnerUI();
   ktCheckPushState();ktRefreshChatState();
@@ -4330,12 +4384,13 @@ function enterApp(){
   if(ktIsAssistantTeacher()){
     ktLoadAssistantContext().then(function(){try{renderAssistantPage();}catch(e){}});
   }
-  if(isOwner){renderDashboard();}else if(isMd){goPage('methodologist');}else if(ktIsAssistantTeacher()){goPage('assistant');}else{renderDashboard();}
+  if(isOwner&&ktOwnerAdminMode()){renderDashboard();}else if(isMd){goPage('methodologist');}else if(ktIsAssistantTeacher()){goPage('assistant');}else{renderDashboard();}
+  setTimeout(ktRenderOwnerModeButton,60);
 }
 
 
 function ktApplyRoleNav(){
-  var owner=(typeof ktIsOwner==='function'&&ktIsOwner()),md=mdIsMethodologist(),ast=ktIsAssistantTeacher();
+  var owner=(typeof ktIsOwner==='function'&&ktIsOwner()&&ktOwnerAdminMode()),md=mdIsMethodologist(),ast=ktIsAssistantTeacher();
   var dash=$('nv-dashboard'),kids=$('nv-children'),ctrl=$('nv-methodologist'),rep=$('nv-reports');
   if(dash)dash.style.display='flex';
   if(kids)kids.style.display=owner?'none':'flex';
@@ -4348,7 +4403,7 @@ function ktApplyRoleNav(){
   if($('assistantManagerSetItem'))$('assistantManagerSetItem').style.display=(!md&&!ast)?'flex':'none';
 }
 function goRoleNav(slot){
-  var owner=(typeof ktIsOwner==='function'&&ktIsOwner()),md=mdIsMethodologist(),ast=ktIsAssistantTeacher();
+  var owner=(typeof ktIsOwner==='function'&&ktIsOwner()&&ktOwnerAdminMode()),md=mdIsMethodologist(),ast=ktIsAssistantTeacher();
   if(owner){
     if(slot==='control'){openOwner();return;}
     var om={home:'dashboard',reports:'reports',settings:'settings'};
@@ -4895,6 +4950,7 @@ function renderTeacherDocs(){
     '<div class="td-tabs">'+tabs.map(function(t){return '<button class="td-tab '+(TD.tab===t[0]?'on':'')+'" onclick="tdTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+'</div>'+body;
 }
 function goPage(p){
+  if(ktIsOwner())setTimeout(ktRenderOwnerModeButton,20);
   document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
   $('pg-'+p).classList.add('active');
   if(p==='settings'){try{ktApplyOwnerUI();}catch(e){}}
@@ -5189,7 +5245,7 @@ async function sendNotification(){
   if(btn){btn.disabled=false;btn.textContent='📢 Илгээх';}
 }
 function renderDashboard(){
-  try{var q=$('teacherDocsQuick');if(q)q.style.display=(!ktIsOwner()&&!mdIsMethodologist()&&!ktIsAssistantTeacher())?'block':'none';}catch(e){}
+  try{var q=$('teacherDocsQuick');if(q)q.style.display=((!ktIsOwner()||ktOwnerAs('teacher'))&&!mdIsMethodologist()&&!ktIsAssistantTeacher())?'block':'none';}catch(e){}
 
   if(ktSB&&Date.now()-(window._ktNotifT||0)>30000){window._ktNotifT=Date.now();fetchNotifications();}
   var gEl=$('dashGreet');if(gEl)gEl.textContent=hmGreet()+(DB.user&&DB.user.name?', багш '+DB.user.name:'')+' '+hmGreetEmoji();
