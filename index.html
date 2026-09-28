@@ -3166,6 +3166,72 @@ function ktApplyData(d){
     if(lu>ru)DB.finalA79[cid]=l;
   });
 }
+
+/* ===== Чухал өгөгдлийг дахин нэвтрэх үед алдахгүй хамгаалалт ===== */
+function ktMergeArrayById(serverArr,localArr){
+  var out=[],seen={};
+  (serverArr||[]).concat(localArr||[]).forEach(function(x){
+    if(!x)return;
+    var id=String(x.id||'');
+    if(id){
+      if(seen[id]!==undefined){out[seen[id]]=x;}
+      else{seen[id]=out.length;out.push(x);}
+    }else{
+      var sig=JSON.stringify(x);
+      if(seen[sig]===undefined){seen[sig]=out.length;out.push(x);}
+    }
+  });
+  return out;
+}
+function ktMergeObsMap(serverMap,localMap){
+  var out=Object.assign({},serverMap||{});
+  Object.keys(localMap||{}).forEach(function(cid){
+    out[cid]=ktMergeArrayById(out[cid]||[],localMap[cid]||[]);
+  });
+  return out;
+}
+function ktMergeObjectLocalWins(serverObj,localObj){
+  if(!serverObj||typeof serverObj!=='object'||Array.isArray(serverObj))serverObj={};
+  if(!localObj||typeof localObj!=='object'||Array.isArray(localObj))return serverObj;
+  var out=Object.assign({},serverObj);
+  Object.keys(localObj).forEach(function(k){
+    var lv=localObj[k],sv=out[k];
+    if(lv&&typeof lv==='object'&&!Array.isArray(lv)&&sv&&typeof sv==='object'&&!Array.isArray(sv)){
+      out[k]=ktMergeObjectLocalWins(sv,lv);
+    }else{
+      out[k]=lv;
+    }
+  });
+  return out;
+}
+function ktMergeCriticalLocal(cloudData){
+  var d=Object.assign({},cloudData||{});
+  var ss=DB.syncSettings||{};
+  var dirty=ss.localDirtyAt||'';
+  var last=ss.lastSync||'';
+  var hasUnsynced=!!dirty&&(!last||dirty>last);
+  if(!hasUnsynced)return {data:d,merged:false};
+
+  d.dailyObs=ktMergeObsMap(d.dailyObs,DB.dailyObs);
+  d.dailyLogs=ktMergeObsMap(d.dailyLogs,DB.dailyLogs);
+  d.plans=ktMergeObjectLocalWins(d.plans||{},DB.plans||{});
+  d.teacherDocs=ktMergeObjectLocalWins(d.teacherDocs||{},DB.teacherDocs||{});
+  return {data:d,merged:true};
+}
+async function ktPersistCriticalSave(label){
+  if(!ktUid||!ktReady)return {ok:false,local:true};
+  try{
+    SYNC2.attempts=0;
+    await sync2Push();
+    if(!SYNC2.pushPending&&!SYNC2.lastErr){
+      try{toast((label||'Мэдээлэл')+' үүлэнд хадгалагдлаа ✓');}catch(e){}
+      return {ok:true};
+    }
+  }catch(e){}
+  try{toast((label||'Мэдээлэл')+' төхөөрөмж дээр хадгалагдсан. Үүл рүү дахин оролдоно.');}catch(e){}
+  return {ok:false,local:true};
+}
+
 /* Үүл рүү хадгалах (debounce) */
 function ktSchedulePush(){
   if(!ktReady||!ktUid)return;
@@ -3173,13 +3239,25 @@ function ktSchedulePush(){
   try{SYNC2.pushPending=true;setSyncIndicator();}catch(e){}
   ktPushTimer=setTimeout(function(){
     if(typeof sync2Push==='function')sync2Push();else ktPushData();
-  },1200);
+  },1800);
 }
 async function ktPushData(){
-  if(!ktUid)return;
+  if(!ktUid)return {ok:false};
   try{
-    await ktSB.from('app_data').upsert({user_id:ktUid,data:ktExtractData(),updated_at:new Date().toISOString()});
-  }catch(e){console.error('cloud push',e);}
+    var now=new Date().toISOString();
+    var r=await ktSB.from('app_data').upsert({user_id:ktUid,data:ktExtractData(),updated_at:now});
+    if(r&&r.error)throw r.error;
+    if(!DB.syncSettings)DB.syncSettings={};
+    DB.syncSettings.lastSync=now;
+    DB.syncSettings.localDirtyAt='';
+    KT_LOCAL_SAVE_PENDING=true;
+    ktScheduleLocalSave();
+    return {ok:true};
+  }catch(e){
+    console.error('cloud push',e);
+    try{SYNC2.lastErr=sync2ErrKind(e);SYNC2.pushPending=true;setSyncIndicator();}catch(_){}
+    return {ok:false,error:e};
+  }
 }
 
 /* ===== Тогтвортой cloud load: network/RLS алдаа үед хоосон датагаар дарж бичихээс хамгаална ===== */
@@ -3254,16 +3332,23 @@ async function ktPullData(uid,opt){
     }
 
     if(res.data&&res.data.data){
-      ktApplyData(res.data.data);
+      var _merge=sameOwner?ktMergeCriticalLocal(res.data.data):{data:res.data.data,merged:false};
+      ktApplyData(_merge.data);
       DB._owner=uid;
       try{
         if(!DB.syncSettings)DB.syncSettings={};
-        DB.syncSettings.lastSync=res.data.updated_at||new Date().toISOString();
+        if(!_merge.merged){
+          DB.syncSettings.lastSync=res.data.updated_at||new Date().toISOString();
+          DB.syncSettings.localDirtyAt='';
+        }
       }catch(e){}
       saveDBLocal();
       ktReady=true;
       try{setSyncIndicator();processMediaQueue();}catch(e){}
-      return {ok:true,source:'cloud'};
+      if(_merge.merged){
+        try{SYNC2.pushPending=true;setSyncIndicator();setTimeout(sync2Push,120);}catch(e){}
+      }
+      return {ok:true,source:_merge.merged?'cloud+local-merge':'cloud'};
     }
 
     /* Сервер амжилттай хариулсан бөгөөд үнэхээр мөр байхгүй үед л анхны мөр үүсгэнэ. */
@@ -3583,6 +3668,17 @@ function closeModal(id){
   var i=_ktModalStack.indexOf(id);if(i>=0)_ktModalStack.splice(i,1);
   if(!document.querySelector('.modal-ov.open')){_ktModalStack.length=0;document.body.style.overflow='';var _ab=document.querySelector('.app-body');if(_ab)_ab.style.overflow='';if(_ktLastFocus&&_ktLastFocus.focus){try{_ktLastFocus.focus();}catch(e){}}}
 }
+function ktRecoverScrollLock(){
+  try{
+    if(document.querySelector('.modal-ov.open'))return;
+    document.body.style.overflow='';
+    var ab=document.querySelector('.app-body');
+    if(ab)ab.style.overflow='';
+    _ktModalStack.length=0;
+  }catch(e){}
+}
+window.addEventListener('pageshow',function(){setTimeout(ktRecoverScrollLock,60);});
+
 /* Modal a11y (presentation/UX only): role/aria init + Escape-to-close + Tab focus trap. No business logic. */
 (function(){try{document.querySelectorAll('.modal-ov').forEach(function(m){m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-hidden','true');var t=m.querySelector('.modal-title');if(t){if(!t.id)t.id=(m.id||'modal')+'-title';m.setAttribute('aria-labelledby',t.id);}});}catch(e){console.error('modal a11y init',e);}})();
 document.addEventListener('keydown',function(e){
@@ -3642,8 +3738,58 @@ function calculateChildAge(birth){
   if(m<0||(m===0&&n.getDate()<b.getDate())){y--;m+=12;}
   return {years:y,months:(m<0?m+12:m)};
 }
-function saveDBLocal(){try{localStorage.setItem('kt_db',JSON.stringify(DB));}catch(e){}}
-function saveDB(){ if(ktUid)DB._owner=ktUid; saveDBLocal(); ktSchedulePush(); }
+var KT_LOCAL_SAVE_TIMER=null;
+var KT_LOCAL_SAVE_PENDING=false;
+var KT_LOCAL_SAVE_IDLE=null;
+
+function saveDBLocal(){
+  try{
+    localStorage.setItem('kt_db',JSON.stringify(DB));
+    KT_LOCAL_SAVE_PENDING=false;
+    return true;
+  }catch(e){
+    console.error('local save',e);
+    KT_LOCAL_SAVE_PENDING=false;
+    return false;
+  }
+}
+function ktFlushLocalSave(){
+  if(KT_LOCAL_SAVE_TIMER){clearTimeout(KT_LOCAL_SAVE_TIMER);KT_LOCAL_SAVE_TIMER=null;}
+  try{
+    if(KT_LOCAL_SAVE_IDLE&&window.cancelIdleCallback)cancelIdleCallback(KT_LOCAL_SAVE_IDLE);
+  }catch(e){}
+  KT_LOCAL_SAVE_IDLE=null;
+  if(!KT_LOCAL_SAVE_PENDING)return true;
+  return saveDBLocal();
+}
+function ktScheduleLocalSave(){
+  KT_LOCAL_SAVE_PENDING=true;
+  if(KT_LOCAL_SAVE_TIMER)clearTimeout(KT_LOCAL_SAVE_TIMER);
+  KT_LOCAL_SAVE_TIMER=setTimeout(function(){
+    KT_LOCAL_SAVE_TIMER=null;
+    if(window.requestIdleCallback){
+      KT_LOCAL_SAVE_IDLE=requestIdleCallback(function(){
+        KT_LOCAL_SAVE_IDLE=null;
+        if(!saveDBLocal()){try{toast('Төхөөрөмжийн хадгалалт дүүрсэн байж магадгүй.');}catch(e){}}
+      },{timeout:650});
+    }else{
+      if(!saveDBLocal()){try{toast('Төхөөрөмжийн хадгалалт дүүрсэн байж магадгүй.');}catch(e){}}
+    }
+  },180);
+}
+function saveDB(){
+  if(ktUid)DB._owner=ktUid;
+  if(!DB.syncSettings)DB.syncSettings={};
+  DB.syncSettings.localDirtyAt=new Date().toISOString();
+  DB.syncSettings.localRev=(DB.syncSettings.localRev||0)+1;
+  ktScheduleLocalSave();
+  ktSchedulePush();
+  return true;
+}
+window.addEventListener('pagehide',function(){try{ktFlushLocalSave();}catch(e){}});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden'){try{ktFlushLocalSave();}catch(e){}}
+});
 function loadDB(){
   try{var d=localStorage.getItem('kt_db');if(d)DB=JSON.parse(d);}catch(e){}
   if(!DB.dailyLogs)DB.dailyLogs={};
@@ -4950,6 +5096,7 @@ function renderTeacherDocs(){
     '<div class="td-tabs">'+tabs.map(function(t){return '<button class="td-tab '+(TD.tab===t[0]?'on':'')+'" onclick="tdTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+'</div>'+body;
 }
 function goPage(p){
+  try{ktRecoverScrollLock();}catch(e){}
   if(ktIsOwner())setTimeout(ktRenderOwnerModeButton,20);
   document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
   $('pg-'+p).classList.add('active');
@@ -5251,9 +5398,22 @@ function renderDashboard(){
   var gEl=$('dashGreet');if(gEl)gEl.textContent=hmGreet()+(DB.user&&DB.user.name?', багш '+DB.user.name:'')+' '+hmGreetEmoji();
   var sEl=$('dashSub');if(sEl&&DB.user)sEl.textContent=(DB.user.kinder||'Цэцэрлэг');
   $('stChildren').textContent=DB.children.length;
-  var total=0;
-  Object.keys(DB.ratings).forEach(function(cid){Object.keys(DB.ratings[cid]).forEach(function(q){Object.keys(DB.ratings[cid][q]).forEach(function(age){
-    SECTIONS.forEach(function(sec){var rs=(DB.ratings[cid][q][age]||{})[sec.cls]||{};total+=Object.keys(rs).length;});});});});
+  var _rev=((DB.syncSettings||{}).localRev||0),total=0;
+  if(window._ktDashMetricCache&&window._ktDashMetricCache.rev===_rev){
+    total=window._ktDashMetricCache.total||0;
+  }else{
+    Object.keys(DB.ratings||{}).forEach(function(cid){
+      Object.keys(DB.ratings[cid]||{}).forEach(function(q){
+        Object.keys((DB.ratings[cid]||{})[q]||{}).forEach(function(age){
+          SECTIONS.forEach(function(sec){
+            var rs=(((DB.ratings[cid]||{})[q]||{})[age]||{})[sec.cls]||{};
+            total+=Object.keys(rs).length;
+          });
+        });
+      });
+    });
+    window._ktDashMetricCache={rev:_rev,total:total};
+  }
   if($('stObs'))$('stObs').textContent=total;
   var pct=DB.children.length?Math.round(total/(DB.children.length*44)*100):0;
   if($('stPct'))$('stPct').textContent=Math.min(pct,100)+'%';
@@ -5267,10 +5427,23 @@ function renderDashboard(){
   try{hmRenderHero();hmRenderQuick();hmRenderKpis();hmRenderAttention();hmRenderPlan();hmRenderNews();hmRenderModules();hmAnimate();}
   catch(e){console.log('home',e);}
 }
+var KT_CHILD_RENDER_JOB=0;
 function renderChildren(){
-  $('childCountSub').textContent=DB.children.length+' хүүхэд бүртгэлтэй';
-  var list=$('childList');list.innerHTML='';
-  DB.children.forEach(function(c,i){list.appendChild(makeChildCard(c,i));});
+  var sub=$('childCountSub');if(sub)sub.textContent=DB.children.length+' хүүхэд бүртгэлтэй';
+  var list=$('childList');if(!list)return;
+  list.innerHTML='';
+  var arr=(DB.children||[]).slice(),job=++KT_CHILD_RENDER_JOB,i=0,batch=6;
+  function draw(){
+    if(job!==KT_CHILD_RENDER_JOB)return;
+    var frag=document.createDocumentFragment(),end=Math.min(i+batch,arr.length);
+    for(;i<end;i++)frag.appendChild(makeChildCard(arr[i],i));
+    list.appendChild(frag);
+    if(i<arr.length){
+      if(window.requestAnimationFrame)requestAnimationFrame(draw);
+      else setTimeout(draw,0);
+    }
+  }
+  draw();
 }
 var a79DashQ='9';
 function renderA79Dashboard(){
@@ -6230,7 +6403,11 @@ async function saveDaily(){
   if(!DB.dailyObs)DB.dailyObs={};
   if(!DB.dailyObs[cur.childId])DB.dailyObs[cur.childId]=[];
   DB.dailyObs[cur.childId].push({id:entryId,month:cur.month,dir:dir,code:oc.code||'',outcome:oc.text||'',date:date,text:text,photo:photoPath,file:fileMeta});
-  saveDB();renderDailyTab();toast('Ажиглалт хадгалагдлаа \u2713');
+  if(!saveDB())return;
+  ktFlushLocalSave();
+  renderDailyTab();
+  toast('Ажиглалт төхөөрөмж дээр хадгалагдлаа ✓');
+  await ktPersistCriticalSave('Ажиглалт');
 }
 function deleteDaily(id){
   if(!DB.dailyObs||!DB.dailyObs[cur.childId])return;
@@ -6270,7 +6447,7 @@ function renderPendingPhotos(){
     row.appendChild(img);
   });
 }
-function saveDailyLog(){
+async function saveDailyLog(){
   var noteEl=$('dailyNoteInput');var note=noteEl?noteEl.value.trim():'';
   if(!pendingEmotion&&!note&&!pendingPhotos.length){toast('Дор хаяж нэг зүйл бөглөнө үү');return;}
   var dateEl=$('dailyDateInput');var chosenDate=dateEl&&dateEl.value?dateEl.value:getLocalDateKey();
@@ -6279,9 +6456,10 @@ function saveDailyLog(){
     domains:pendingTags.slice(),note:note,photos:pendingPhotos.slice()};
   if(!DB.dailyLogs[cur.childId])DB.dailyLogs[cur.childId]=[];
   DB.dailyLogs[cur.childId].push(entry);
-  try{saveDB();}catch(e){toast('Санах ой дүүрсэн байна, хуучин зургуудыг устгана уу');return;}
-  toast('Тэмдэглэл хадгалагдлаа ✓');
+  try{if(!saveDB())return;ktFlushLocalSave();}catch(e){toast('Санах ой дүүрсэн байна, хуучин зургуудыг устгана уу');return;}
+  toast('Тэмдэглэл төхөөрөмж дээр хадгалагдлаа ✓');
   renderDailyTab();
+  await ktPersistCriticalSave('Ажиглалтын тэмдэглэл');
 }
 function deleteDailyLog(id){
   DB.dailyLogs[cur.childId]=(DB.dailyLogs[cur.childId]||[]).filter(function(l){return l.id!==id;});
@@ -12827,7 +13005,13 @@ async function sync2Push(){
     if(r&&r.error)throw r.error;
     SYNC2.pushPending=false;SYNC2.attempts=0;SYNC2.lastOk=Date.now();
     SYNC2.lastErr='';SYNC2.serverAt=now;
-    try{if(!DB.syncSettings)DB.syncSettings={};DB.syncSettings.lastSync=now;saveDBLocal();}catch(e){}
+    try{
+      if(!DB.syncSettings)DB.syncSettings={};
+      DB.syncSettings.lastSync=now;
+      DB.syncSettings.localDirtyAt='';
+      KT_LOCAL_SAVE_PENDING=true;
+      ktScheduleLocalSave();
+    }catch(e){}
     sync2Broadcast({type:'synced',at:now});
   }catch(e){
     SYNC2.pushPending=true;SYNC2.attempts++;
