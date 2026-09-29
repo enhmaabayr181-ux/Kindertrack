@@ -2917,7 +2917,7 @@ async function loadMethodologistDashboard(force){
     var ids=[];MD.requests.forEach(function(x){if(ids.indexOf(x.teacher_id)<0)ids.push(x.teacher_id);});
     MD.profiles={};MD.data={};MD.feedback=[];
     if(ids.length){
-      var pr=await ktSB.from('profiles').select('id,name,email,kinder,teacher_group,paid_until,plan').in('id',ids);
+      var pr=await ktSB.from('profiles').select('id,name,email,kinder,teacher_group,app_type,paid_until,plan').in('id',ids);
       if(pr.error)throw pr.error;(pr.data||[]).forEach(function(x){MD.profiles[x.id]=x;});
       var approved=MD.requests.filter(function(x){return x.status==='approved';}).map(function(x){return x.teacher_id;});
       if(approved.length){
@@ -15583,6 +15583,31 @@ function renderInitialAssessment(){var root=$('initialAssessRoot');if(!root)retu
 setTimeout(function(){
   try{ktPrepareAssistantInviteUI();}catch(e){console.warn(e);}
 },80);
+
+/* KinderTrack methodologist extension for linked KinderM&M teachers.
+   The underlying team_join_requests, app_data and methodologist_feedback remain authoritative. */
+function ktMmSource(p){return p&&p.app_type==='kindermm';}
+function ktMmRows(d,key,dir){return (Array.isArray(d[key])?d[key]:[]).filter(function(x){return x.dir===dir;});}
+function ktMmMetrics(d,dir){var plans=ktMmRows(d,'kmmPlans',dir),obs=ktMmRows(d,'kmmObservations',dir),ass=ktMmRows(d,'kmmAssessments',dir),act=ktMmRows(d,'kmmActivities',dir);return {plans:plans,obs:obs,ass:ass,act:act,done:act.filter(function(x){return x.status==='Хэрэгжүүлсэн';}).length};}
+function ktMmTeacherDetail(){
+  var d=((MD.data[MD.selected]||{}).data)||{},dirNames=[['music','🎵 Хөгжим'],['movehealth','🏃 Хөдөлгөөн']];
+  var html=dirNames.map(function(pair){var m=ktMmMetrics(d,pair[0]);return '<h3>'+pair[1]+'</h3><div class="md-mini md-mini--6">'+[['Төлөвлөлт',m.plans.length],['Ажиглалт',m.obs.length],['Үнэлгээ',m.ass.length],['Хэрэгжүүлсэн',m.done+'/'+m.act.length]].map(function(x){return '<div><b>'+x[1]+'</b><span>'+x[0]+'</span></div>';}).join('')+'</div>'+[['Төлөвлөлт',m.plans],['Ажиглалт',m.obs],['Үнэлгээ',m.ass],['Хэрэгжилт',m.act]].map(function(x){return '<details style="margin:9px 0"><summary>'+x[0]+' ('+x[1].length+')</summary>'+x[1].slice(-25).reverse().map(function(r){return '<div class="md-request"><b>'+ktEsc(r.date||'')+' · '+ktEsc(r.sud||'')+'</b><p>'+ktEsc(r.note||r.goal||r.observation||r.progress||r.status||'')+'</p></div>';}).join('')+'</details>';}).join('');}).join('');
+  var acts=Array.isArray(d.kmmActivities)?d.kmmActivities:[],done=acts.filter(function(x){return x.status==='Хэрэгжүүлсэн';}).length;
+  html+='<h3>📊 Тайлан</h3><p>Хүүхэд: '+((d.children||[]).length)+' · Ахицын үнэлгээ: '+((d.kmmAssessments||[]).length)+' · Хэрэгжилт: '+(acts.length?Math.round(done/acts.length*100):0)+'%</p><h3>💬 Зөвлөгөө</h3><p>Доорх зөвлөгөөний хэсгээс багшид тэмдэглэл илгээнэ.</p>';
+  $('mdTeacherDetail').innerHTML='<div class="md-tab-body">'+html+'</div>';
+}
+var ktMmOriginalDetail=renderMethodologistTeacherDetail;
+renderMethodologistTeacherDetail=function(){if(ktMmSource(MD.profiles[MD.selected]))ktMmTeacherDetail();else ktMmOriginalDetail();};
+var ktMmOriginalDashboard=renderMethodologistDashboard;
+renderMethodologistDashboard=function(){
+  var all=MD.requests;
+  MD.requests=all.filter(function(r){return r.status!=='approved'||!ktMmSource(MD.profiles[r.teacher_id]);});
+  try{ktMmOriginalDashboard();}finally{MD.requests=all;}
+  var linked=all.filter(function(r){return r.status==='approved'&&ktMmSource(MD.profiles[r.teacher_id]);});
+  if(!linked.length)return;
+  var cards=linked.map(function(r){var p=MD.profiles[r.teacher_id]||{},d=((MD.data[r.teacher_id]||{}).data)||{},mu=ktMmMetrics(d,'music'),mv=ktMmMetrics(d,'movehealth');return '<div class="md-teacher"><div class="md-row"><div class="md-avatar">🎵</div><div class="md-grow"><div class="md-name">'+ktEsc(p.name||'Багш')+'</div><div class="md-meta">🎵 Хөгжим/Хөдөлгөөний багш · KinderM&M<br>'+ktEsc(p.teacher_group||p.kinder||'')+'</div></div></div><div class="md-mini md-mini--6"><div><b>'+mu.plans.length+'/'+mv.plans.length+'</b><span>төлөвлөлт</span></div><div><b>'+mu.obs.length+'/'+mv.obs.length+'</b><span>ажиглалт</span></div><div><b>'+mu.ass.length+'/'+mv.ass.length+'</b><span>үнэлгээ</span></div><div><b>'+mu.done+'/'+mv.done+'</b><span>хэрэгжүүлсэн</span></div></div><div class="md-teacher-actions"><button class="md-btn md-btn--view" onclick="openMethodologistTeacher(\''+r.teacher_id+'\')">KinderM&M ажлыг хянах →</button><button class="md-btn md-btn--chat" onclick="mdOpenChat(\''+r.teacher_id+'\',null)">💬 Чат</button></div></div>';}).join('');
+  $('mdTeacherList').insertAdjacentHTML('beforeend','<h3>🎵 KinderM&M багш нар ('+linked.length+')</h3>'+cards);
+};
 
 </script>
 </body>
