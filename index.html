@@ -2096,7 +2096,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
   <div class="modal-sh">
     <div class="modal-handle"></div>
     <div class="modal-title">📱 Төхөөрөмжүүд</div>
-    <div class="modal-sub">Энэ бүртгэлийг дээд тал нь 2 төхөөрөмжид ашиглана</div>
+    <div class="modal-sub">Төхөөрөмжийн хязгаарлалтгүй. Энд өмнө нэвтэрсэн төхөөрөмжүүд харагдана.</div>
     <div id="devicesList" style="margin:10px 0;"></div>
     <button onclick="closeModal('modal-devices')" style="width:100%;padding:11px;border:none;background:#f1f5f9;color:#64748b;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;margin-top:6px;">Хаах</button>
   </div>
@@ -2289,7 +2289,7 @@ function ktApplyProfile(prof){
 }
 
 /* ===== Төхөөрөмжийн хязгаар (1 бүртгэл = дээд тал нь 2 төхөөрөмж) ===== */
-var KT_MAX_DEVICES=2;
+var KT_MAX_DEVICES = 999999;
 function ktDeviceId(){
   var id=localStorage.getItem('kt_device');
   if(!id){id='dev_'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('kt_device',id);}
@@ -2304,22 +2304,40 @@ function ktDeviceName(){
 /* true = зөвшөөрөв, false = хязгаарт хүрсэн */
 async function ktRegisterDevice(prof){
   var devId=ktDeviceId();
+  var devName=ktDeviceName();
   var devs=Array.isArray(prof.devices)?prof.devices.slice():[];
-  var idx=-1;for(var i=0;i<devs.length;i++){if(devs[i].id===devId){idx=i;break;}}
   var now=new Date().toISOString();
-  if(idx>=0){devs[idx].last=now;devs[idx].name=ktDeviceName();}
-  else if(devs.length<KT_MAX_DEVICES){devs.push({id:devId,name:ktDeviceName(),last:now});}
-  else{return false;}
-  try{await ktSB.from('profiles').update({devices:devs}).eq('id',prof.id);}catch(e){console.error('device save',e);}
-  prof.devices=devs;if(DB.user)DB.user.devices=devs;
+
+  var idx=-1;
+  for(var i=0;i<devs.length;i++){
+    if(devs[i]&&devs[i].id===devId){idx=i;break;}
+  }
+
+  if(idx>=0){
+    devs[idx].last=now;
+    devs[idx].name=devName;
+  }else{
+    devs.push({id:devId,name:devName,last:now});
+  }
+
+  try{
+    var r=await ktSB.from('profiles').update({devices:devs}).eq('id',prof.id);
+    if(!r.error){
+      prof.devices=devs;
+      if(DB.user)DB.user.devices=devs;
+    }else{
+      console.warn('device save skipped',r.error);
+    }
+  }catch(e){
+    console.warn('device save skipped',e);
+  }
+
+  /* Device-ийн тоо нэвтрэлтийг хаахгүй. */
   return true;
 }
 async function ktBlockDevice(){
-  try{await ktSB.auth.signOut();}catch(e){}
-  ktReady=false;ktUid=null;
-  showAuth('login');
-  var box=$('login-err');
-  if(box)box.innerHTML='<div class="err-msg">⚠ Энэ бүртгэлийг хамгийн ихдээ '+KT_MAX_DEVICES+' төхөөрөмжид ашиглах боломжтой.</div><div style="font-size:12px;color:#6b7280;margin-top:6px;line-height:1.6;">Шинэ төхөөрөмж нэмэхийн тулд өөр төхөөрөмжийнхөө <b>Тохиргоо → Төхөөрөмжүүд</b> хэсгээс нэгийг устгана уу.</div>';
+  /* Device limit цуцлагдсан. Backward compatibility-д үлдэв. */
+  return true;
 }
 function openDevices(){openModal('modal-devices');renderDevices();}
 function renderDevices(){
@@ -2378,7 +2396,7 @@ async function openOwner(){
   }catch(e){console.error('owner verify',e);toast('Баталгаажуулалт амжилтгүй');return;}
   openModal('modal-owner');
   $('ownerList').innerHTML='<div style="text-align:center;color:#9ca3af;padding:16px;">Уншиж байна...</div>';
-  var r=await ktSB.from('profiles').select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan').order('paid_until',{ascending:false});
+  var r=await ktSB.from('profiles').select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan,devices').order('paid_until',{ascending:false});
   if(r.error){$('ownerList').innerHTML='<div class="err-msg">'+r.error.message+'</div><div style="font-size:11px;color:#9ca3af;margin-top:6px;">⚙ Эзэний RLS дүрэм ажилласан эсэхээ шалгаарай</div>';return;}
   ownerUsers=r.data||[];renderOwnerList();
 }
@@ -2423,8 +2441,12 @@ function renderOwnerList(){
     var rb=document.createElement('button');rb.textContent='Эрх солих';rb.style.cssText='border:none;background:#334155;color:#fff;border-radius:8px;padding:8px 10px;font-family:inherit;font-size:11px;font-weight:800;';
     rb.onclick=(function(uid,sel){return function(){ownerChangeRole(uid,sel.value);};})(u.id,rs);
     roleRow.appendChild(rs);roleRow.appendChild(rb);card.appendChild(roleRow);
+    var fixRow=document.createElement('div');fixRow.style.cssText='display:flex;gap:6px;margin-top:6px;';
+    var bf=document.createElement('button');bf.textContent='🛠 Нэвтрэх асуудал';bf.style.cssText='flex:1;border:none;background:#fff7ed;color:#9a3412;border-radius:8px;padding:8px;font-family:inherit;font-size:12px;font-weight:800;';
+    bf.onclick=(function(uid){return function(){ownerOpenLoginRepair(uid);};})(u.id);
+    fixRow.appendChild(bf);card.appendChild(fixRow);
     var btns3=document.createElement('div');btns3.style.cssText='display:flex;gap:6px;margin-top:6px;';
-    var be=document.createElement('button');be.textContent='✏️ Имэйл';be.style.cssText='flex:1;border:none;background:#e0e7ff;color:#3730a3;border-radius:8px;padding:7px;font-family:inherit;font-size:12px;font-weight:700;';be.onclick=(function(uid,em){return function(){ownerChangeEmail(uid,em);};})(u.id,u.email);
+    var be=document.createElement('button');be.textContent='✏️ Профайл имэйл';be.style.cssText='flex:1;border:none;background:#e0e7ff;color:#3730a3;border-radius:8px;padding:7px;font-family:inherit;font-size:12px;font-weight:700;';be.onclick=(function(uid,em){return function(){ownerChangeEmail(uid,em);};})(u.id,u.email);
     var bd=document.createElement('button');bd.textContent='🗑️ Устгах';bd.style.cssText='flex:1;border:none;background:#fee2e2;color:#991b1b;border-radius:8px;padding:7px;font-family:inherit;font-size:12px;font-weight:700;';bd.onclick=(function(uid,em){return function(){ownerDeleteUser(uid,em);};})(u.id,u.email);
     btns3.appendChild(be);btns3.appendChild(bd);card.appendChild(btns3);
     w.appendChild(card);
@@ -2463,8 +2485,196 @@ async function ownerChangeRole(id,newRole){
   ownerUsers=ownerUsers.map(function(x){return x.id===id?Object.assign({},x,r.data||upd):x;});
   renderOwnerList();toast('Эрх шинэчлэгдлээ ✓');
 }
+
+var OWNER_LOGIN_REPAIR_UID=null;
+
+function ownerCloseLoginRepair(){
+  var e=document.getElementById('ownerLoginRepairOverlay');
+  if(e)e.remove();
+}
+
+function ownerLoginDate(v){
+  if(!v)return '—';
+  try{return new Date(v).toLocaleString('mn-MN');}catch(e){return String(v);}
+}
+
+function ownerLoginRepairStatusCard(label,value,tone){
+  var bg=tone==='bad'?'#fef2f2':tone==='warn'?'#fff7ed':'#f0fdf4';
+  var c=tone==='bad'?'#991b1b':tone==='warn'?'#9a3412':'#166534';
+  return '<div style="background:'+bg+';border-radius:10px;padding:9px"><span style="display:block;font-size:9px;color:#64748b">'+ktEsc(label)+'</span><b style="display:block;font-size:11px;color:'+c+';margin-top:2px;word-break:break-word">'+ktEsc(String(value==null?'—':value))+'</b></div>';
+}
+
+async function ownerOpenLoginRepair(uid){
+  if(!ktIsOwner()){toast('Зөвшөөрөлгүй');return;}
+  OWNER_LOGIN_REPAIR_UID=uid;
+  ownerCloseLoginRepair();
+  var u=ownerUsers.find(function(x){return x.id===uid;})||{};
+  var ov=document.createElement('div');
+  ov.id='ownerLoginRepairOverlay';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:10020;display:flex;align-items:flex-end;justify-content:center;padding:12px;';
+  ov.innerHTML='<div style="width:min(680px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;padding:18px;box-shadow:0 20px 60px rgba(15,23,42,.3)">'+
+    '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><div><b style="font-size:19px;color:#1f2937">🛠 Нэвтрэх асуудал засах</b><div style="font-size:10.5px;color:#64748b;margin-top:3px">'+ktEsc(u.name||'Хэрэглэгч')+' · '+ktEsc(u.email||'')+'</div></div>'+
+    '<button onclick="ownerCloseLoginRepair()" style="border:0;background:#f1f5f9;border-radius:10px;width:36px;height:36px;font-size:16px">✕</button></div>'+
+    '<div id="ownerLoginRepairBody" style="margin-top:14px"><div style="font-size:11px;color:#94a3b8">Шалгаж байна...</div></div></div>';
+  ov.addEventListener('click',function(e){if(e.target===ov)ownerCloseLoginRepair();});
+  document.body.appendChild(ov);
+  await ownerLoadLoginRepair(uid);
+}
+
+async function ownerLoadLoginRepair(uid){
+  var root=$('ownerLoginRepairBody');if(!root)return;
+  var u=ownerUsers.find(function(x){return x.id===uid;})||{};
+  var diag=null,diagErr=null,dataExists=null;
+  try{
+    var dr=await ktSB.rpc('admin_login_diagnose',{p_user_id:uid});
+    if(dr.error)diagErr=dr.error;else diag=dr.data||{};
+  }catch(e){diagErr=e;}
+
+  try{
+    var rr=await ktSB.from('app_data').select('user_id').eq('user_id',uid).maybeSingle();
+    if(!rr.error)dataExists=!!rr.data;
+  }catch(e){}
+
+  var devices=Array.isArray(u.devices)?u.devices:[];
+  var active=ownerStatus(u);
+  var authEmail=diag&&diag.auth_email?diag.auth_email:null;
+  var profileEmail=diag&&diag.profile_email?diag.profile_email:(u.email||'');
+  var mismatch=!!(authEmail&&profileEmail&&String(authEmail).toLowerCase()!==String(profileEmail).toLowerCase());
+  var authFound=diag&&diag.auth_found===true;
+  var profileFound=diag&&diag.profile_found===true;
+
+  var html='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:11px">'+
+    '<div style="font-size:11px;font-weight:900;color:#334155;margin-bottom:8px">Оношлогоо</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">'+
+      ownerLoginRepairStatusCard('Профайл',profileFound||diagErr?'Байна':'Шалгах RPC хэрэгтэй',profileFound?'ok':(diagErr?'warn':'bad'))+
+      ownerLoginRepairStatusCard('Auth хэрэглэгч',diagErr?'SQL RPC суулгаагүй':(authFound?'Байна':'Олдсонгүй'),authFound?'ok':'warn')+
+      ownerLoginRepairStatusCard('Профайл email',profileEmail||'—',mismatch?'bad':'ok')+
+      ownerLoginRepairStatusCard('Нэвтрэх email',authEmail||'RPC суулгасны дараа харагдана',mismatch?'bad':'warn')+
+      ownerLoginRepairStatusCard('Төхөөрөмж',devices.length+' бүртгэл','ok')+
+      ownerLoginRepairStatusCard('Эрх',u.role||'teacher','ok')+
+      ownerLoginRepairStatusCard('Идэвхжил',active.t,'ok')+
+      ownerLoginRepairStatusCard('App data',dataExists===null?'Шалгаж чадсангүй':(dataExists?'Байна':'Алга'),dataExists===false?'warn':'ok')+
+    '</div>'+
+    (mismatch?'<div style="margin-top:8px;background:#fef2f2;color:#991b1b;border-radius:9px;padding:8px;font-size:10.5px;line-height:1.5"><b>⚠ Email зөрүүтэй байна.</b> Профайлын email-ийг ганцааранг нь солиход нэвтрэх email өөрчлөгдөхгүй. Доорх “Auth email-тай тааруулах” үйлдлийг ашигла.</div>':'')+
+    (diagErr?'<div style="margin-top:8px;background:#fff7ed;color:#9a3412;border-radius:9px;padding:8px;font-size:10px;line-height:1.5">Auth түвшний оношлогоонд нэмэлт admin RPC SQL хэрэгтэй. Доорх энгийн засварууд ажиллана.</div>':'')+
+    '</div>';
+
+  html+='<div style="margin-top:12px">'+
+    '<button onclick="ownerRepairLoginAll()" style="width:100%;border:0;background:linear-gradient(135deg,#0d9488,#059669);color:#fff;border-radius:12px;padding:12px;font-family:inherit;font-size:12px;font-weight:900;box-shadow:0 6px 16px rgba(13,148,136,.18)">🔧 Нэвтрэх эрхийг нэг дор засах</button>'+
+    '<div style="font-size:9.5px;color:#64748b;line-height:1.5;margin-top:6px">Email зөрүүг засна, төхөөрөмжийн гацалтыг цэвэрлэнэ, app_data мөрийг шалгаж нөхнө. Төлбөрийн хугацаа, role, хүүхдийн дата, төлөвлөгөө, ажиглалтыг өөрчлөхгүй.</div>'+
+    '</div>'+
+    '<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:7px">'+
+    '<button onclick="ownerRepairClearDevices()" style="border:0;background:#e0f2fe;color:#075985;border-radius:10px;padding:10px;font-family:inherit;font-size:11px;font-weight:800">📱 Төхөөрөмж цэвэрлэх</button>'+
+    '<button onclick="ownerRepairTrial7()" style="border:0;background:#ecfdf5;color:#047857;border-radius:10px;padding:10px;font-family:inherit;font-size:11px;font-weight:800">🎁 7 хоног нээх</button>'+
+    '<button onclick="ownerRepairAppData()" style="border:0;background:#f5f3ff;color:#6d28d9;border-radius:10px;padding:10px;font-family:inherit;font-size:11px;font-weight:800">🧩 App data шалгаж засах</button>'+
+    '<button onclick="ownerRepairProfileEmail()" style="border:0;background:#fff7ed;color:#9a3412;border-radius:10px;padding:10px;font-family:inherit;font-size:11px;font-weight:800">✉️ Auth email-тай тааруулах</button>'+
+    '<button onclick="ownerSendPasswordReset()" style="grid-column:1/-1;border:0;background:#334155;color:#fff;border-radius:10px;padding:11px;font-family:inherit;font-size:11px;font-weight:800">🔐 Нууц үг сэргээх холбоос илгээх</button>'+
+    '</div>'+
+    '<div style="font-size:9.5px;color:#64748b;line-height:1.55;margin-top:10px">Нууц үгийг browser дотроос админ шууд харах/солихгүй. “Сэргээх холбоос” нь Supabase Auth-ын аюулгүй reset flow ашиглана.</div>';
+
+  root.innerHTML=html;
+}
+
+
+async function ownerRepairLoginAll(){
+  var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
+  if(!confirm('Нэвтрэх асуудлыг нэг дор засах уу?\n\n• Auth email-ийг профайлтай тааруулна\n• Төхөөрөмжийн хуучин бүртгэлийг цэвэрлэнэ\n• App data мөрийг шалгаж нөхнө\n\nТөлбөрийн хугацаа, role болон хэрэглэгчийн үндсэн дата өөрчлөгдөхгүй.'))return;
+
+  var root=$('ownerLoginRepairBody');
+  try{
+    if(root)root.insertAdjacentHTML('afterbegin','<div id="ownerRepairBusy" style="background:#ecfeff;color:#155e75;border-radius:10px;padding:9px;margin-bottom:9px;font-size:11px;font-weight:800">⏳ Нэвтрэх эрхийг засаж байна...</div>');
+    var r=await ktSB.rpc('admin_login_repair_all',{p_user_id:uid});
+    if(r.error){
+      var busy=$('ownerRepairBusy');if(busy)busy.remove();
+      toast('Нэг дор засах SQL хэрэгтэй: '+(r.error.message||''));
+      return;
+    }
+    var result=r.data||{};
+    ownerUsers.forEach(function(u){
+      if(u.id===uid){
+        if(result.email)u.email=result.email;
+        u.devices=[];
+      }
+    });
+    toast('Нэвтрэх эрх засагдлаа ✓');
+    await ownerLoadLoginRepair(uid);
+    renderOwnerList();
+  }catch(e){
+    var busy=$('ownerRepairBusy');if(busy)busy.remove();
+    toast('Засах алдаа: '+(e.message||e));
+  }
+}
+
+async function ownerRepairClearDevices(){
+  var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
+  if(!confirm('Энэ хэрэглэгчийн бүртгэлтэй төхөөрөмжүүдийг цэвэрлэх үү?'))return;
+  var r=await ktSB.from('profiles').update({devices:[]}).eq('id',uid);
+  if(r.error){toast('Алдаа: '+r.error.message);return;}
+  ownerUsers.forEach(function(u){if(u.id===uid)u.devices=[];});
+  toast('Төхөөрөмжийн бүртгэл цэвэрлэгдлээ ✓');
+  await ownerLoadLoginRepair(uid);renderOwnerList();
+}
+
+async function ownerRepairTrial7(){
+  var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
+  var d=new Date();d.setDate(d.getDate()+7);
+  var until=getLocalDateKey(d);
+  var r=await ktSB.from('profiles').update({trial_end:until}).eq('id',uid);
+  if(r.error){toast('Алдаа: '+r.error.message);return;}
+  ownerUsers.forEach(function(u){if(u.id===uid)u.trial_end=until;});
+  toast('7 хоногийн эрх нээгдлээ ✓');
+  await ownerLoadLoginRepair(uid);renderOwnerList();
+}
+
+async function ownerRepairAppData(){
+  var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
+  try{
+    var q=await ktSB.from('app_data').select('user_id').eq('user_id',uid).maybeSingle();
+    if(q.error){toast('Шалгах алдаа: '+q.error.message);return;}
+    if(q.data){toast('App data хэвийн байна ✓');await ownerLoadLoginRepair(uid);return;}
+    if(!confirm('App data мөр алга байна. Хоосон мөр шинээр үүсгэх үү?'))return;
+    var r=await ktSB.from('app_data').insert({user_id:uid,data:{},updated_at:new Date().toISOString()});
+    if(r.error){toast('Үүсгэх алдаа: '+r.error.message);return;}
+    toast('App data мөр үүсгэлээ ✓');
+    await ownerLoadLoginRepair(uid);
+  }catch(e){toast('Алдаа: '+(e.message||e));}
+}
+
+async function ownerRepairProfileEmail(){
+  var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
+  try{
+    var r=await ktSB.rpc('admin_repair_profile_email',{p_user_id:uid});
+    if(r.error){toast('Энэ үйлдэлд admin RPC SQL хэрэгтэй: '+r.error.message);return;}
+    var email=(r.data&&r.data.email)||r.data;
+    if(email){
+      ownerUsers.forEach(function(u){if(u.id===uid)u.email=String(email);});
+    }
+    toast('Профайл email Auth email-тай таарлаа ✓');
+    await ownerLoadLoginRepair(uid);renderOwnerList();
+  }catch(e){toast('Алдаа: '+(e.message||e));}
+}
+
+async function ownerSendPasswordReset(){
+  var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
+  var u=ownerUsers.find(function(x){return x.id===uid;})||{};
+  var email=u.email||'';
+  try{
+    var d=await ktSB.rpc('admin_login_diagnose',{p_user_id:uid});
+    if(!d.error&&d.data&&d.data.auth_email)email=d.data.auth_email;
+  }catch(e){}
+  if(!email){toast('Нэвтрэх email олдсонгүй');return;}
+  if(!confirm(email+' хаяг руу нууц үг сэргээх холбоос илгээх үү?'))return;
+  try{
+    var redirect=location.origin+location.pathname;
+    var r=await ktSB.auth.resetPasswordForEmail(email,{redirectTo:redirect});
+    if(r.error){toast('Илгээх алдаа: '+r.error.message);return;}
+    toast('Нууц үг сэргээх холбоос илгээгдлээ ✓');
+  }catch(e){toast('Алдаа: '+(e.message||e));}
+}
+
 async function ownerChangeEmail(id,old){
-  var ne=prompt('Шинэ и-мэйл хаяг (профайлд):',old||'');
+  if(!confirm('Энэ нь зөвхөн profiles хүснэгтийн email-ийг засна. Нэвтрэх Auth email-ийг өөрчлөхгүй. Үргэлжлүүлэх үү?'))return;
+  var ne=prompt('Шинэ профайл и-мэйл хаяг:',old||'');
   if(!ne||ne.trim()===old)return;
   var r=await ktSB.from('profiles').update({email:ne.trim()}).eq('id',id);
   if(r.error){toast('Алдаа: '+r.error.message);return;}
@@ -2912,25 +3122,74 @@ async function loadMethodologistDashboard(force){
   if(MD.loading)return;MD.loading=true;
   $('mdStatus').innerHTML='<div class="md-empty">Мэдээлэл шинэчилж байна…</div>';
   try{
-    var rq=await ktSB.from('team_join_requests').select('id,teacher_id,methodologist_id,status,requested_at,reviewed_at').eq('methodologist_id',ktUid).order('requested_at',{ascending:false});
-    if(rq.error)throw rq.error;MD.requests=rq.data||[];
-    var ids=[];MD.requests.forEach(function(x){if(ids.indexOf(x.teacher_id)<0)ids.push(x.teacher_id);});
-    MD.profiles={};MD.data={};MD.feedback=[];
-    if(ids.length){
-      var pr=await ktSB.from('profiles').select('id,name,email,kinder,teacher_group,paid_until,plan').in('id',ids);
-      if(pr.error)throw pr.error;(pr.data||[]).forEach(function(x){MD.profiles[x.id]=x;});
-      var approved=MD.requests.filter(function(x){return x.status==='approved';}).map(function(x){return x.teacher_id;});
-      if(approved.length){
-        var pair=await Promise.all([
-          ktSB.from('app_data').select('user_id,data,updated_at').in('user_id',approved),
-          ktSB.from('methodologist_feedback').select('id,methodologist_id,teacher_id,feedback_type,target_key,message,is_read,created_at,updated_at').in('teacher_id',approved).order('created_at',{ascending:false})
-        ]);
-        if(pair[0].error)throw pair[0].error;if(pair[1].error)throw pair[1].error;
-        (pair[0].data||[]).forEach(function(x){MD.data[x.user_id]={data:x.data||{},updated_at:x.updated_at};});MD.feedback=pair[1].data||[];
-      }
+    var ownerPreview=(typeof ktIsOwner==='function'&&ktIsOwner()&&typeof ktOwnerAs==='function'&&ktOwnerAs('methodologist'));
+    MD.requests=[];MD.profiles={};MD.data={};MD.feedback=[];
+
+    /* Pending хүсэлтүүдийг тусад нь авна. Энэ алдаа нь багшийн төлөвлөгөө харахад саад болох ёсгүй. */
+    if(!ownerPreview){
+      try{
+        var rq=await ktSB.from('team_join_requests')
+          .select('id,teacher_id,methodologist_id,status,requested_at,reviewed_at')
+          .eq('methodologist_id',ktUid)
+          .order('requested_at',{ascending:false});
+        if(!rq.error)MD.requests=rq.data||[];
+        else console.warn('methodologist requests',rq.error);
+      }catch(e){console.warn('methodologist requests',e);}
     }
+
+    /*
+      Гол засвар: app_data-г client RLS select-оор шууд уншихгүй.
+      Security-definer RPC зөвхөн тухайн арга зүйчтэй team_owner-оор холбоотой багшийн
+      workspace-г буцаана. Owner preview үед бүх бүлгийн багшийг зөвхөн хяналтын горимоор харуулна.
+    */
+    var wr=await ktSB.rpc('get_methodologist_teacher_workspace');
+    if(wr.error){
+      console.warn('get_methodologist_teacher_workspace',wr.error);
+      throw new Error('Арга зүйчийн багшийн мэдээлэл унших RPC суулгаагүй эсвэл ажиллахгүй байна: '+(wr.error.message||''));
+    }
+    var workspace=wr.data||[];
+    var teacherIds=[];
+    workspace.forEach(function(x){
+      var uid=x.teacher_id;
+      if(!uid)return;
+      if(teacherIds.indexOf(uid)<0)teacherIds.push(uid);
+      MD.profiles[uid]={
+        id:uid,name:x.name||'',email:x.email||'',kinder:x.kinder||'',teacher_group:x.teacher_group||'',
+        paid_until:x.paid_until||null,trial_end:x.trial_end||null,plan:x.plan||null,role:x.role||'teacher'
+      };
+      MD.data[uid]={data:x.data||{},updated_at:x.updated_at||null};
+      /* team_owner холбоос байгаа ч хуучин approved request мөр алга байсан тохиолдлыг нөхнө. */
+      var hasApproved=MD.requests.some(function(r){return r.teacher_id===uid&&r.status==='approved';});
+      if(!hasApproved)MD.requests.push({id:'linked_'+uid,teacher_id:uid,methodologist_id:ownerPreview?'owner-preview':ktUid,status:'approved',requested_at:null,reviewed_at:null,_linked:true});
+    });
+
+    /* Pending хүсэлт илгээсэн ч хараахан холбоогүй багшийн нэрийг боломжтой бол авна. */
+    var pendingIds=MD.requests.filter(function(r){return r.status==='pending'&&teacherIds.indexOf(r.teacher_id)<0;}).map(function(r){return r.teacher_id;});
+    if(pendingIds.length){
+      try{
+        var pr=await ktSB.from('profiles').select('id,name,email,kinder,teacher_group,paid_until,trial_end,plan,role').in('id',pendingIds);
+        if(!pr.error)(pr.data||[]).forEach(function(x){MD.profiles[x.id]=x;});
+      }catch(e){console.warn('pending profiles',e);}
+    }
+
+    /* Feedback унших алдаа төлөвлөлт/үнэлгээний дэлгэцийг бүхэлд нь нураахгүй. */
+    if(teacherIds.length){
+      try{
+        var fr=await ktSB.from('methodologist_feedback')
+          .select('id,methodologist_id,teacher_id,feedback_type,target_key,message,is_read,created_at,updated_at')
+          .in('teacher_id',teacherIds)
+          .order('created_at',{ascending:false});
+        if(!fr.error)MD.feedback=fr.data||[];
+        else console.warn('methodologist feedback',fr.error);
+      }catch(e){console.warn('methodologist feedback',e);}
+    }
+
     renderMethodologistDashboard();
-  }catch(e){$('mdStatus').innerHTML='<div class="md-alert">Мэдээлэл уншихад алдаа гарлаа: '+ktEsc(e.message||String(e))+'</div>';console.error(e);}
+    if(ownerPreview&&$('mdHeroSub'))$('mdHeroSub').textContent='Админ preview · Багшийн ажиглалт, үнэлгээ, төлөвлөлт, тайланг арга зүйчийн харагдацаар шалгана.';
+  }catch(e){
+    $('mdStatus').innerHTML='<div class="md-alert">Мэдээлэл уншихад алдаа гарлаа: '+ktEsc(e.message||String(e))+'</div>';
+    console.error(e);
+  }
   MD.loading=false;
 }
 function renderMethodologistDashboard(){
@@ -6011,9 +6270,13 @@ function ktInitialSummaryHtml(){
   var pct=ov.total?Math.round(ov.done/ov.total*100):0;
   var rows=p.map(function(x){
     var s=x.stats,avg=s.done?s.avg.toFixed(1):'—';
+    var reached=0;
+    ktInitialRows(x.sec.cls).forEach(function(r){var e=ktInitialEntry(x.sec.cls,r.key,false);if(e&&e.level&&Number(e.level)>=target)reached++;});
+    var reachedPct=s.done?Math.round(reached/s.done*100):null;
+    var coveragePct=s.total?Math.round(s.done/s.total*100):0;
     var state=s.done?(s.avg<target-0.25?'Түлхүү дэмжих':s.avg>target+0.25?'Ахисан илрэл':'Насны баримжаатай ойролцоо'):'Үнэлээгүй';
     var col=!s.done?'#94a3b8':s.avg<target-0.25?'#e11d48':s.avg>target+0.25?'#2563eb':'#047857';
-    return '<div class="kt-ia-prof-row"><span class="kt-ia-prof-ic">'+x.sec.icon+'</span><div class="kt-ia-prof-main"><b>'+ktEsc(x.sec.label)+'</b><span>'+s.done+'/'+s.total+' СҮД · '+state+'</span></div><strong style="color:'+col+';">'+avg+'</strong></div>';
+    return '<div class="kt-ia-prof-row"><span class="kt-ia-prof-ic">'+x.sec.icon+'</span><div class="kt-ia-prof-main"><b>'+ktEsc(x.sec.label)+'</b><span>'+s.done+'/'+s.total+' СҮД · '+state+'</span><span style="display:block;color:#475569;margin-top:3px">Насны баримжаанд хүрсэн: <b>'+(reachedPct===null?'—':reachedPct+'%')+'</b> ('+reached+'/'+s.done+') · Үнэлгээний хамралт: '+coveragePct+'%</span></div><strong style="color:'+col+';">'+avg+'</strong></div>';
   }).join('');
   function listHtml(arr,kind){
     if(!arr.length)return '<div class="kt-ia-empty">'+(kind==='weak'?'Одоогоор түвшин сонгосон СҮД-ээс насны баримжаанаас доогуур илрэл бүртгэгдээгүй.':'Одоогоор насны баримжаанаас ахисан илрэл бүртгэгдээгүй.')+'</div>';
@@ -6083,10 +6346,11 @@ function ktInitialClassStats(){
 function ktInitialClassDirectionStats(){
   var kids=ktInitialAllChildren();
   return SECTIONS.map(function(sec){
-    var sum=0,n=0,below=0,on=0,above=0;
+    var sum=0,n=0,below=0,on=0,above=0,possible=0;
     kids.forEach(function(c){
       var target=Math.max(1,Math.min(4,(parseInt(c.age||2,10)-1)));
       ktInitialRows(sec.cls).forEach(function(r){
+        possible++;
         var e=ktInitialEntryForChild(c.id,sec.cls,r.key);
         if(e&&e.level){
           sum+=Number(e.level);n++;
@@ -6094,7 +6358,10 @@ function ktInitialClassDirectionStats(){
         }
       });
     });
-    return {sec:sec,avg:n?sum/n:0,n:n,below:below,on:on,above:above};
+    return {sec:sec,avg:n?sum/n:0,n:n,below:below,on:on,above:above,
+      reached:on+above,possible:possible,
+      reachedPct:n?Math.round((on+above)/n*100):null,
+      coveragePct:possible?Math.round(n/possible*100):0};
   });
 }
 function ktInitialClassWeakSud(limit){
@@ -6163,11 +6430,13 @@ function ktInitialClassHtml(){
   var dirHtml=dirs.map(function(x){
     var total=x.below+x.on+x.above;
     return '<div class="kt-ca-dir">'+
-      '<div class="kt-ca-dir-head"><span>'+x.sec.icon+' '+ktEsc(x.sec.label)+'</span><b>'+(x.n?x.avg.toFixed(1):'—')+'</b></div>'+
+      '<div class="kt-ca-dir-head"><span>'+x.sec.icon+' '+ktEsc(x.sec.label)+'</span><b>'+(x.reachedPct===null?'—':x.reachedPct+'%')+'</b></div>'+
+      '<div style="font-size:10px;color:#475569;margin:4px 0 7px">Насны баримжаанд хүрсэн: '+x.reached+'/'+x.n+' үнэлсэн СҮД · Үнэлгээний хамралт: '+x.coveragePct+'% ('+x.n+'/'+x.possible+')</div>'+
       '<div class="kt-ca-stack"><i style="width:'+(total?x.below/total*100:0)+'%;background:#fb7185"></i><i style="width:'+(total?x.on/total*100:0)+'%;background:#34d399"></i><i style="width:'+(total?x.above/total*100:0)+'%;background:#60a5fa"></i></div>'+
       '<div class="kt-ca-legend"><span>🔴 дэмжих '+x.below+'</span><span>🟢 насны '+x.on+'</span><span>🔵 ахисан '+x.above+'</span></div>'+
     '</div>';
   }).join('');
+  dirHtml='<div style="font-size:10.5px;line-height:1.5;color:#475569;background:#eff6ff;border-radius:10px;padding:9px;margin-bottom:9px">Хувь = насны баримжаанд хүрсэн эсвэл давсан үнэлгээний тоо ÷ тухайн чиглэлд үнэлсэн СҮД-ийн тоо × 100. Хамралт нь нийт үнэлэх СҮД-ээс хэдийг бөглөснийг харуулна. Эдгээр нь хүүхдийн оноо биш, бүлгийн үнэлгээний нэгтгэл юм.</div>'+dirHtml;
   var weakHtml=weak.length?weak.map(function(x,i){
     var pct=Math.round(x.below/x.assessed*100);
     return '<div class="kt-ca-sud"><div class="kt-ca-rank">'+(i+1)+'</div><div class="kt-ca-sud-main"><b>'+ktEsc(x.label.code||x.label.title)+'</b><span>'+x.sec.icon+' '+ktEsc(x.label.title)+'</span>'+ratioBar(x.below,x.assessed,'#fb7185')+'</div><div class="kt-ca-sud-stat"><b>'+pct+'%</b><small>'+x.below+'/'+x.assessed+' хүүхэд</small></div></div>';
