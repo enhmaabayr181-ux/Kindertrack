@@ -1080,6 +1080,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .md-child-row{border-top:1px solid #f1f5f9;padding:9px 2px;font-size:12px;display:flex;justify-content:space-between;gap:8px;}
 @media(min-width:600px){.md-stats{grid-template-columns:repeat(4,1fr);}.md-detail-grid{grid-template-columns:repeat(4,1fr);}}
 
+
+/* ===== Methodologist AI ===== */
+.md-ai-card{background:linear-gradient(135deg,#faf5ff,#ecfeff);border:1px solid #ddd6fe;border-radius:16px;padding:14px;margin:10px 0 16px;box-shadow:var(--e1)}
+.md-ai-head b{display:block;font-size:14px;color:#4c1d95}.md-ai-head span{display:block;font-size:10.5px;color:#64748b;margin-top:3px;line-height:1.45}
+.md-ai-quick{display:flex;gap:6px;overflow-x:auto;margin:10px 0 8px}.md-ai-quick button{white-space:nowrap;border:1px solid #ddd6fe;background:#fff;color:#6d28d9;border-radius:999px;padding:7px 9px;font:800 10px var(--font-ui)}
+.md-ai-card textarea{width:100%;border:1px solid #d8b4fe;border-radius:11px;padding:10px;font:12px var(--font-ui);resize:vertical;background:#fff}
+.md-ai-go{width:100%;border:0;border-radius:11px;background:linear-gradient(135deg,#6d28d9,#0d9488);color:#fff;padding:10px;margin-top:7px;font:800 11.5px var(--font-ui)}
+.md-ai-output{margin-top:9px;background:#fff;border:1px solid #e2e8f0;border-radius:11px;padding:11px;font-size:11.5px;color:#334155;line-height:1.6;white-space:pre-wrap}
+
 /* ===== Тогтворжуулалт: iOS зум, хэвтээ гүйлт ===== */
 html,body{max-width:100%;overflow-x:hidden;}
 @media (pointer:coarse){
@@ -1272,6 +1281,62 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 .ast-pill.warn{background:#fff7ed;color:#c2410c}
 .ast-report-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;font-size:12px;line-height:1.7}
 @media(max-width:420px){.ast-grid2{grid-template-columns:1fr 1fr}.ast-card{padding:12px}}
+
+
+/* ===== Polished role dashboards ===== */
+#pg-methodologist{background:linear-gradient(180deg,#fbf8ff 0,#f8fbff 38%,#fff 100%);padding-top:14px}
+#pg-assistant{background:linear-gradient(180deg,#fff7fb 0,#fffdf8 42%,#fff 100%);padding-top:12px}
+
+/* Methodologist */
+.md-hero{position:relative;overflow:hidden;border:0!important;border-radius:24px!important;padding:20px 18px!important;margin:0 0 12px!important;background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 46%,#0f9f9a 100%)!important;box-shadow:0 14px 32px rgba(109,40,217,.20)!important}
+.md-hero:before,.md-hero:after{content:"";position:absolute;border-radius:999px;background:rgba(255,255,255,.12)}
+.md-hero:before{width:150px;height:150px;right:-35px;top:-62px}.md-hero:after{width:88px;height:88px;right:70px;bottom:-55px}
+.md-hero__title{font-size:27px!important;color:#fff!important;letter-spacing:-.4px}
+.md-hero__sub{color:rgba(255,255,255,.88)!important;font-size:12px!important;max-width:285px;line-height:1.55!important}
+.md-refresh{position:relative;z-index:2;background:rgba(255,255,255,.16)!important;border:1px solid rgba(255,255,255,.45)!important;color:#fff!important;backdrop-filter:blur(10px)}
+.md-stats{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important;margin:10px 0 14px!important}
+.md-stat{background:#fff!important;border:1px solid rgba(124,58,237,.10)!important;border-radius:16px!important;padding:11px 8px!important;box-shadow:0 7px 20px rgba(76,29,149,.07)!important;text-align:center}
+.md-stat__n{font-size:22px!important;line-height:1!important;background:linear-gradient(135deg,#6d28d9,#0f9f9a);-webkit-background-clip:text;background-clip:text;color:transparent!important}
+.md-stat__l{font-size:9.5px!important;color:#64748b!important;margin-top:5px!important;line-height:1.25}
+.md-section-title{font-size:14px!important;margin:16px 2px 9px!important;color:#1f2937!important}
+.md-teacher,.md-request{border:1px solid #eee9ff!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 22px rgba(76,29,149,.06)!important;padding:12px!important}
+.md-avatar{background:linear-gradient(135deg,#f3e8ff,#ccfbf1)!important;color:#6d28d9!important}
+.md-mini>div{background:linear-gradient(180deg,#fbfbff,#fff)!important;border:1px solid #eef2ff!important;border-radius:12px!important}
+.md-btn--view{background:linear-gradient(135deg,#6d28d9,#7c3aed)!important;color:#fff!important;border:0!important}
+.md-btn--chat{border:1px solid #ddd6fe!important;color:#6d28d9!important;background:#faf5ff!important}
+.md-ai-card{border-radius:18px!important;border:1px solid #e9d5ff!important;box-shadow:0 8px 22px rgba(109,40,217,.06)!important}
+
+/* Assistant */
+.ast-shell{padding-bottom:14px}
+.ast-hero{position:relative;overflow:hidden;border-radius:24px;padding:18px 17px 16px;margin-bottom:12px;background:linear-gradient(135deg,#ff5e9f 0%,#fb7185 46%,#f59e0b 115%);color:#fff;box-shadow:0 14px 32px rgba(244,63,94,.18)}
+.ast-hero:before,.ast-hero:after{content:"";position:absolute;border-radius:999px;background:rgba(255,255,255,.14)}
+.ast-hero:before{width:130px;height:130px;right:-25px;top:-55px}.ast-hero:after{width:80px;height:80px;right:64px;bottom:-50px}
+.ast-hero__eyebrow{font-size:9.5px;font-weight:900;letter-spacing:.6px;color:rgba(255,255,255,.83)}
+.ast-hero__title{font-family:var(--font-display);font-size:27px;line-height:1.12;margin-top:4px}
+.ast-hero__sub{font-size:11.5px;line-height:1.5;margin-top:5px;color:rgba(255,255,255,.91);max-width:290px}
+.ast-home-date{margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.25);font-size:10px;font-weight:800}
+.ast-quick4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:10px}
+.ast-q{border:1px solid rgba(148,163,184,.16);border-radius:17px;padding:11px 5px 9px;background:#fff;text-align:center;box-shadow:0 7px 19px rgba(15,23,42,.05);cursor:pointer;min-height:88px}
+.ast-q i{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 7px;font-style:normal;font-size:19px}
+.ast-q b{display:block;font-size:10px;line-height:1.25;color:#334155}.ast-q span{display:block;font-size:8.5px;color:#94a3b8;margin-top:3px;line-height:1.2}
+.ast-q.pink i{background:#ffe4ef}.ast-q.blue i{background:#e0f2fe}.ast-q.gold i{background:#fef3c7}.ast-q.violet i{background:#ede9fe}
+.ast-ai-strip{display:flex;align-items:center;gap:10px;border-radius:17px;padding:11px 12px;margin-bottom:11px;background:linear-gradient(135deg,#ecfeff,#faf5ff);border:1px solid #dbeafe;box-shadow:0 6px 16px rgba(14,116,144,.05);cursor:pointer}
+.ast-ai-strip__ico{width:39px;height:39px;border-radius:13px;background:linear-gradient(135deg,#5eead4,#c4b5fd);display:flex;align-items:center;justify-content:center;font-size:21px}
+.ast-ai-strip b{display:block;font-size:11.5px;color:#334155}.ast-ai-strip span{display:block;font-size:9.5px;color:#64748b;margin-top:2px}.ast-ai-strip em{margin-left:auto;font-style:normal;color:#7c3aed;font-weight:900}
+.ast-summary{background:#fff;border:1px solid #f1e7ee;border-radius:18px;padding:12px;margin-bottom:11px;box-shadow:0 8px 20px rgba(100,50,80,.05)}
+.ast-summary__top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.ast-summary__top b{font-size:13px;color:#1f2937}.ast-summary__top span{font-size:9.5px;color:#9ca3af}
+.ast-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.ast-sum{border-radius:13px;padding:9px 6px;text-align:center}.ast-sum b{display:block;font-size:18px}.ast-sum span{font-size:8.5px;line-height:1.2;display:block;margin-top:2px}
+.ast-sum.s1{background:#fff1f5;color:#be123c}.ast-sum.s2{background:#eff6ff;color:#1d4ed8}.ast-sum.s3{background:#ecfdf5;color:#047857}.ast-sum.s4{background:#fff7ed;color:#c2410c}
+.ast-today-card{background:#fff;border:1px solid #f2e8ee;border-radius:18px;padding:13px;margin-bottom:12px;box-shadow:0 8px 20px rgba(100,50,80,.05)}
+.ast-today-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.ast-today-head b{font-size:13px}.ast-today-head span{font-size:9.5px;color:#9ca3af}
+.ast-task{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #f8eef3}.ast-task:last-child{border-bottom:0}
+.ast-task input{width:19px;height:19px;accent-color:#ec4899}.ast-task b{font-size:11.5px;color:#334155}.ast-task span{display:block;font-size:9.5px;color:#94a3b8;margin-top:2px}
+.ast-tabs{background:rgba(255,255,255,.9);border:1px solid #f3e8ef;border-radius:16px;padding:5px!important;margin-bottom:10px;box-shadow:0 5px 16px rgba(100,50,80,.05)}
+.ast-tab{border:0!important;background:transparent!important}.ast-tab.on{background:linear-gradient(135deg,#fb7185,#ec4899)!important;color:#fff!important}
+.ast-card{border-color:#f2e8ee!important;border-radius:18px!important;box-shadow:0 8px 20px rgba(100,50,80,.05)!important}
+@media(max-width:390px){.ast-quick4{gap:5px}.ast-q{padding-left:3px;padding-right:3px}.ast-q b{font-size:9.3px}.md-stats{gap:6px!important}}
 
 /* ===== Teacher document center ===== */
 .td-head{margin-bottom:14px}.td-title{font-family:var(--font-display);font-size:26px;line-height:1.15;color:var(--ink-900)}
@@ -1602,6 +1667,17 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       </div>
       <div id="mdStatus"></div>
       <div class="md-stats" id="mdStats"></div>
+      <div class="md-ai-card">
+        <div class="md-ai-head"><div><b>🤖 Арга зүйчийн AI туслах</b><span>Багш нарын ажлын явцад тулгуурлан тойм, зөвлөгөөний ноорог бэлдэнэ.</span></div></div>
+        <div class="md-ai-quick">
+          <button onclick="mdAIQuick('Энэ сарын багш нарын ажлын явцыг товч нэгтгээд, нягтлах шаардлагатай хэсгийг баримтаар тайлбарла.')">📊 Сарын тойм</button>
+          <button onclick="mdAIQuick('Багш нарт өгөх дэмжих, шүүмжлэлгүй арга зүйн зөвлөгөөний ноорог гарга.')">💬 Зөвлөгөө</button>
+          <button onclick="mdAIQuick('Ажиглалт, үнэлгээ, төлөвлөлтийн хэрэгжилтийн талаар хурлын 5 гол санаа гарга.')">📝 Хурлын санаа</button>
+        </div>
+        <textarea id="mdAIInput" placeholder="Жишээ: Энэ сарын явцыг нэгтгээд юунд анхаарахыг хэл..." rows="3"></textarea>
+        <button id="mdAIBtn" class="md-ai-go" onclick="mdAIAsk()">✨ AI-аас асуух</button>
+        <div id="mdAIOutput" class="md-ai-output" style="display:none"></div>
+      </div>
       <div class="md-section-title">Нэгдэх хүсэлт <span class="md-count" id="mdPendingCount">0</span></div>
       <div id="mdPendingList"></div>
       <div class="md-section-title">Багш, ангийн хяналт <span class="md-count" id="mdTeacherCount">0</span></div>
@@ -3192,6 +3268,37 @@ async function loadMethodologistDashboard(force){
   }
   MD.loading=false;
 }
+
+function mdAIContext(){
+  var approved=(MD.requests||[]).filter(function(x){return x.status==='approved';});
+  var rows=[],totalKids=0,totalObs=0,totalPlans=0,totalInitial=0;
+  approved.forEach(function(r){
+    var p=MD.profiles[r.teacher_id]||{},m=mdMetrics((MD.data[r.teacher_id]||{}).data);
+    totalKids+=m.children;totalObs+=m.monthObs;totalPlans+=m.planStats.curDays;totalInitial+=m.initial.completePct;
+    rows.push((p.name||'Багш')+' — бүлэг: '+(p.teacher_group||'тодорхойгүй')+', хүүхэд: '+m.children+', энэ сарын ажиглалт: '+m.monthObs+', ажиглалтын хамрагдалт: '+m.coverage+'%, гарааны үнэлгээ: '+m.initial.completePct+'%, энэ сарын төлөвлөсөн өдөр: '+m.planStats.curDays);
+  });
+  return 'Нийт багш: '+approved.length+
+    '\nНийт хүүхэд: '+totalKids+
+    '\nЭнэ сарын ажиглалт: '+totalObs+
+    '\nЭнэ сарын төлөвлөсөн өдөр: '+totalPlans+
+    '\nБагш тус бүр:\n'+(rows.join('\n')||'Мэдээлэл алга');
+}
+function mdAIQuick(q){
+  var el=$('mdAIInput');if(el){el.value=q;mdAIAsk();}
+}
+async function mdAIAsk(){
+  var el=$('mdAIInput'),q=(el&&el.value||'').trim();if(!q){toast('AI-аас асуух зүйлээ бичнэ үү');return;}
+  var btn=$('mdAIBtn'),out=$('mdAIOutput');
+  if(btn){btn.disabled=true;btn.textContent='✨ Боловсруулж байна...';}
+  if(out){out.style.display='block';out.textContent='AI хариулж байна...';}
+  var sys='Та цэцэрлэгийн арга зүйчийн AI туслах. Зөвхөн өгсөн тоон болон ажлын мэдээлэлд тулгуурлан дэмжих зөвлөгөө өг. Багш нарыг сайн/муу гэж эрэмбэлэхгүй, оноогоор өрсөлдүүлэхгүй, чадвар эсвэл зан чанарын дүгнэлт хийхгүй. Хүүхэд, багшийн талаар оношлохгүй. Баримт, дутуу бүрдэл, дараагийн дэмжлэгийг төвийг сахисан мэргэжлийн Монгол хэлээр тайлбарла.';
+  try{
+    var ans=await ktAI(mdAIContext()+'\n\nХүсэлт: '+q,sys,1800);
+    if(out)out.textContent=ans||'Хариу хоосон байна.';
+  }catch(e){if(out)out.textContent='⚠️ AI-тай холбогдож чадсангүй: '+(e.message||e);}
+  if(btn){btn.disabled=false;btn.textContent='✨ AI-аас асуух';}
+}
+
 function renderMethodologistDashboard(){
   var pending=MD.requests.filter(function(x){return x.status==='pending';}),approved=MD.requests.filter(function(x){return x.status==='approved';});
   var totalKids=0,totalMonth=0,totalObsCoverage=0,totalInitialComplete=0,totalPlanDays=0,attention=0;
@@ -4909,6 +5016,8 @@ function astEnsure(){
   if(!a.daily)a.daily={};
   ['risks','care','support','cleaning','parentComms','selfDev','inventory','extra'].forEach(function(k){if(!Array.isArray(a[k]))a[k]=[];});
   if(!a.habits)a.habits={};
+  if(!a.attendance||typeof a.attendance!=='object')a.attendance={};
+  if(!Array.isArray(a.aiHistory))a.aiHistory=[];
   return a;
 }
 function astDate(){return getLocalDateKey();}
@@ -5007,7 +5116,13 @@ function astMonthStats(month){
     support:a.support.filter(starts).length,
     cleaning:a.cleaning.filter(starts).length,
     parent:a.parentComms.filter(starts).length,
-    dev:a.selfDev.filter(starts).length
+    dev:a.selfDev.filter(starts).length,
+    attendanceDays:Object.keys(a.attendance||{}).filter(function(d){return d.slice(0,7)===month;}).length,
+    attendance:Object.keys(a.attendance||{}).filter(function(d){return d.slice(0,7)===month;}).reduce(function(acc,d){
+      var day=a.attendance[d]||{};
+      Object.keys(day).forEach(function(cid){var v=day[cid];if(v==='present')acc.present++;else if(v==='absent')acc.absent++;else if(v==='excused')acc.excused++;});
+      return acc;
+    },{present:0,absent:0,excused:0})
   };
 }
 function astList(arr,kind,formatter){
@@ -5017,11 +5132,27 @@ function astList(arr,kind,formatter){
   }).join('');
 }
 function astTodayHtml(){
-  var r=astTodayRec(),done=AST_TODAY.filter(function(x){return r.checks[x[0]];}).length,pct=Math.round(done/AST_TODAY.length*100);
-  return '<div class="ast-card"><h3>✅ Өнөөдрийн '+done+'/'+AST_TODAY.length+' ажил</h3><div class="ast-muted">'+astDate()+' · Нэг удаа тэмдэглээд сарын тайланд автоматаар орно.</div><div class="ast-progress"><i style="width:'+pct+'%"></i></div>'+
-    AST_TODAY.map(function(x){return '<label class="ast-check"><input type="checkbox" '+(r.checks[x[0]]?'checked':'')+' onchange="astToggleCheck(\''+x[0]+'\',this.checked)"><div><b>'+x[1]+'</b><span>'+x[2]+'</span></div></label>';}).join('')+
-    '<div class="ast-form"><label>Өдрийн нэмэлт тэмдэглэл</label><textarea id="astTodayNote" placeholder="Онцгой зүйл, багшид мэдээлсэн зүйл...">'+astEsc(r.note||'')+'</textarea><button class="ast-btn sec" onclick="astSaveTodayNote()">Тэмдэглэл хадгалах</button></div></div>'+
-    '<div class="ast-card"><h3>⚡ Шуурхай бүртгэл</h3><div class="ast-grid2"><button class="ast-btn" onclick="astOpenTab(\'risk\')">⚠️ Эрсдэл</button><button class="ast-btn" onclick="astOpenTab(\'care\')">🧒 Асаргаа</button><button class="ast-btn sec" onclick="astOpenTab(\'support\')">🤝 Багшид дэмжлэг</button><button class="ast-btn sec" onclick="astOpenTab(\'clean\')">🧹 Цэвэрлэгээ</button></div></div>';
+  var a=astEnsure(),r=astTodayRec(),done=AST_TODAY.filter(function(x){return r.checks[x[0]];}).length,pct=Math.round(done/AST_TODAY.length*100);
+  var kids=ktAssistantChildren(),date=astDate(),att=a.attendance&&a.attendance[date]?a.attendance[date]:{},present=0,absent=0,excused=0;
+  kids.forEach(function(c){var s=att[c.id]||'';if(s==='present')present++;else if(s==='absent')absent++;else if(s==='excused')excused++;});
+  return '<div class="ast-quick4">'+
+      '<button class="ast-q pink" onclick="astOpenTab(\'attendance\')"><i>👥</i><b>Ирц</b><span>Хүүхдийн ирц</span></button>'+
+      '<button class="ast-q blue" onclick="astOpenTab(\'care\')"><i>👀</i><b>Ажиглалт</b><span>Асаргаа, тэмдэглэл</span></button>'+
+      '<button class="ast-q gold" onclick="astOpenTab(\'support\')"><i>📋</i><b>Өдрийн ажил</b><span>Багшид дэмжлэг</span></button>'+
+      '<button class="ast-q violet" onclick="astOpenTab(\'report\')"><i>📄</i><b>Тайлан</b><span>Word / PDF</span></button>'+
+    '</div>'+
+    '<div class="ast-ai-strip" onclick="astOpenTab(\'ai\')"><div class="ast-ai-strip__ico">🤖</div><div><b>AI туслах</b><span>Тайлан, тэмдэглэл, санаагаа цэгцлүүлэх</span></div><em>›</em></div>'+
+    '<div class="ast-summary"><div class="ast-summary__top"><b>Миний анги</b><span>'+astEsc((DB.user&&DB.user.teacher_group)||'Холбогдсон бүлэг')+'</span></div><div class="ast-summary-grid">'+
+      '<div class="ast-sum s1"><b>'+kids.length+'</b><span>Нийт хүүхэд</span></div>'+
+      '<div class="ast-sum s3"><b>'+present+'</b><span>Ирсэн</span></div>'+
+      '<div class="ast-sum s2"><b>'+absent+'</b><span>Ирээгүй</span></div>'+
+      '<div class="ast-sum s4"><b>'+excused+'</b><span>Чөлөөтэй</span></div>'+
+    '</div></div>'+
+    '<div class="ast-today-card"><div class="ast-today-head"><div><b>Өнөөдрийн үйл ажиллагаа</b><div class="ast-muted">'+date+' · '+done+'/'+AST_TODAY.length+' ажил</div></div><span>'+pct+'%</span></div>'+
+      '<div class="ast-progress"><i style="width:'+pct+'%;background:linear-gradient(90deg,#fb7185,#f59e0b)"></i></div>'+
+      AST_TODAY.map(function(x){return '<label class="ast-task"><input type="checkbox" '+(r.checks[x[0]]?'checked':'')+' onchange="astToggleCheck(\''+x[0]+'\',this.checked)"><div><b>'+x[1]+'</b><span>'+x[2]+'</span></div></label>';}).join('')+
+      '<div class="ast-form"><label>Өдрийн нэмэлт тэмдэглэл</label><textarea id="astTodayNote" placeholder="Онцгой зүйл, багшид мэдээлсэн зүйл...">'+astEsc(r.note||'')+'</textarea><button class="ast-btn sec" onclick="astSaveTodayNote()">Тэмдэглэл хадгалах</button></div>'+
+    '</div>';
 }
 function astRiskHtml(){
   var a=astEnsure();
@@ -5054,22 +5185,143 @@ function astParentHtml(){
   return '<div class="ast-card ast-form"><h3>👨‍👩‍👧 Эцэг эхтэй мэдээлэл солилцсон бүртгэл</h3><label>Эцэг эх / асран хамгаалагч</label><input id="astParPerson"><label>Ярилцсан сэдэв</label><input id="astParTopic"><label>Өгсөн / авсан мэдээлэл</label><textarea id="astParInfo"></textarea><label>Тохирсон дараагийн алхам</label><textarea id="astParNext"></textarea><button class="ast-btn" onclick="astAddParent()">Хадгалах</button><div class="ast-muted" style="margin-top:8px;">Онош, үнэлгээ, эмнэлгийн зөвлөгөө өгөхгүй. Онцгой мэдээллийг үндсэн багштай уялдуулна.</div></div>'+
   '<div class="ast-card"><h3>Сүүлийн мэдээлэл</h3>'+astList(a.parentComms,'parentComms',function(x){return '<b>'+astEsc(x.person)+' · '+astEsc(x.topic)+'</b><small>'+astEsc(x.date)+(x.info?' · '+astEsc(x.info):'')+'</small>';})+'</div>';
 }
+
+function astAttendanceDate(){
+  return AST.attDate||astDate();
+}
+function astAttendanceDateChange(v){
+  AST.attDate=v||astDate();renderAssistantPage();
+}
+function astAttendanceHtml(){
+  var a=astEnsure(),date=astAttendanceDate(),day=a.attendance[date]||{},kids=ktAssistantChildren();
+  var p=0,ab=0,e=0;
+  kids.forEach(function(c){var s=day[c.id]||'';if(s==='present')p++;else if(s==='absent')ab++;else if(s==='excused')e++;});
+  var rows=kids.map(function(c,i){
+    var s=day[c.id]||'';
+    return '<div class="ast-card" style="padding:10px 12px;margin-bottom:7px"><div style="display:flex;align-items:center;gap:8px">'+
+      '<div style="flex:1;min-width:0"><b style="font-size:12.5px">'+astEsc(c.name)+'</b></div>'+
+      '<button onclick="astSetAttendance(\''+c.id+'\',\'present\')" style="border:1px solid #bbf7d0;background:'+(s==='present'?'#16a34a':'#fff')+';color:'+(s==='present'?'#fff':'#166534')+';border-radius:9px;padding:7px 9px;font-weight:900">✓</button>'+
+      '<button onclick="astSetAttendance(\''+c.id+'\',\'absent\')" style="border:1px solid #fecaca;background:'+(s==='absent'?'#dc2626':'#fff')+';color:'+(s==='absent'?'#fff':'#991b1b')+';border-radius:9px;padding:7px 9px;font-weight:900">✕</button>'+
+      '<button onclick="astSetAttendance(\''+c.id+'\',\'excused\')" style="border:1px solid #fde68a;background:'+(s==='excused'?'#d97706':'#fff')+';color:'+(s==='excused'?'#fff':'#92400e')+';border-radius:9px;padding:7px 9px;font-weight:900">Ч</button>'+
+      '</div></div>';
+  }).join('');
+  return '<div class="ast-card"><h3>✅ Ирц бүртгэл</h3><div class="ast-muted">Туслах багш тухайн өдрийн ирцийг тэмдэглэнэ. Бүртгэл cloud ажлын журналд давхар орно.</div>'+
+    '<div class="ast-form"><label>Огноо</label><input type="date" value="'+astEsc(date)+'" onchange="astAttendanceDateChange(this.value)"></div>'+
+    '<div class="ast-grid2" style="grid-template-columns:repeat(4,1fr);margin-top:8px"><div class="ast-metric"><b>'+kids.length+'</b><span>нийт</span></div><div class="ast-metric"><b style="color:#16a34a">'+p+'</b><span>ирсэн</span></div><div class="ast-metric"><b style="color:#dc2626">'+ab+'</b><span>ирээгүй</span></div><div class="ast-metric"><b style="color:#d97706">'+e+'</b><span>чөлөө</span></div></div></div>'+
+    (kids.length?rows:'<div class="ast-card"><div class="ast-muted">Үндсэн багшийн бүлэгтэй холбогдсоны дараа хүүхдийн жагсаалт харагдана.</div></div>');
+}
+function astSetAttendance(cid,status){
+  var a=astEnsure(),date=astAttendanceDate();
+  if(!a.attendance[date])a.attendance[date]={};
+  if(a.attendance[date][cid]===status)delete a.attendance[date][cid];
+  else a.attendance[date][cid]=status;
+  var kids=ktAssistantChildren(),c=kids.find(function(x){return String(x.id)===String(cid);})||{};
+  var val=a.attendance[date][cid]||'';
+  astCloudLog('attendance',{date:date,child:c.name||'',childId:cid,status:val},cid);
+  saveDB();renderAssistantPage();
+}
+
+function astAIContext(){
+  var a=astEnsure(),m=astMonthKey(),s=astMonthStats(m),today=astTodayRec();
+  return 'Тайлант сар: '+m+
+    '\nChecklist хэрэгжилт: '+s.checklist+'%'+
+    '\nЦэвэрлэгээний бүртгэл: '+s.cleaning+
+    '\nАсаргааны тэмдэглэл: '+s.care+
+    '\nБагшид үзүүлсэн дэмжлэг: '+s.support+
+    '\nЭцэг эхтэй мэдээлэл: '+s.parent+
+    '\nЭрсдэл/зөрчил: '+s.risks+
+    '\nИрц: ирсэн '+s.attendance.present+', ирээгүй '+s.attendance.absent+', чөлөө '+s.attendance.excused+
+    '\nӨнөөдрийн нэмэлт тэмдэглэл: '+(today.note||'байхгүй');
+}
+function astAIHtml(){
+  var a=astEnsure(),last=a.aiHistory.length?a.aiHistory[0]:null;
+  return '<div class="ast-card"><h3>🤖 Багшийн туслахын AI туслах</h3><div class="ast-muted">Тэмдэглэлээ цэгцлэх, сарын тайлангийн ноорог гаргах, эцэг эхэд хэлэх мэдээллийг мэргэжлийн бөгөөд ойлгомжтой болгоход тусална. Хүүхдийг оношлох, бусадтай харьцуулах дүгнэлт гаргахгүй.</div>'+
+    '<div style="display:flex;gap:6px;overflow-x:auto;margin:10px 0">'+
+      '<button class="ast-btn sec" style="white-space:nowrap" onclick="astAIQuick(\'Энэ сарын ажлын тайлангийн товч, албан бичгийн хэлбэртэй ноорог гарга.\')">📊 Сарын тайлан</button>'+
+      '<button class="ast-btn sec" style="white-space:nowrap" onclick="astAIQuick(\'Өнөөдрийн тэмдэглэлийг мэргэжлийн, бодит ажиглалтад тулгуурласан хэллэгээр цэгцэл.\')">✍️ Тэмдэглэл</button>'+
+      '<button class="ast-btn sec" style="white-space:nowrap" onclick="astAIQuick(\'Эцэг эхэд хэлэх 2-3 өгүүлбэрийн эерэг, оношлохгүй мэдээллийн ноорог гарга.\')">💬 Эцэг эхэд</button>'+
+    '</div>'+
+    '<div class="ast-form"><label>AI-аас асуух</label><textarea id="astAIInput" placeholder="Жишээ: Энэ сарын тайлангаа цэгцэлж өг..."></textarea><button id="astAIBtn" class="ast-btn" onclick="astAIAsk()">✨ AI-аас асуух</button></div>'+
+    '<div id="astAIOutput" class="ast-report-box" style="'+(last?'':'display:none;')+'">'+(last?astEsc(last.text):'')+'</div></div>';
+}
+function astAIQuick(q){
+  var el=$('astAIInput');if(el){el.value=q;astAIAsk();}
+}
+async function astAIAsk(){
+  var el=$('astAIInput'),q=(el&&el.value||'').trim();if(!q){toast('Асуух зүйлээ бичнэ үү');return;}
+  var btn=$('astAIBtn'),out=$('astAIOutput');
+  if(btn){btn.disabled=true;btn.textContent='✨ Боловсруулж байна...';}
+  if(out){out.style.display='block';out.textContent='AI хариулж байна...';}
+  var sys='Та Монголын цэцэрлэгийн багшийн туслахад зориулсан AI туслах. Зөвхөн өгсөн ажлын бүртгэлд тулгуурлана. Хүүхдэд онош тавихгүй, шошголохгүй, хүүхдүүдийг хооронд нь харьцуулахгүй. Эцэг эхэд эмнэлгийн зөвлөгөө өгөхгүй. Монгол хэлээр товч, мэргэжлийн, хэрэгжүүлэхэд хялбар хариул.';
+  try{
+    var ans=await ktAI(astAIContext()+'\n\nХүсэлт: '+q,sys,1400);
+    var a=astEnsure();a.aiHistory.unshift({id:'ai'+Date.now(),date:astDate(),q:q,text:ans});a.aiHistory=a.aiHistory.slice(0,20);saveDB();
+    if(out)out.textContent=ans||'Хариу хоосон байна.';
+  }catch(e){if(out)out.textContent='⚠️ AI-тай холбогдож чадсангүй: '+(e.message||e);}
+  if(btn){btn.disabled=false;btn.textContent='✨ AI-аас асуух';}
+}
+
+function astReportPlainText(month){
+  var s=astMonthStats(month),a=astEnsure(),risks=a.risks.filter(function(x){return astMonthKey(x.date)===month;});
+  return 'Тайлант хугацаанд өдөр тутмын ажлын checklist-ийн хэрэгжилт '+s.checklist+'% байна. '+
+    'Цэвэрлэгээ, орчны арчилгааны '+s.cleaning+' бүртгэл, хүүхдийн асаргаа-халамжийн '+s.care+
+    ' тэмдэглэл, бүлгийн багшид үзүүлсэн '+s.support+' дэмжлэг, эцэг эхтэй мэдээлэл солилцсон '+s.parent+
+    ' тохиолдол бүртгэгдсэн. Нийт '+s.risks+' эрсдэл/зөрчлийг илрүүлж мэдээлсэн. '+
+    'Ирцийн бүртгэлээр ирсэн '+s.attendance.present+', ирээгүй '+s.attendance.absent+', чөлөөтэй '+s.attendance.excused+' тэмдэглэгээ байна.'+
+    (risks.length?' Эрсдэлийн бүртгэлд "'+(risks[0].risk||'')+'" зэрэг асуудал тэмдэглэгдсэн.':'');
+}
+function astDownloadWord(){
+  var month=astMonthKey(),s=astMonthStats(month),a=astEnsure(),u=DB.user||{};
+  var esc=function(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+  var rows=function(arr,fields){
+    return arr.filter(function(x){return astMonthKey(x.date)===month;}).slice(0,50).map(function(x){
+      return '<tr>'+fields.map(function(f){return '<td>'+esc(typeof f==='function'?f(x):(x[f]||''))+'</td>';}).join('')+'</tr>';
+    }).join('');
+  };
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>Багшийн туслахын тайлан</title>'+
+    '<style>body{font-family:Arial,sans-serif;font-size:11pt;line-height:1.5;color:#222}h1{text-align:center;font-size:18pt}h2{font-size:13pt;margin-top:20px}table{width:100%;border-collapse:collapse;margin:8px 0}th,td{border:1px solid #999;padding:6px;vertical-align:top}th{background:#eee}.meta td{border:0;padding:3px}</style></head><body>'+
+    '<h1>БАГШИЙН ТУСЛАХЫН САРЫН АЖЛЫН ТАЙЛАН</h1>'+
+    '<table class="meta"><tr><td><b>Цэцэрлэг:</b> '+esc(u.kinder||'')+'</td><td><b>Бүлэг:</b> '+esc(u.group||u.teacher_group||'')+'</td></tr>'+
+    '<tr><td><b>Багшийн туслах:</b> '+esc(u.name||'')+'</td><td><b>Тайлант сар:</b> '+esc(month)+'</td></tr></table>'+
+    '<h2>1. Нэгтгэл</h2><p>'+esc(astReportPlainText(month))+'</p>'+
+    '<table><tr><th>Үзүүлэлт</th><th>Тоо / хувь</th></tr>'+
+    '<tr><td>Өдөр тутмын checklist</td><td>'+s.checklist+'%</td></tr>'+
+    '<tr><td>Цэвэрлэгээ</td><td>'+s.cleaning+'</td></tr><tr><td>Асаргаа</td><td>'+s.care+'</td></tr>'+
+    '<tr><td>Багшид дэмжлэг</td><td>'+s.support+'</td></tr><tr><td>Эцэг эхтэй мэдээлэл</td><td>'+s.parent+'</td></tr>'+
+    '<tr><td>Эрсдэл/зөрчил</td><td>'+s.risks+'</td></tr><tr><td>Ирц — ирсэн / ирээгүй / чөлөө</td><td>'+s.attendance.present+' / '+s.attendance.absent+' / '+s.attendance.excused+'</td></tr></table>'+
+    '<h2>2. Асаргаа, халамжийн тэмдэглэл</h2><table><tr><th>Огноо</th><th>Хүүхэд</th><th>Ажигласан зүйл</th><th>Дэмжлэг</th></tr>'+rows(a.care,['date','child','issue','help'])+'</table>'+
+    '<h2>3. Бүлгийн багшид үзүүлсэн дэмжлэг</h2><table><tr><th>Огноо</th><th>Үйл ажиллагаа</th><th>Бэлтгэл</th><th>Дэмжлэг</th></tr>'+rows(a.support,['date','activity','prepared','help'])+'</table>'+
+    '<h2>4. Аюулгүй байдал, эрсдэл</h2><table><tr><th>Огноо</th><th>Байршил</th><th>Эрсдэл</th><th>Арга хэмжээ</th></tr>'+rows(a.risks,['date','place','risk','action'])+'</table>'+
+    '<h2>5. Эцэг эхтэй мэдээлэл солилцсон байдал</h2><table><tr><th>Огноо</th><th>Хэнтэй</th><th>Сэдэв</th><th>Мэдээлэл</th></tr>'+rows(a.parentComms,['date','person','topic','info'])+'</table>'+
+    '<h2>6. Дүгнэлт / нэмэлт тайлбар</h2><p><br><br><br></p>'+
+    '<p>Тайлан гаргасан: ____________________________ &nbsp;&nbsp;&nbsp; Огноо: ____________</p>'+
+    '</body></html>';
+  var blob=new Blob(['\ufeff',html],{type:'application/msword;charset=utf-8'});
+  var url=URL.createObjectURL(blob),ael=document.createElement('a');
+  ael.href=url;ael.download='KinderTrack_туслах_багш_'+month+'.doc';document.body.appendChild(ael);ael.click();ael.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  toast('Word тайлан татагдлаа ✓');
+}
+
 function astReportHtml(){
   var month=astMonthKey(),s=astMonthStats(month),a=astEnsure();
   var risks=a.risks.filter(function(x){return astMonthKey(x.date)===month;});
-  return '<div class="ast-card"><h3>📊 '+month+' сарын автоматаар нэгтгэсэн тайлан</h3><div class="ast-grid2"><div class="ast-metric"><b>'+s.checklist+'%</b><span>өдөр тутмын checklist</span></div><div class="ast-metric"><b>'+s.cleaning+'</b><span>цэвэрлэгээний бүртгэл</span></div><div class="ast-metric"><b>'+s.risks+'</b><span>мэдээлсэн эрсдэл</span></div><div class="ast-metric"><b>'+s.care+'</b><span>асаргааны тэмдэглэл</span></div><div class="ast-metric"><b>'+s.support+'</b><span>багшид дэмжлэг</span></div><div class="ast-metric"><b>'+s.parent+'</b><span>эцэг эхтэй мэдээлэл</span></div></div></div>'+
-    '<div class="ast-card"><h3>Тайлангийн бэлэн текст</h3><div class="ast-report-box">Тайлант хугацаанд өдөр тутмын ажлын checklist-ийн хэрэгжилт <b>'+s.checklist+'%</b> байна. Цэвэрлэгээ, орчны арчилгааны <b>'+s.cleaning+'</b> бүртгэл, хүүхдийн асаргаа-халамжийн <b>'+s.care+'</b> онцгой тэмдэглэл, бүлгийн багшид үзүүлсэн <b>'+s.support+'</b> дэмжлэг, эцэг эхтэй мэдээлэл солилцсон <b>'+s.parent+'</b> тохиолдол бүртгэгдсэн. Нийт <b>'+s.risks+'</b> эрсдэл/зөрчлийг илрүүлж мэдээлсэн.'+(risks.length?' Сарын эрсдэлийн бүртгэлд '+astEsc(risks[0].risk)+' зэрэг асуудал тэмдэглэгдсэн.':'')+'</div><button class="ast-btn sec" onclick="window.print()">🖨 Хэвлэх / PDF</button></div>'+
+  return '<div class="ast-card"><h3>📊 '+month+' сарын автоматаар нэгтгэсэн тайлан</h3><div class="ast-grid2"><div class="ast-metric"><b>'+s.checklist+'%</b><span>өдөр тутмын checklist</span></div><div class="ast-metric"><b>'+s.cleaning+'</b><span>цэвэрлэгээний бүртгэл</span></div><div class="ast-metric"><b>'+s.risks+'</b><span>мэдээлсэн эрсдэл</span></div><div class="ast-metric"><b>'+s.care+'</b><span>асаргааны тэмдэглэл</span></div><div class="ast-metric"><b>'+s.support+'</b><span>багшид дэмжлэг</span></div><div class="ast-metric"><b>'+s.parent+'</b><span>эцэг эхтэй мэдээлэл</span></div><div class="ast-metric"><b>'+s.attendance.present+'</b><span>ирсэн тэмдэглэгээ</span></div><div class="ast-metric"><b>'+s.attendance.absent+'</b><span>ирээгүй тэмдэглэгээ</span></div></div></div>'+
+    '<div class="ast-card"><h3>Тайлангийн бэлэн текст</h3><div class="ast-report-box">'+astEsc(astReportPlainText(month))+'</div>'+
+      '<div class="ast-grid2" style="margin-top:9px"><button class="ast-btn" onclick="astDownloadWord()">📄 Word татах</button><button class="ast-btn sec" onclick="window.print()">🖨 Хэвлэх / PDF</button></div>'+
+      '<div class="ast-muted" style="margin-top:7px">Word файл нь засварлагдах боломжтой. Татаж аваад Word дээр нэмэлт тайлбар, гарын үсэг, дүгнэлтээ засаж болно.</div></div>'+
     '<div class="ast-card ast-form"><h3>📚 Өөрийн хөгжил</h3><label>Сургалт / судалсан сэдэв</label><input id="astDevTopic"><label>Сурсан зүйл</label><textarea id="astDevLearn"></textarea><label>Ажилдаа туршсан нь</label><textarea id="astDevTried"></textarea><button class="ast-btn" onclick="astAddSelfDev()">Хадгалах</button></div>';
 }
 function renderAssistantPage(){
   var root=$('astPage');if(!root)return;
   astEnsure();
-  var tabs=[['today','Өнөөдөр'],['risk','Аюулгүй байдал'],['care','Асаргаа'],['habits','Дадал'],['support','Багшид дэмжлэг'],['clean','Цэвэрлэгээ'],['parent','Эцэг эх'],['report','Тайлан']];
-  var body=AST.tab==='today'?astTodayHtml():AST.tab==='risk'?astRiskHtml():AST.tab==='care'?astCareHtml():AST.tab==='habits'?astHabitsHtml():AST.tab==='support'?astSupportHtml():AST.tab==='clean'?astCleanHtml():AST.tab==='parent'?astParentHtml():astReportHtml();
-  root.innerHTML='<div class="ast-head"><div class="ast-title">🤝 Багшийн туслахын төв</div><div class="ast-sub">Өдөр тутмын ажлаа хэдхэн товшилтоор бүртгээд сарын тайлангаа автоматаар нэгтгэнэ.</div></div>'+
-    '<div class="ast-tabs">'+tabs.map(function(t){return '<button class="ast-tab '+(AST.tab===t[0]?'on':'')+'" onclick="astOpenTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+'</div>'+body;
+  var tabs=[['today','Өнөөдөр'],['attendance','Ирц'],['risk','Аюулгүй байдал'],['care','Асаргаа'],['habits','Дадал'],['support','Багшид дэмжлэг'],['clean','Цэвэрлэгээ'],['parent','Эцэг эх'],['report','Тайлан'],['ai','AI туслах']];
+  var body=AST.tab==='today'?astTodayHtml():AST.tab==='attendance'?astAttendanceHtml():AST.tab==='risk'?astRiskHtml():AST.tab==='care'?astCareHtml():AST.tab==='habits'?astHabitsHtml():AST.tab==='support'?astSupportHtml():AST.tab==='clean'?astCleanHtml():AST.tab==='parent'?astParentHtml():AST.tab==='ai'?astAIHtml():astReportHtml();
+  root.innerHTML='<div class="ast-shell">'+
+    '<div class="ast-hero"><div class="ast-hero__eyebrow">KINDERTRACK · БАГШИЙН ТУСЛАХ</div><div class="ast-hero__title">Туслах багшийн самбар</div><div class="ast-hero__sub">Хүүхдийн ирц, өдөр тутмын ажил, ажиглалт, дэмжлэг, тайлангаа нэг дор цэгцтэй хөтөлнө.</div><div class="ast-home-date">📅 '+astDate()+'</div></div>'+
+    '<div class="ast-tabs">'+tabs.map(function(t){return '<button class="ast-tab '+(AST.tab===t[0]?'on':'')+'" onclick="astOpenTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+'</div>'+body+
+  '</div>';
 }
-
 /* ===== Бүлгийн багшийн бичиг баримтын төв ===== */
 var TD={tab:'overview'};
 
