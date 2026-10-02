@@ -2472,8 +2472,13 @@ async function openOwner(){
   }catch(e){console.error('owner verify',e);toast('Баталгаажуулалт амжилтгүй');return;}
   openModal('modal-owner');
   $('ownerList').innerHTML='<div style="text-align:center;color:#9ca3af;padding:16px;">Уншиж байна...</div>';
-  var r=await ktSB.from('profiles').select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan,devices').order('paid_until',{ascending:false});
-  if(r.error){$('ownerList').innerHTML='<div class="err-msg">'+r.error.message+'</div><div style="font-size:11px;color:#9ca3af;margin-top:6px;">⚙ Эзэний RLS дүрэм ажилласан эсэхээ шалгаарай</div>';return;}
+  var ownerColumns='id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan';
+  var r=await ktSB.from('profiles').select(ownerColumns+',devices').order('paid_until',{ascending:false});
+  // Older databases can omit device tracking; it must not block paid-user management.
+  if(r.error&&r.error.code==='42703'&&/\bdevices\b/i.test(r.error.message||'')){
+    r=await ktSB.from('profiles').select(ownerColumns).order('paid_until',{ascending:false});
+  }
+  if(r.error){$('ownerList').innerHTML='<div class="err-msg">'+ktEsc(r.error.message||'Хэрэглэгчдийн мэдээллийг уншиж чадсангүй.')+'</div>';return;}
   ownerUsers=r.data||[];renderOwnerList();
 }
 function ownerSummaryHtml(){
