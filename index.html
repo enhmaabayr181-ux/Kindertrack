@@ -1284,6 +1284,12 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 
 
 /* ===== Polished role dashboards ===== */
+
+.md-myteam-card{width:100%;display:flex;align-items:center;gap:11px;text-align:left;border:1px solid #ddd6fe;background:linear-gradient(135deg,#fff 0%,#faf5ff 52%,#ecfeff 100%);border-radius:18px;padding:12px 13px;margin:0 0 12px;box-shadow:0 8px 22px rgba(76,29,149,.07);font-family:var(--font-ui);cursor:pointer}
+.md-myteam-ico{width:43px;height:43px;flex:0 0 43px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;background:linear-gradient(135deg,#ede9fe,#ccfbf1)}
+.md-myteam-copy{min-width:0;flex:1}.md-myteam-copy b{display:block;color:#4c1d95;font-size:13px}.md-myteam-copy span{display:block;color:#64748b;font-size:9.8px;line-height:1.4;margin-top:3px}
+.md-myteam-arr{font-size:24px;font-weight:800;color:#7c3aed;padding-left:4px}
+
 #pg-methodologist{background:linear-gradient(180deg,#fbf8ff 0,#f8fbff 38%,#fff 100%);padding-top:14px}
 #pg-assistant{background:linear-gradient(180deg,#fff7fb 0,#fffdf8 42%,#fff 100%);padding-top:12px}
 
@@ -1333,7 +1339,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 .ast-today-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.ast-today-head b{font-size:13px}.ast-today-head span{font-size:9.5px;color:#9ca3af}
 .ast-task{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #f8eef3}.ast-task:last-child{border-bottom:0}
 .ast-task input{width:19px;height:19px;accent-color:#ec4899}.ast-task b{font-size:11.5px;color:#334155}.ast-task span{display:block;font-size:9.5px;color:#94a3b8;margin-top:2px}
-.ast-tabs{background:rgba(255,255,255,.9);border:1px solid #f3e8ef;border-radius:16px;padding:5px!important;margin-bottom:10px;box-shadow:0 5px 16px rgba(100,50,80,.05)}
+.ast-tabs{display:flex!important;gap:3px!important;overflow-x:auto!important;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:rgba(255,255,255,.9);border:1px solid #f3e8ef;border-radius:16px;padding:5px!important;margin-bottom:10px;box-shadow:0 5px 16px rgba(100,50,80,.05)}.ast-tabs::-webkit-scrollbar{display:none}.ast-tabs .ast-tab{flex:0 0 auto!important;white-space:nowrap!important;padding-left:12px!important;padding-right:12px!important}
 .ast-tab{border:0!important;background:transparent!important}.ast-tab.on{background:linear-gradient(135deg,#fb7185,#ec4899)!important;color:#fff!important}
 .ast-card{border-color:#f2e8ee!important;border-radius:18px!important;box-shadow:0 8px 20px rgba(100,50,80,.05)!important}
 @media(max-width:390px){.ast-quick4{gap:5px}.ast-q{padding-left:3px;padding-right:3px}.ast-q b{font-size:9.3px}.md-stats{gap:6px!important}}
@@ -1667,6 +1673,16 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       </div>
       <div id="mdStatus"></div>
       <div class="md-stats" id="mdStats"></div>
+
+      <button type="button" class="md-myteam-card" onclick="openTeam()">
+        <div class="md-myteam-ico">👥</div>
+        <div class="md-myteam-copy">
+          <b>Миний баг</b>
+          <span>Багийн кодоо харах, багш урих, нэгдсэн багш нараа удирдах</span>
+        </div>
+        <div class="md-myteam-arr">›</div>
+      </button>
+
       <div class="md-ai-card">
         <div class="md-ai-head"><div><b>🤖 Арга зүйчийн AI туслах</b><span>Багш нарын ажлын явцад тулгуурлан тойм, зөвлөгөөний ноорог бэлдэнэ.</span></div></div>
         <div class="md-ai-quick">
@@ -2090,7 +2106,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
   <div class="modal-sh" style="max-height:85vh;overflow-y:auto;">
     <div class="modal-handle"></div>
     <div class="modal-title">👥 Миний баг</div>
-    <div class="modal-sub">Багш нартаа доорх кодыг өгнө үү (10 хүртэл)</div>
+    <div class="modal-sub">Багийн кодоо багш нартаа өгч нэгдүүлнэ. Энд холбогдсон багш нараа удирдана.</div>
     <div id="teamCodeBox"></div>
     <div id="teamList" style="margin-top:10px;"></div>
     <button onclick="closeModal('modal-team')" style="width:100%;padding:11px;border:none;background:#f1f5f9;color:#64748b;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;margin-top:10px;">Хаах</button>
@@ -2472,13 +2488,8 @@ async function openOwner(){
   }catch(e){console.error('owner verify',e);toast('Баталгаажуулалт амжилтгүй');return;}
   openModal('modal-owner');
   $('ownerList').innerHTML='<div style="text-align:center;color:#9ca3af;padding:16px;">Уншиж байна...</div>';
-  var ownerColumns='id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan';
-  var r=await ktSB.from('profiles').select(ownerColumns+',devices').order('paid_until',{ascending:false});
-  // Older databases can omit device tracking; it must not block paid-user management.
-  if(r.error&&r.error.code==='42703'&&/\bdevices\b/i.test(r.error.message||'')){
-    r=await ktSB.from('profiles').select(ownerColumns).order('paid_until',{ascending:false});
-  }
-  if(r.error){$('ownerList').innerHTML='<div class="err-msg">'+ktEsc(r.error.message||'Хэрэглэгчдийн мэдээллийг уншиж чадсангүй.')+'</div>';return;}
+  var r=await ktSB.from('profiles').select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan,devices').order('paid_until',{ascending:false});
+  if(r.error){$('ownerList').innerHTML='<div class="err-msg">'+r.error.message+'</div><div style="font-size:11px;color:#9ca3af;margin-top:6px;">⚙ Эзэний RLS дүрэм ажилласан эсэхээ шалгаарай</div>';return;}
   ownerUsers=r.data||[];renderOwnerList();
 }
 function ownerSummaryHtml(){
@@ -3291,6 +3302,26 @@ function mdAIContext(){
 function mdAIQuick(q){
   var el=$('mdAIInput');if(el){el.value=q;mdAIAsk();}
 }
+
+function mdAILocalFallback(q){
+  var approved=(MD.requests||[]).filter(function(x){return x.status==='approved';});
+  var totalKids=0,totalObs=0,totalPlanDays=0,needInitial=0,needObs=0;
+  approved.forEach(function(r){
+    var m=mdMetrics((MD.data[r.teacher_id]||{}).data);
+    totalKids+=m.children;totalObs+=m.monthObs;totalPlanDays+=m.planStats.curDays;
+    if(m.initial.completePct<100)needInitial++;
+    if(m.coverage<100)needObs++;
+  });
+  var lower=String(q||'').toLowerCase();
+  if(lower.indexOf('хурал')>=0){
+    return 'Хурлаар хэлэлцэх санал:\n1. Энэ сарын ажиглалтын хамрагдалт ба нотолгооны бүрдэл.\n2. Гарааны үнэлгээний дутуу бүрдлийг нөхөх хугацаа.\n3. Сарын болон 7 хоногийн төлөвлөлтийн хэрэгжилт.\n4. Дэмжлэг шаардлагатай багшид өгөх арга зүйн зөвлөгөө.\n5. Дараагийн хугацаанд баримтжуулалтыг тогтмолжуулах ажил.';
+  }
+  if(lower.indexOf('зөвлөг')>=0){
+    return 'Арга зүйн дэмжлэгийн санал: ажиглалтыг бодит үйлдэл, нөхцөл, нотолгоонд тулгуурлан тогтмол бүртгэх; гарааны үнэлгээний дутуу хэсгийг нөхөх; төлөвлөсөн СҮД-ийн хэрэгжилтийг 7 хоног бүр нягтлах; шаардлагатай үед 1:1 зөвлөгөөгөөр дараагийн алхмыг тодорхойлох.';
+  }
+  return 'Энэ сарын нэгтгэлээр '+approved.length+' багш, '+totalKids+' хүүхдийн мэдээлэл харагдаж байна. Нийт '+totalObs+' ажиглалт, '+totalPlanDays+' төлөвлөсөн өдөр бүртгэгдсэн. Гарааны үнэлгээ бүрэн дуусаагүй '+needInitial+' багш, ажиглалтын хамрагдалт бүрэн бус '+needObs+' багш байна. Эдгээр нь чанарын үнэлгээ биш бөгөөд бүрдэл, явцыг нягтлах дохио юм.';
+}
+
 async function mdAIAsk(){
   var el=$('mdAIInput'),q=(el&&el.value||'').trim();if(!q){toast('AI-аас асуух зүйлээ бичнэ үү');return;}
   var btn=$('mdAIBtn'),out=$('mdAIOutput');
@@ -3298,9 +3329,12 @@ async function mdAIAsk(){
   if(out){out.style.display='block';out.textContent='AI хариулж байна...';}
   var sys='Та цэцэрлэгийн арга зүйчийн AI туслах. Зөвхөн өгсөн тоон болон ажлын мэдээлэлд тулгуурлан дэмжих зөвлөгөө өг. Багш нарыг сайн/муу гэж эрэмбэлэхгүй, оноогоор өрсөлдүүлэхгүй, чадвар эсвэл зан чанарын дүгнэлт хийхгүй. Хүүхэд, багшийн талаар оношлохгүй. Баримт, дутуу бүрдэл, дараагийн дэмжлэгийг төвийг сахисан мэргэжлийн Монгол хэлээр тайлбарла.';
   try{
-    var ans=await ktAI(mdAIContext()+'\n\nХүсэлт: '+q,sys,1800);
+    var ans=await ktAIRobust(mdAIContext()+'\n\nХүсэлт: '+q,sys,1600);
     if(out)out.textContent=ans||'Хариу хоосон байна.';
-  }catch(e){if(out)out.textContent='⚠️ AI-тай холбогдож чадсангүй: '+(e.message||e);}
+  }catch(e){
+    var local=mdAILocalFallback(q);
+    if(out)out.innerHTML='<div style="font-size:9.5px;color:#b45309;margin-bottom:6px">⚡ AI үйлчилгээ түр ачаалалтай байна. Доорхыг KinderTrack-ийн бодит бүртгэлээр автоматаар нэгтгэлээ.</div>'+astEsc(local);
+  }
   if(btn){btn.disabled=false;btn.textContent='✨ AI-аас асуух';}
 }
 
@@ -3581,13 +3615,15 @@ function ktMergeCriticalLocal(cloudData){
   var dirty=ss.localDirtyAt||'';
   var last=ss.lastSync||'';
   var hasUnsynced=!!dirty&&(!last||dirty>last);
-  if(!hasUnsynced)return {data:d,merged:false};
-
+  var serverObsCount=JSON.stringify(d.dailyObs||{}),serverLogsCount=JSON.stringify(d.dailyLogs||{});
   d.dailyObs=ktMergeObsMap(d.dailyObs,DB.dailyObs);
   d.dailyLogs=ktMergeObsMap(d.dailyLogs,DB.dailyLogs);
-  d.plans=ktMergeObjectLocalWins(d.plans||{},DB.plans||{});
-  d.teacherDocs=ktMergeObjectLocalWins(d.teacherDocs||{},DB.teacherDocs||{});
-  return {data:d,merged:true};
+  var recovered=(JSON.stringify(d.dailyObs)!==serverObsCount)||(JSON.stringify(d.dailyLogs)!==serverLogsCount);
+  if(hasUnsynced){
+    d.plans=ktMergeObjectLocalWins(d.plans||{},DB.plans||{});
+    d.teacherDocs=ktMergeObjectLocalWins(d.teacherDocs||{},DB.teacherDocs||{});
+  }
+  return {data:d,merged:hasUnsynced||recovered};
 }
 async function ktPersistCriticalSave(label){
   if(!ktUid||!ktReady)return {ok:false,local:true};
@@ -3704,7 +3740,10 @@ async function ktPullData(uid,opt){
 
     if(res.data&&res.data.data){
       var _merge=sameOwner?ktMergeCriticalLocal(res.data.data):{data:res.data.data,merged:false};
+      var beforeA79=JSON.stringify({initial:_merge.data.initialA79||{},final:_merge.data.finalA79||{}});
       ktApplyData(_merge.data);
+      var recoveredA79=beforeA79!==JSON.stringify({initial:DB.initialA79||{},final:DB.finalA79||{}});
+      if(recoveredA79)_merge.merged=true;
       DB._owner=uid;
       try{
         if(!DB.syncSettings)DB.syncSettings={};
@@ -3717,7 +3756,13 @@ async function ktPullData(uid,opt){
       ktReady=true;
       try{setSyncIndicator();processMediaQueue();}catch(e){}
       if(_merge.merged){
-        try{SYNC2.pushPending=true;setSyncIndicator();setTimeout(sync2Push,120);}catch(e){}
+        try{
+          if(!DB.syncSettings)DB.syncSettings={};
+          DB.syncSettings.localDirtyAt=new Date().toISOString();
+          DB.syncSettings.localRev=(DB.syncSettings.localRev||0)+1;
+          ktFlushLocalSave();
+          SYNC2.pushPending=true;setSyncIndicator();setTimeout(sync2Push,120);
+        }catch(e){}
       }
       return {ok:true,source:_merge.merged?'cloud+local-merge':'cloud'};
     }
@@ -4888,8 +4933,9 @@ function enterApp(){
   ktApplyOwnerUI();
   ktCheckPushState();ktRefreshChatState();
   var isOwner=ktIsOwner(),isMd=mdIsMethodologist();
+  var ownerMdMode=!!(isOwner&&typeof ktOwnerAs==='function'&&ktOwnerAs('methodologist'));
   ktApplyRoleNav();
-  if($('teamSetItem'))$('teamSetItem').style.display=isMd?'flex':'none';
+  if($('teamSetItem'))$('teamSetItem').style.display=(isMd||ownerMdMode)?'flex':'none';
   if($('joinTeamSetItem'))$('joinTeamSetItem').style.display=isMd?'none':'flex';
   if($('teacherAdviceSetItem'))$('teacherAdviceSetItem').style.display=isMd?'none':'flex';
   if($('mdTeacherChatSetItem'))$('mdTeacherChatSetItem').style.display=(!isMd&&DB.user.teamOwner)?'flex':'none';
@@ -5252,6 +5298,19 @@ function astAIHtml(){
 function astAIQuick(q){
   var el=$('astAIInput');if(el){el.value=q;astAIAsk();}
 }
+
+function astAILocalFallback(q){
+  var month=astMonthKey(),s=astMonthStats(month);
+  var lower=String(q||'').toLowerCase();
+  if(lower.indexOf('эцэг')>=0){
+    return 'Өнөөдрийн хүүхдийн асаргаа, дадал болон оролцооны талаар бодит ажиглалтад тулгуурлан товч мэдээлэл солилцлоо. Гэр бүлтэй хамтран хүүхдийн өдөр тутмын хэвшлийг тогтвортой дэмжихэд анхаарч ажиллана.';
+  }
+  if(lower.indexOf('тэмдэглэл')>=0){
+    return 'Өнөөдрийн ажлын явцад хүүхдийн өдөр тутмын асаргаа, аюулгүй байдал, дадал хэвшил болон бүлгийн үйл ажиллагаанд шаардлагатай дэмжлэгийг үзүүлж, онцлох мэдээллийг бодитоор тэмдэглэв.';
+  }
+  return astReportPlainText(month)+' Цаашид өдөр тутмын бүртгэлийг тогтмол хөтөлж, бүлгийн багштай шаардлагатай мэдээллийг тухай бүр солилцон ажиллана.';
+}
+
 async function astAIAsk(){
   var el=$('astAIInput'),q=(el&&el.value||'').trim();if(!q){toast('Асуух зүйлээ бичнэ үү');return;}
   var btn=$('astAIBtn'),out=$('astAIOutput');
@@ -5259,10 +5318,14 @@ async function astAIAsk(){
   if(out){out.style.display='block';out.textContent='AI хариулж байна...';}
   var sys='Та Монголын цэцэрлэгийн багшийн туслахад зориулсан AI туслах. Зөвхөн өгсөн ажлын бүртгэлд тулгуурлана. Хүүхдэд онош тавихгүй, шошголохгүй, хүүхдүүдийг хооронд нь харьцуулахгүй. Эцэг эхэд эмнэлгийн зөвлөгөө өгөхгүй. Монгол хэлээр товч, мэргэжлийн, хэрэгжүүлэхэд хялбар хариул.';
   try{
-    var ans=await ktAI(astAIContext()+'\n\nХүсэлт: '+q,sys,1400);
+    var ans=await ktAIRobust(astAIContext()+'\n\nХүсэлт: '+q,sys,1400);
     var a=astEnsure();a.aiHistory.unshift({id:'ai'+Date.now(),date:astDate(),q:q,text:ans});a.aiHistory=a.aiHistory.slice(0,20);saveDB();
     if(out)out.textContent=ans||'Хариу хоосон байна.';
-  }catch(e){if(out)out.textContent='⚠️ AI-тай холбогдож чадсангүй: '+(e.message||e);}
+  }catch(e){
+    var local=astAILocalFallback(q);
+    var a2=astEnsure();a2.aiHistory.unshift({id:'ai'+Date.now(),date:astDate(),q:q,text:local,local:true});a2.aiHistory=a2.aiHistory.slice(0,20);saveDB();
+    if(out)out.innerHTML='<div style="font-size:9.5px;color:#b45309;margin-bottom:6px">⚡ AI үйлчилгээ түр ачаалалтай байна. Доорхыг KinderTrack дотоод нэгтгэлээр бэлдлээ.</div>'+astEsc(local);
+  }
   if(btn){btn.disabled=false;btn.textContent='✨ AI-аас асуух';}
 }
 
@@ -6760,6 +6823,128 @@ function buildQuickRow(key,label){
   return row;
 }
 
+
+/* ===== Сарын ажиглалт хэвлэх / PDF ===== */
+function ktObsPrintEsc(v){
+  return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function ktObsSchoolMonthKey(month){
+  var m=parseInt(month,10),now=new Date(),y=now.getFullYear(),nm=now.getMonth()+1;
+  var start=(nm>=9)?y:(y-1);
+  return (m>=9?start:start+1)+'-'+String(m).padStart(2,'0');
+}
+function ktObsMonthLabel(month){
+  var key=ktObsSchoolMonthKey(month),p=key.split('-');
+  return p[0]+' оны '+parseInt(p[1],10)+' сар';
+}
+function ktObsMonthlyRecords(month,childId){
+  var key=ktObsSchoolMonthKey(month),out=[];
+  (DB.children||[]).forEach(function(c){
+    if(childId&&String(c.id)!==String(childId))return;
+    ((DB.dailyObs&&DB.dailyObs[c.id])||[]).forEach(function(r){
+      var ds=String(r.date||r.createdAt||'');
+      var sameDate=ds.slice(0,7)===key;
+      var sameLegacy=!ds&&String(r.month||'')===String(month);
+      var sameMonthField=String(r.month||'')===String(month) && (!ds || ds.slice(5,7)===String(month).padStart(2,'0'));
+      if(sameDate||sameLegacy||sameMonthField){
+        var o=(typeof normalizeObservation==='function')?normalizeObservation(r,c.id):{
+          id:r.id,childId:c.id,date:r.date||'',text:r.text||'',outcome:r.outcome||'',code:r.code||'',
+          domains:r.dir?[r.dir]:[],media:r.photo?[r.photo]:[],raw:r
+        };
+        o._child=c;out.push(o);
+      }
+    });
+  });
+  out.sort(function(a,b){return String(a.date||'').localeCompare(String(b.date||''));});
+  return out;
+}
+async function ktObsPrintMediaUrl(path){
+  if(!path)return '';
+  var p=String(path);
+  if(/^https?:\/\//i.test(p)||/^data:/i.test(p)||/^blob:/i.test(p))return p;
+  try{
+    if(typeof ktSB!=='undefined'&&ktSB&&ktSB.storage){
+      var r=await ktSB.storage.from('evidence').createSignedUrl(p,1800);
+      if(r&&r.data&&r.data.signedUrl)return r.data.signedUrl;
+    }
+  }catch(e){}
+  return '';
+}
+async function ktPrintMonthlyObservations(month,childId){
+  var records=ktObsMonthlyRecords(month,childId);
+  if(!records.length){toast(ktObsMonthLabel(month)+'-д хэвлэх ажиглалт алга.');return;}
+
+  var pw=window.open('','_blank');
+  if(!pw){toast('Хэвлэх цонх нээхийг зөвшөөрнө үү.');return;}
+  pw.document.open();
+  pw.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Ажиглалт</title></head><body style="font-family:Arial,sans-serif;padding:30px;color:#334155"><h3>Ажиглалтын тайлан бэлдэж байна...</h3></body></html>');
+  pw.document.close();
+
+  var child=childId?(DB.children||[]).filter(function(c){return String(c.id)===String(childId);})[0]:null;
+  var title=child?(ktObsPrintEsc(child.name)+' — сарын ажиглалт'):'Бүлгийн сарын ажиглалт';
+  var user=DB.user||{};
+  var mediaMap={};
+
+  await Promise.all(records.map(async function(o){
+    var paths=(o.media&&o.media.length)?o.media:((o.raw&&o.raw.photo)?[o.raw.photo]:[]);
+    mediaMap[o.id]=[];
+    for(var i=0;i<paths.length;i++){
+      var u=await ktObsPrintMediaUrl(paths[i]);
+      if(u)mediaMap[o.id].push(u);
+    }
+  }));
+
+  var cards=records.map(function(o,i){
+    var c=o._child||{};
+    var dirs=(o.domains||[]).map(function(d){
+      var m=(typeof sectionMeta==='function'?sectionMeta()[d]:null)||{};
+      return (m.icon||'📌')+' '+(m.label||d);
+    }).join(' · ');
+    var imgs=(mediaMap[o.id]||[]).map(function(u){
+      return '<img src="'+ktObsPrintEsc(u)+'" alt="Нотлох зураг">';
+    }).join('');
+    return '<section class="obs">'+
+      '<div class="top"><div><b>'+(i+1)+'. '+ktObsPrintEsc(c.name||'Хүүхэд')+'</b>'+
+      (c.age?'<span> · '+ktObsPrintEsc(typeof ageLabel==='function'?ageLabel(c.age):c.age)+'</span>':'')+
+      '</div><time>'+ktObsPrintEsc(o.date||'Огноогүй')+'</time></div>'+
+      (dirs?'<div class="dir">'+ktObsPrintEsc(dirs)+'</div>':'')+
+      ((o.code||o.outcome)?'<div class="sud"><b>СҮД:</b> '+ktObsPrintEsc((o.code?o.code+' · ':'')+(o.outcome||''))+'</div>':'')+
+      (o.text?'<div class="note"><b>Ажиглалтын тэмдэглэл</b><p>'+ktObsPrintEsc(o.text).replace(/\n/g,'<br>')+'</p></div>':'')+
+      (imgs?'<div class="photos">'+imgs+'</div>':'')+
+      '</section>';
+  }).join('');
+
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>'+title+'</title>'+
+    '<style>'+
+    '@page{size:A4;margin:14mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#263238;font-size:11pt;line-height:1.45;margin:0}'+
+    'header{border-bottom:3px solid #0d9488;padding-bottom:10px;margin-bottom:14px}h1{font-size:19pt;margin:0 0 5px;color:#0f766e}'+
+    '.meta{font-size:9.5pt;color:#64748b}.summary{background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;padding:9px 11px;margin:12px 0 16px}'+
+    '.obs{break-inside:avoid;border:1px solid #dfe7e7;border-radius:10px;padding:11px;margin:0 0 11px}.top{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #eef2f2;padding-bottom:6px;margin-bottom:7px}.top b{color:#1f2937}.top span,.top time{font-size:9.5pt;color:#64748b}.dir{font-weight:700;color:#0d9488;font-size:10pt;margin-bottom:5px}.sud{font-size:9.5pt;color:#475569;margin-bottom:7px}.note b{font-size:9.5pt;color:#334155}.note p{margin:3px 0 0;white-space:normal}.photos{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.photos img{width:118px;height:92px;object-fit:cover;border-radius:7px;border:1px solid #e2e8f0}'+
+    '.foot{margin-top:18px;padding-top:10px;border-top:1px solid #cbd5e1;font-size:9pt;color:#64748b}.no-print{position:fixed;right:16px;bottom:16px;border:0;border-radius:12px;background:#0d9488;color:white;padding:11px 16px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.18)}'+
+    '@media print{.no-print{display:none}.obs{break-inside:avoid}}'+
+    '</style></head><body>'+
+    '<header><h1>'+title+'</h1><div class="meta">'+ktObsPrintEsc(ktObsMonthLabel(month))+
+    ' · '+ktObsPrintEsc(user.kinder||user.kindergarten||'Цэцэрлэг')+
+    (user.teacher_group?(' · '+ktObsPrintEsc(user.teacher_group)):'')+
+    (user.name?(' · Багш: '+ktObsPrintEsc(user.name)):'')+
+    '</div></header>'+
+    '<div class="summary"><b>Нийт ажиглалт: '+records.length+'</b>'+
+    (child?'':' · Хамрагдсан хүүхэд: '+Array.from(new Set(records.map(function(o){return String(o.childId);}))).length)+
+    '</div>'+cards+
+    '<div class="foot">KinderTrack · '+ktObsPrintEsc(ktObsMonthLabel(month))+' сарын ажиглалтын бүртгэл</div>'+
+    '<button class="no-print" onclick="window.print()">🖨 Хэвлэх / PDF</button>'+
+    '<script>window.addEventListener("load",function(){setTimeout(function(){window.print();},500);});<\/script>'+
+    '</body></html>';
+
+  pw.document.open();pw.document.write(html);pw.document.close();
+}
+function ktPrintCurrentChildMonth(){
+  if(!cur.childId){toast('Хүүхэд сонгоно уу.');return;}
+  ktPrintMonthlyObservations(cur.month,cur.childId);
+}
+function obs2PrintMonth(month){
+  ktPrintMonthlyObservations(month||String(new Date().getMonth()+1),null);
+}
 function renderDailyTab(){
   var w=$('subtab-daily');w.innerHTML='';
   if(!cur.month||MONTHS.indexOf(cur.month)<0){var cm=String(new Date().getMonth()+1);cur.month=MONTHS.indexOf(cm)>=0?cm:'9';}
@@ -6771,11 +6956,14 @@ function renderDailyTab(){
     mtabs.appendChild(b);
   });
   w.appendChild(mtabs);
-  var head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;';
-  head.innerHTML='<div style="font-size:12px;color:#9ca3af;line-height:1.4;">'+cur.month+' сарын өдөр тутмын<br>ажиглалт (СҮД-ээр)</div>';
-  var addBtn=document.createElement('button');addBtn.textContent='+ Ажиглалт';addBtn.style.cssText='flex-shrink:0;border:none;background:#0d9488;color:#fff;border-radius:10px;padding:9px 16px;font-family:inherit;font-weight:700;font-size:13px;';
+  var head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap;';
+  head.innerHTML='<div style="font-size:12px;color:#9ca3af;line-height:1.4;flex:1;min-width:120px;">'+cur.month+' сарын өдөр тутмын<br>ажиглалт (СҮД-ээр)</div>';
+  var acts=document.createElement('div');acts.style.cssText='display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;';
+  var printBtn=document.createElement('button');printBtn.textContent='🖨 Хэвлэх / PDF';printBtn.style.cssText='flex-shrink:0;border:1px solid #99f6e4;background:#f0fdfa;color:#0f766e;border-radius:10px;padding:9px 11px;font-family:inherit;font-weight:700;font-size:11.5px;';
+  printBtn.onclick=function(){ktPrintCurrentChildMonth();};
+  var addBtn=document.createElement('button');addBtn.textContent='+ Ажиглалт';addBtn.style.cssText='flex-shrink:0;border:none;background:#0d9488;color:#fff;border-radius:10px;padding:9px 14px;font-family:inherit;font-weight:700;font-size:12px;';
   addBtn.onclick=function(){openNewObs(null);};
-  head.appendChild(addBtn);w.appendChild(head);
+  acts.appendChild(printBtn);acts.appendChild(addBtn);head.appendChild(acts);w.appendChild(head);
   var fc=document.createElement('div');fc.id='dailyFormBox';w.appendChild(fc);
   var all=(DB.dailyObs&&DB.dailyObs[cur.childId])?DB.dailyObs[cur.childId]:[];
   var list=all.filter(function(e){return e.month===cur.month;}).slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
@@ -6848,6 +7036,33 @@ async function ktAI(prompt,system,maxTokens){
   var t=d.text||'';
   if(d.truncated)t+='\n\n⚠️ Хариу бүрэн багтсангүй — "Дахин боловсруулах" эсвэл богино хүсэлт илгээнэ үү.';
   return t;
+}
+
+/* Role-dashboard AI: provider ачаалал/түр алдаанд тэсвэртэй wrapper.
+   1) Эхний хүсэлт
+   2) bad prompt бол system-ийг prompt дотор нэгтгээд дахин оролдоно
+   3) high demand/429/5xx шинжтэй бол богино завсарлаад нэг удаа retry хийнэ */
+async function ktAIRobust(prompt,system,maxTokens){
+  var firstErr=null;
+  try{
+    return await ktAI(prompt,system,maxTokens);
+  }catch(e){
+    firstErr=e;
+    var msg=String((e&&e.message)||e||'').toLowerCase();
+    if(msg.indexOf('bad prompt')>=0 || msg.indexOf('invalid prompt')>=0){
+      try{
+        return await ktAI((system?system+'\n\n':'')+prompt,'',Math.min(maxTokens||1400,1400));
+      }catch(e2){firstErr=e2;}
+    }
+    var msg2=String((firstErr&&firstErr.message)||firstErr||'').toLowerCase();
+    if(msg2.indexOf('high demand')>=0 || msg2.indexOf('try again later')>=0 || msg2.indexOf('429')>=0 || msg2.indexOf('503')>=0 || msg2.indexOf('overload')>=0){
+      await new Promise(function(resolve){setTimeout(resolve,900);});
+      try{
+        return await ktAI((system?system+'\n\n':'')+prompt,'',Math.min(maxTokens||1200,1200));
+      }catch(e3){firstErr=e3;}
+    }
+    throw firstErr;
+  }
 }
 async function dlAISuggest(){
   var dir=$('dlDir')&&$('dlDir').value; if(!dir){toast('Эхлээд суралцахуйн чиглэл сонгоно уу');return;}
@@ -12331,6 +12546,13 @@ function obs2HomeHtml(){
       obs2StatCard('🔎','Ажиглалт дутуу',s.coverage,'obs2SetView(\'coverage\')',s.coverage?'var(--accent)':'')+
     '</div>'+
     (s.incomplete?'<div class="ks-banner ks-banner--warning" style="margin-bottom:var(--sp-4);"><span>⚠️</span><span>'+s.incomplete+' ажиглалт дутуу мэдээлэлтэй байна. <b onclick="OBS2.fStatus=\'incomplete\';obs2SetView(\'queue\')" style="cursor:pointer;text-decoration:underline;">Шалгах</b></span></div>':'')+
+    '<div class="ks-card--soft" style="margin-bottom:var(--sp-4);border:1px solid #99f6e4;background:linear-gradient(135deg,#f0fdfa,#fff);">'+
+      '<div class="ks-spread" style="gap:10px;align-items:flex-end;"><div><div class="ks-title">🖨 Сарын ажиглалт</div><div class="ks-caption" style="margin-top:3px;">Сар сонгоод бүлгийн бүх ажиглалтыг хэвлэх эсвэл PDF болгон хадгална.</div></div>'+
+      '<select id="obs2PrintMonth" class="ks-input" style="width:105px;flex:0 0 105px;">'+
+        ['9','10','11','12','1','2','3','4','5'].map(function(m){var curm=String(new Date().getMonth()+1);return '<option value="'+m+'"'+(m===curm?' selected':'')+'>'+m+' сар</option>';}).join('')+
+      '</select></div>'+
+      '<button onclick="obs2PrintMonth(document.getElementById(\'obs2PrintMonth\').value)" class="ks-btn ks-btn--primary" style="width:100%;margin-top:10px;">🖨 Бүлгийн сарын ажиглалт хэвлэх / PDF</button>'+
+    '</div>'+
     '<div class="ks-card--soft" style="margin-bottom:var(--sp-4);">'+
       '<div class="ks-title" style="margin-bottom:var(--sp-3);">Хурдан үйлдэл</div>'+
       '<div class="ks-grid-3">'+
@@ -13527,18 +13749,26 @@ async function sync2Push(){
       SYNC2.lastErr='auth';SYNC2.lastErrAt=Date.now();setSyncIndicator();return;
     }
     var now=new Date().toISOString();
-    var r=await ktSB.from('app_data').upsert({user_id:ktUid,data:ktExtractData(),updated_at:now});
+    var revisionBefore=(DB.syncSettings&&DB.syncSettings.localRev)||0;
+    var snapshot=ktExtractData();
+    var r=await ktSB.from('app_data').upsert({user_id:ktUid,data:snapshot,updated_at:now});
     if(r&&r.error)throw r.error;
-    SYNC2.pushPending=false;SYNC2.attempts=0;SYNC2.lastOk=Date.now();
+    var revisionAfter=(DB.syncSettings&&DB.syncSettings.localRev)||0;
+    var moreChanges=revisionAfter!==revisionBefore;
+    SYNC2.pushPending=moreChanges;SYNC2.attempts=0;SYNC2.lastOk=Date.now();
     SYNC2.lastErr='';SYNC2.serverAt=now;
     try{
       if(!DB.syncSettings)DB.syncSettings={};
       DB.syncSettings.lastSync=now;
-      DB.syncSettings.localDirtyAt='';
+      if(!moreChanges)DB.syncSettings.localDirtyAt='';
       KT_LOCAL_SAVE_PENDING=true;
       ktScheduleLocalSave();
     }catch(e){}
     sync2Broadcast({type:'synced',at:now});
+    if(moreChanges){
+      if(SYNC2.timer)clearTimeout(SYNC2.timer);
+      SYNC2.timer=setTimeout(function(){sync2Push();},500);
+    }
   }catch(e){
     SYNC2.pushPending=true;SYNC2.attempts++;
     SYNC2.lastErr=sync2ErrKind(e);SYNC2.lastErrAt=Date.now();
@@ -15609,21 +15839,20 @@ function ktA79Store(id){
 }
 function ktA79Persist(showMsg){
   if(!cur.childId)return;
-  var s=ktA79Store(cur.childId);
-  s.updatedAt=new Date().toISOString();
-  if(ktUid)DB._owner=ktUid;
-  saveDBLocal();
-  try{SYNC2.pushPending=true;setSyncIndicator();}catch(e){}
+  var st=ktA79Store(cur.childId);
+  st.updatedAt=new Date().toISOString();
+  /* Чухал: dirty revision-ийг шинэчлэхгүй бол зэрэгцээ sync шинэ үнэлгээг алдаж болно. */
+  saveDB();
+  if(typeof ktFlushLocalSave==='function')ktFlushLocalSave();
   if(ktReady&&ktUid&&navigator.onLine){
-    clearTimeout(ktPushTimer);
-    Promise.resolve(typeof sync2Push==='function'?sync2Push():ktPushData()).then(function(){
-      if(showMsg)toast('Гарааны үнэлгээ хадгалагдлаа ✓');
-    }).catch(function(){
-      if(showMsg)toast('Төхөөрөмж дээр хадгаллаа. Интернэт ормогц синк хийнэ.');
-    });
-  }else if(showMsg){
-    toast('Төхөөрөмж дээр хадгаллаа ✓');
-  }
+    if(showMsg){
+      ktPersistCriticalSave('Гарааны үнэлгээ').then(function(result){
+        if(!result.ok)toast('Гарааны үнэлгээ төхөөрөмж дээр хадгалагдсан. Үүлэн синк хүлээгдэж байна.');
+      });
+    }else{
+      ktSchedulePush();
+    }
+  }else if(showMsg)toast('Гарааны үнэлгээ төхөөрөмж дээр хадгалагдсан. Холболт сэргээд синк хийнэ.');
 }
 function ktA79Flat(cfg){var out=[],n=1;[['knowledge','Мэдлэг'],['skill','Чадвар'],['disposition','Төлөвшил']].forEach(function(g){(cfg[g[0]]||[]).forEach(function(t){var no=n++;if(ktA79ExcludedText(t))return;out.push({no:no,scope:g[0],scopeLabel:g[1],text:t});});});return out;}
 function ktA79Set(no,v){
@@ -15655,18 +15884,20 @@ function ktFinalA79Store(id){
 }
 function ktFinalA79Persist(showMsg){
   if(!cur.childId)return;
-  var s=ktFinalA79Store(cur.childId);s.updatedAt=new Date().toISOString();
-  if(ktUid)DB._owner=ktUid;
-  saveDBLocal();
-  try{SYNC2.pushPending=true;setSyncIndicator();}catch(e){}
+  var st=ktFinalA79Store(cur.childId);
+  st.updatedAt=new Date().toISOString();
+  /* Чухал: dirty revision-ийг шинэчлэхгүй бол зэрэгцээ sync шинэ үнэлгээг алдаж болно. */
+  saveDB();
+  if(typeof ktFlushLocalSave==='function')ktFlushLocalSave();
   if(ktReady&&ktUid&&navigator.onLine){
-    clearTimeout(ktPushTimer);
-    Promise.resolve(typeof sync2Push==='function'?sync2Push():ktPushData()).then(function(){
-      if(showMsg)toast('Үр дүнгийн үнэлгээ хадгалагдлаа ✓');
-    }).catch(function(){
-      if(showMsg)toast('Төхөөрөмж дээр хадгаллаа. Интернэт ормогц синк хийнэ.');
-    });
-  }else if(showMsg)toast('Төхөөрөмж дээр хадгаллаа ✓');
+    if(showMsg){
+      ktPersistCriticalSave('Эцсийн үнэлгээ').then(function(result){
+        if(!result.ok)toast('Эцсийн үнэлгээ төхөөрөмж дээр хадгалагдсан. Үүлэн синк хүлээгдэж байна.');
+      });
+    }else{
+      ktSchedulePush();
+    }
+  }else if(showMsg)toast('Эцсийн үнэлгээ төхөөрөмж дээр хадгалагдсан. Холболт сэргээд синк хийнэ.');
 }
 function ktFinalA79Set(no,v){
   if(ktIsAssistantTeacher())return ktAssistantBlocked('Барианы үнэлгээг үндсэн багш баталгаажуулна.');
