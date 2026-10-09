@@ -1764,7 +1764,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
         <div class="st-item__arr">›</div>
       </div>
 <div class="set-item" id="teacherAdviceSetItem" style="display:none" onclick="openTeacherAdvice()"><div class="set-icon" style="color:#0d9488;background:#f0fdfa;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></div><div class="set-info"><div class="set-name">Арга зүйчийн зөвлөгөө <span id="teacherAdviceBadge" style="display:none;background:#ef4444;color:#fff;border-radius:999px;padding:2px 6px;font-size:9px;"></span></div><div class="set-sub">Ирсэн санал, зөвлөгөөг харах</div></div></div>
-        <div class="set-item" onclick="openDevices()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg></div><div class="set-info"><div class="set-name">Төхөөрөмжүүд</div><div class="set-sub">Холбогдсон төхөөрөмж (дээд тал нь 2)</div></div></div>
+        
       </div>
       <div class="set-section">
         <div class="set-title">Дата шилжүүлэлт</div>
@@ -2188,7 +2188,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
   <div class="modal-sh">
     <div class="modal-handle"></div>
     <div class="modal-title">📱 Төхөөрөмжүүд</div>
-    <div class="modal-sub">Төхөөрөмжийн хязгаарлалтгүй. Энд өмнө нэвтэрсэн төхөөрөмжүүд харагдана.</div>
+    <div class="modal-sub">Төхөөрөмжийн тооны хязгаарлалт байхгүй.</div>
     <div id="devicesList" style="margin:10px 0;"></div>
     <button onclick="closeModal('modal-devices')" style="width:100%;padding:11px;border:none;background:#f1f5f9;color:#64748b;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;margin-top:6px;">Хаах</button>
   </div>
@@ -2376,85 +2376,19 @@ function ktApplyProfile(prof){
   DB.user={id:prof.id,name:prof.name,email:prof.email,phone:prof.phone,kinder:prof.kinder,
     activated:prof.activated,trialStart:prof.trial_start,trialEnd:prof.trial_end,paidUntil:prof.paid_until,plan:prof.plan,
     accountRole:prof.role||(!prof.team_code?'teacher':'methodologist'),
-    devices:prof.devices||[],teamCode:prof.team_code,teamOwner:prof.team_owner,shareToken:prof.share_token};
+    teamCode:prof.team_code,teamOwner:prof.team_owner,shareToken:prof.share_token};
   saveDB();
 }
 
-/* ===== Төхөөрөмжийн хязгаар (1 бүртгэл = дээд тал нь 2 төхөөрөмж) ===== */
-var KT_MAX_DEVICES = 999999;
-function ktDeviceId(){
-  var id=localStorage.getItem('kt_device');
-  if(!id){id='dev_'+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('kt_device',id);}
-  return id;
-}
-function ktDeviceName(){
-  var ua=navigator.userAgent;var os='Төхөөрөмж';
-  if(/iPhone/.test(ua))os='iPhone';else if(/iPad/.test(ua))os='iPad';else if(/Android/.test(ua))os='Android';else if(/Windows/.test(ua))os='Windows';else if(/Macintosh|Mac OS/.test(ua))os='Mac';
-  var br=/CriOS|Chrome/.test(ua)?'Chrome':/Firefox/.test(ua)?'Firefox':/Safari/.test(ua)?'Safari':'';
-  return os+(br?' · '+br:'');
-}
-/* true = зөвшөөрөв, false = хязгаарт хүрсэн */
-async function ktRegisterDevice(prof){
-  var devId=ktDeviceId();
-  var devName=ktDeviceName();
-  var devs=Array.isArray(prof.devices)?prof.devices.slice():[];
-  var now=new Date().toISOString();
-
-  var idx=-1;
-  for(var i=0;i<devs.length;i++){
-    if(devs[i]&&devs[i].id===devId){idx=i;break;}
-  }
-
-  if(idx>=0){
-    devs[idx].last=now;
-    devs[idx].name=devName;
-  }else{
-    devs.push({id:devId,name:devName,last:now});
-  }
-
-  try{
-    var r=await ktSB.from('profiles').update({devices:devs}).eq('id',prof.id);
-    if(!r.error){
-      prof.devices=devs;
-      if(DB.user)DB.user.devices=devs;
-    }else{
-      console.warn('device save skipped',r.error);
-    }
-  }catch(e){
-    console.warn('device save skipped',e);
-  }
-
-  /* Device-ийн тоо нэвтрэлтийг хаахгүй. */
-  return true;
-}
-async function ktBlockDevice(){
-  /* Device limit цуцлагдсан. Backward compatibility-д үлдэв. */
-  return true;
-}
-function openDevices(){openModal('modal-devices');renderDevices();}
-function renderDevices(){
-  var w=$('devicesList');if(!w)return;w.innerHTML='';
-  var cur=ktDeviceId();var devs=(DB.user&&DB.user.devices)||[];
-  if(!devs.length){w.innerHTML='<div style="color:#9ca3af;font-size:13px;text-align:center;padding:10px;">Төхөөрөмж бүртгэгдээгүй байна.</div>';return;}
-  devs.forEach(function(d){
-    var isCur=d.id===cur;
-    var row=document.createElement('div');row.style.cssText='display:flex;justify-content:space-between;align-items:center;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:11px 13px;margin-bottom:8px;';
-    var last=d.last?getLocalDateKey(new Date(d.last)):'';
-    row.innerHTML='<div><div style="font-weight:700;font-size:13px;">📱 '+(d.name||'Төхөөрөмж')+(isCur?' <span style="color:#16a34a;font-size:11px;">(энэ төхөөрөмж)</span>':'')+'</div><div style="font-size:11px;color:#9ca3af;">Сүүлд: '+last+'</div></div>';
-    if(!isCur){
-      var btn=document.createElement('button');btn.textContent='Устгах';btn.style.cssText='border:none;background:#fee2e2;color:#991b1b;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:700;';
-      btn.onclick=(function(id){return function(){removeDevice(id);};})(d.id);
-      row.appendChild(btn);
-    }
-    w.appendChild(row);
-  });
-}
-async function removeDevice(id){
-  if(!confirm('Энэ төхөөрөмжийг устгах уу? Тухайн төхөөрөмж дахин нэвтрэхийн тулд дахин холбогдоно.'))return;
-  var devs=((DB.user&&DB.user.devices)||[]).filter(function(d){return d.id!==id;});
-  try{await ktSB.from('profiles').update({devices:devs}).eq('id',ktUid);}catch(e){console.error(e);}
-  DB.user.devices=devs;renderDevices();toast('Төхөөрөмж устгагдлаа ✓');
-}
+/* ===== Төхөөрөмжийн хязгаарлалт бүрэн цуцлагдсан ===== */
+var KT_MAX_DEVICES=Infinity;
+function ktDeviceId(){return 'unlimited';}
+function ktDeviceName(){return 'Хязгаарлалтгүй';}
+async function ktRegisterDevice(prof){return true;}
+async function ktBlockDevice(){return true;}
+function openDevices(){toast('KinderTrack-д төхөөрөмжийн тооны хязгаарлалт байхгүй.');}
+function renderDevices(){}
+async function removeDevice(id){toast('Төхөөрөмжийн хязгаарлалт цуцлагдсан.');}
 
 /* ===== 👑 Эзэн идэвхжүүлэх самбар ===== */
 var KT_OWNER='enhmaabayr181@gmail.com';
@@ -2488,7 +2422,7 @@ async function openOwner(){
   }catch(e){console.error('owner verify',e);toast('Баталгаажуулалт амжилтгүй');return;}
   openModal('modal-owner');
   $('ownerList').innerHTML='<div style="text-align:center;color:#9ca3af;padding:16px;">Уншиж байна...</div>';
-  var r=await ktSB.from('profiles').select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan,devices').order('paid_until',{ascending:false});
+  var r=await ktSB.from('profiles').select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan').order('paid_until',{ascending:false});
   if(r.error){$('ownerList').innerHTML='<div class="err-msg">'+r.error.message+'</div><div style="font-size:11px;color:#9ca3af;margin-top:6px;">⚙ Эзэний RLS дүрэм ажилласан эсэхээ шалгаарай</div>';return;}
   ownerUsers=r.data||[];renderOwnerList();
 }
@@ -2627,7 +2561,6 @@ async function ownerLoadLoginRepair(uid){
     if(!rr.error)dataExists=!!rr.data;
   }catch(e){}
 
-  var devices=Array.isArray(u.devices)?u.devices:[];
   var active=ownerStatus(u);
   var authEmail=diag&&diag.auth_email?diag.auth_email:null;
   var profileEmail=diag&&diag.profile_email?diag.profile_email:(u.email||'');
@@ -2642,21 +2575,19 @@ async function ownerLoadLoginRepair(uid){
       ownerLoginRepairStatusCard('Auth хэрэглэгч',diagErr?'SQL RPC суулгаагүй':(authFound?'Байна':'Олдсонгүй'),authFound?'ok':'warn')+
       ownerLoginRepairStatusCard('Профайл email',profileEmail||'—',mismatch?'bad':'ok')+
       ownerLoginRepairStatusCard('Нэвтрэх email',authEmail||'RPC суулгасны дараа харагдана',mismatch?'bad':'warn')+
-      ownerLoginRepairStatusCard('Төхөөрөмж',devices.length+' бүртгэл','ok')+
       ownerLoginRepairStatusCard('Эрх',u.role||'teacher','ok')+
       ownerLoginRepairStatusCard('Идэвхжил',active.t,'ok')+
       ownerLoginRepairStatusCard('App data',dataExists===null?'Шалгаж чадсангүй':(dataExists?'Байна':'Алга'),dataExists===false?'warn':'ok')+
     '</div>'+
     (mismatch?'<div style="margin-top:8px;background:#fef2f2;color:#991b1b;border-radius:9px;padding:8px;font-size:10.5px;line-height:1.5"><b>⚠ Email зөрүүтэй байна.</b> Профайлын email-ийг ганцааранг нь солиход нэвтрэх email өөрчлөгдөхгүй. Доорх “Auth email-тай тааруулах” үйлдлийг ашигла.</div>':'')+
-    (diagErr?'<div style="margin-top:8px;background:#fff7ed;color:#9a3412;border-radius:9px;padding:8px;font-size:10px;line-height:1.5">Auth түвшний оношлогоонд нэмэлт admin RPC SQL хэрэгтэй. Доорх энгийн засварууд ажиллана.</div>':'')+
+    (diagErr?'<div style="margin-top:8px;background:#fff7ed;color:#9a3412;border-radius:9px;padding:8px;font-size:10px;line-height:1.5">Auth түвшний оношлогооны RPC ажиллахгүй байна. SQL функцийн хувилбарыг шалгана уу.</div>':'')+
     '</div>';
 
   html+='<div style="margin-top:12px">'+
     '<button onclick="ownerRepairLoginAll()" style="width:100%;border:0;background:linear-gradient(135deg,#0d9488,#059669);color:#fff;border-radius:12px;padding:12px;font-family:inherit;font-size:12px;font-weight:900;box-shadow:0 6px 16px rgba(13,148,136,.18)">🔧 Нэвтрэх эрхийг нэг дор засах</button>'+
-    '<div style="font-size:9.5px;color:#64748b;line-height:1.5;margin-top:6px">Email зөрүүг засна, төхөөрөмжийн гацалтыг цэвэрлэнэ, app_data мөрийг шалгаж нөхнө. Төлбөрийн хугацаа, role, хүүхдийн дата, төлөвлөгөө, ажиглалтыг өөрчлөхгүй.</div>'+
+    '<div style="font-size:9.5px;color:#64748b;line-height:1.5;margin-top:6px">Email зөрүү болон app_data мөрийг шалгана. Төхөөрөмжийн хязгаарлалт байхгүй. Төлбөрийн хугацаа, role, хүүхдийн дата, төлөвлөгөө, ажиглалтыг өөрчлөхгүй.</div>'+
     '</div>'+
     '<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:7px">'+
-    '<button onclick="ownerRepairClearDevices()" style="border:0;background:#e0f2fe;color:#075985;border-radius:10px;padding:10px;font-family:inherit;font-size:11px;font-weight:800">📱 Төхөөрөмж цэвэрлэх</button>'+
     '<button onclick="ownerRepairTrial7()" style="border:0;background:#ecfdf5;color:#047857;border-radius:10px;padding:10px;font-family:inherit;font-size:11px;font-weight:800">🎁 7 хоног нээх</button>'+
     '<button onclick="ownerRepairAppData()" style="border:0;background:#f5f3ff;color:#6d28d9;border-radius:10px;padding:10px;font-family:inherit;font-size:11px;font-weight:800">🧩 App data шалгаж засах</button>'+
     '<button onclick="ownerRepairProfileEmail()" style="border:0;background:#fff7ed;color:#9a3412;border-radius:10px;padding:10px;font-family:inherit;font-size:11px;font-weight:800">✉️ Auth email-тай тааруулах</button>'+
@@ -2670,7 +2601,7 @@ async function ownerLoadLoginRepair(uid){
 
 async function ownerRepairLoginAll(){
   var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
-  if(!confirm('Нэвтрэх асуудлыг нэг дор засах уу?\n\n• Auth email-ийг профайлтай тааруулна\n• Төхөөрөмжийн хуучин бүртгэлийг цэвэрлэнэ\n• App data мөрийг шалгаж нөхнө\n\nТөлбөрийн хугацаа, role болон хэрэглэгчийн үндсэн дата өөрчлөгдөхгүй.'))return;
+  if(!confirm('Нэвтрэх асуудлыг нэг дор засах уу?\n\n• Auth email-ийг профайлтай тааруулна\n• App data мөрийг шалгана\n\nТөлбөрийн хугацаа, role болон хэрэглэгчийн үндсэн дата өөрчлөгдөхгүй.'))return;
 
   var root=$('ownerLoginRepairBody');
   try{
@@ -2685,7 +2616,6 @@ async function ownerRepairLoginAll(){
     ownerUsers.forEach(function(u){
       if(u.id===uid){
         if(result.email)u.email=result.email;
-        u.devices=[];
       }
     });
     toast('Нэвтрэх эрх засагдлаа ✓');
@@ -2698,15 +2628,8 @@ async function ownerRepairLoginAll(){
 }
 
 async function ownerRepairClearDevices(){
-  var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
-  if(!confirm('Энэ хэрэглэгчийн бүртгэлтэй төхөөрөмжүүдийг цэвэрлэх үү?'))return;
-  var r=await ktSB.from('profiles').update({devices:[]}).eq('id',uid);
-  if(r.error){toast('Алдаа: '+r.error.message);return;}
-  ownerUsers.forEach(function(u){if(u.id===uid)u.devices=[];});
-  toast('Төхөөрөмжийн бүртгэл цэвэрлэгдлээ ✓');
-  await ownerLoadLoginRepair(uid);renderOwnerList();
+  toast('Төхөөрөмжийн хязгаарлалт цуцлагдсан тул цэвэрлэх шаардлагагүй.');
 }
-
 async function ownerRepairTrial7(){
   var uid=OWNER_LOGIN_REPAIR_UID;if(!uid)return;
   var d=new Date();d.setDate(d.getDate()+7);
