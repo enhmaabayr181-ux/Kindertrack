@@ -4370,7 +4370,7 @@ async function saveProfile(){
 async function ktSendMagicLogin(){
   var email=((($('li-email')&&$('li-email').value)||'').trim()).toLowerCase();
   var err=$('login-err'),btn=$('ktMagicLoginBtn');
-  if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)){
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
     if(err)err.innerHTML='<div class="err-msg">Эхлээд бүртгэлтэй и-мэйл хаягаа зөв оруулна уу.</div>';
     return;
   }
