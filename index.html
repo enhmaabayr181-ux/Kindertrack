@@ -1,21 +1,3 @@
-function ktReportDownloadMonth(){
-  var text=generateReport('month'),month=ktReportMonth();
-  var child=(DB.children||[]).filter(function(c){return String(c.id)===String(cur.childId);})[0];
-  var url=URL.createObjectURL(new Blob(['\ufeff'+text],{type:'text/plain;charset=utf-8;'}));
-  var a=document.createElement('a');a.href=url;a.download='KinderTrack_'+(child?child.name:'Хүүхэд')+'_'+month+'_dugnelt.txt';
-  document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},10000);
-}
-function ktReportPrintMonth(){
-  var text=generateReport('month'),pw=window.open('','_blank');
-  if(!pw){toast('Хэвлэх цонх нээхийг зөвшөөрнө үү.');return;}
-  var u=DB.user||{};
-  pw.document.write('<!doctype html><html lang="mn"><head><meta charset="utf-8"><title>Хүүхдийн сарын дүгнэлт</title><style>@page{size:A4;margin:18mm}body{font:12pt/1.7 Arial,sans-serif;color:#263238}h1{font-size:19pt;color:#0f766e}pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere}button{padding:12px;background:#0f766e;color:white;border:0;border-radius:8px}@media print{button{display:none}}</style></head><body><h1>Хүүхдийн сарын дүгнэлт</h1><p>'+ktObsPrintEsc(u.kinder||'')+' · Багш: '+ktObsPrintEsc(u.name||'')+'</p><pre>'+ktObsPrintEsc(text)+'</pre><p>Багшийн гарын үсэг: __________________</p><button onclick="window.print()">Хэвлэх / PDF хадгалах</button></body></html>');
-  pw.document.close();pw.focus();setTimeout(function(){pw.print();},300);
-}
-
-    '<button type="button" class="act-btn" style="flex:1;min-width:120px;background:#fff;border:1px solid #99f6e4;color:#0f766e;" onclick="ktReportDownloadMonth()">⬇ Дүгнэлт татах (.txt)</button>'+
-      '<button type="button" class="act-btn" style="flex:1;min-width:120px;background:#fff;border:1px solid #99f6e4;color:#0f766e;" onclick="ktReportPrintMonth()">🖨 Дүгнэлт / PDF</button>'+
-
 <!DOCTYPE html>
 <html lang="mn">
 <head>
@@ -6840,6 +6822,7 @@ function ktObsMonthlyRecords(month,childId){
   });
   return out.sort(function(a,b){return String(a.date||'').localeCompare(String(b.date||''));});
 }
+
 async function ktObsPrintMediaUrl(path){
   if(!path)return '';
   var p=String(path);
@@ -7473,6 +7456,8 @@ function ktReportMonthPanel(){
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;">'+
       '<button type="button" class="act-btn" style="flex:1;min-width:120px;background:#0d9488;color:#fff;" onclick="ktReportSaveConclusion()">💾 Дүгнэлт хадгалах</button>'+
       '<button type="button" class="act-btn" style="flex:1;min-width:120px;background:#fff;border:1px solid #99f6e4;color:#0f766e;" onclick="ktReportRefreshDraft()">✨ Ноорог шинэчлэх</button>'+
+    '<button type="button" class="act-btn" style="flex:1;min-width:120px;background:#fff;border:1px solid #99f6e4;color:#0f766e;" onclick="ktReportDownloadMonth()">⬇ Дүгнэлт татах (.txt)</button>'+
+      '<button type="button" class="act-btn" style="flex:1;min-width:120px;background:#fff;border:1px solid #99f6e4;color:#0f766e;" onclick="ktReportPrintMonth()">🖨 Дүгнэлт / PDF</button>'+
     '</div></div>';
 }
 function ktReportRefreshDraft(){
@@ -7498,6 +7483,21 @@ function generateReport(scope){
   }
   lines.push('','* Энэхүү тайлан нь бүртгэлтэй ажиглалтын тэмдэглэлд тулгуурласан. Автомат ноорог нь мэргэжлийн үнэлгээ, онош биш.');
   return lines.join('\n');
+}
+
+function ktReportDownloadMonth(){
+  var text=generateReport('month'),month=ktReportMonth();
+  var child=(DB.children||[]).filter(function(c){return String(c.id)===String(cur.childId);})[0];
+  var url=URL.createObjectURL(new Blob(['\ufeff'+text],{type:'text/plain;charset=utf-8;'}));
+  var a=document.createElement('a');a.href=url;a.download='KinderTrack_'+(child?child.name:'Хүүхэд')+'_'+month+'_dugnelt.txt';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},10000);
+}
+function ktReportPrintMonth(){
+  var text=generateReport('month'),pw=window.open('','_blank');
+  if(!pw){toast('Хэвлэх цонх нээхийг зөвшөөрнө үү.');return;}
+  var u=DB.user||{};
+  pw.document.write('<!doctype html><html lang="mn"><head><meta charset="utf-8"><title>Хүүхдийн сарын дүгнэлт</title><style>@page{size:A4;margin:18mm}body{font:12pt/1.7 Arial,sans-serif;color:#263238}h1{font-size:19pt;color:#0f766e}pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere}button{padding:12px;background:#0f766e;color:white;border:0;border-radius:8px}@media print{button{display:none}}</style></head><body><h1>Хүүхдийн сарын дүгнэлт</h1><p>'+ktObsPrintEsc(u.kinder||'')+' · Багш: '+ktObsPrintEsc(u.name||'')+'</p><pre>'+ktObsPrintEsc(text)+'</pre><p>Багшийн гарын үсэг: __________________</p><button onclick="window.print()">Хэвлэх / PDF хадгалах</button></body></html>');
+  pw.document.close();pw.focus();setTimeout(function(){pw.print();},300);
 }
 
 function updateObsSummary(child){
