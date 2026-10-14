@@ -6916,7 +6916,7 @@ function renderDailyTab(){
   acts.appendChild(printBtn);acts.appendChild(addBtn);head.appendChild(acts);w.appendChild(head);
   var fc=document.createElement('div');fc.id='dailyFormBox';w.appendChild(fc);
   var all=(DB.dailyObs&&DB.dailyObs[cur.childId])?DB.dailyObs[cur.childId]:[];
-  var list=all.filter(function(e){return e.month===cur.month;}).slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+  var list=all.filter(function(e){return ktReportDateMonth(e)===cur.month;}).slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
   var meta=sectionMeta();
   if(!list.length){var e=document.createElement('div');e.className='note-disclaimer';e.style.textAlign='center';e.textContent='Энэ сард ажиглалт алга. "+ Ажиглалт" дарж нэмнэ үү.';w.appendChild(e);return;}
   list.forEach(function(en){
@@ -7357,46 +7357,99 @@ function renderDashAlerts(){
   });
 }
 
+/* KinderTrack: сарын ажиглалт ба хүүхэд тус бүрийн бодит дүгнэлт */
+function ktReportMonth(){var el=$('ktReportMonthSelect');return el?el.value:(cur.month||String(new Date().getMonth()+1));}
+function ktReportDateMonth(r){
+  var ds=String((r&&r.date)||(r&&r.observed_at)||(r&&r.createdAt)||'');
+  var mo=ds.match(/^\d{4}-(\d{1,2})/);
+  if(mo)return String(parseInt(mo[1],10));
+  return String((r&&r.month)||'');
+}
+function ktReportMonthRecords(cid,month){
+  var out=[],seen={};
+  function add(r,source){
+    if(!r||ktReportDateMonth(r)!==String(month))return;
+    var id=String(r.id||'');
+    var dedup=id?source+':'+id:source+':'+String(r.date||'')+':'+String(r.text||r.note||'');
+    if(seen[dedup])return;
+    seen[dedup]=true;
+    out.push({id:id,date:r.date||'',text:String(r.text||r.note||r.observation||r.obs_note||'').trim(),
+      domains:(r.domains&&r.domains.length?r.domains:(r.dir?[r.dir]:[])),
+      emotion:r.emotion||r.mood||'',source:source,outcome:r.outcome||''});
+  }
+  ((DB.dailyObs&&DB.dailyObs[cid])||[]).forEach(function(r){add(r,'obs');});
+  ((DB.dailyLogs&&DB.dailyLogs[cid])||[]).forEach(function(r){add(r,'log');});
+  out.sort(function(a,b){return String(a.date).localeCompare(String(b.date));});
+  return out;
+}
+function ktReportConclusionKey(cid,month){return String(cid)+'_'+String(month);}
+function ktReportDraft(cid,month){
+  var obs=ktReportMonthRecords(cid,month),parts=[];
+  parts.push(month+'-р сард нийт '+obs.length+' ажиглалт бүртгэгдсэн.');
+  if(!obs.length){parts.push('Тухайн сарын ажиглалт бүртгэгдээгүй тул хүүхдийн ахиц, чадварын талаар дүгнэлт хийхэд мэдээлэл хангалтгүй.');return parts.join('\n');}
+  var count={},labels={};
+  obs.forEach(function(r){(r.domains||[]).forEach(function(d){count[d]=(count[d]||0)+1;labels[d]=(typeof ktSecLabel==='function'?ktSecLabel(d):d);});});
+  var dirs=Object.keys(count).sort(function(a,b){return count[b]-count[a];}).slice(0,4);
+  if(dirs.length)parts.push('Ажиглалт хийгдсэн чиглэл: '+dirs.map(function(d){return labels[d]+' ('+count[d]+')';}).join(', ')+'.');
+  var notes=obs.filter(function(r){return r.text;}).slice(-3);
+  if(notes.length){
+    parts.push('Багшийн тэмдэглэсэн бодит ажиглалтуудаас:');
+    notes.forEach(function(r){parts.push('• '+(r.date?r.date+' — ':'')+r.text.slice(0,260)+(r.text.length>260?'…':''));});
+  }
+  parts.push('Дараагийн сард: ажигласан чадварын ахицыг дахин тэмдэглэж, дэмжлэг шаардлагатай чиглэлийг багш бодит баримтаар тодруулна.');
+  return parts.join('\n');
+}
+function ktReportStoredConclusion(cid,month){
+  var map=DB.monthlyConclusions||{};
+  return typeof map[ktReportConclusionKey(cid,month)]==='string'?map[ktReportConclusionKey(cid,month)]:'';
+}
+function ktReportSaveConclusion(){
+  var el=$('ktReportConclusionInput'),cid=cur.childId,month=ktReportMonth();
+  if(!el||!cid)return;
+  if(!DB.monthlyConclusions)DB.monthlyConclusions={};
+  DB.monthlyConclusions[ktReportConclusionKey(cid,month)]=el.value.trim();
+  saveDB();
+  if(typeof ktPersistCriticalSave==='function')ktPersistCriticalSave('Хүүхдийн сарын дүгнэлт');
+  toast('Сарын дүгнэлт хадгалагдлаа ✓');
+}
+function ktReportMonthPanel(){
+  var w=$('ktReportMonthPanel');if(!w||!cur.childId)return;
+  var m=ktReportMonth(),rows=ktReportMonthRecords(cur.childId,m);
+  var saved=ktReportStoredConclusion(cur.childId,m);
+  w.innerHTML='<div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:12px;padding:12px;margin:12px 0;">'+
+    '<div style="font-size:13px;font-weight:800;color:#0f766e;">📝 '+ktEsc(m)+'-р сарын хүүхдийн дүгнэлт</div>'+
+    '<div style="font-size:12px;color:#475569;margin:6px 0 10px;">Бүртгэлтэй ажиглалт: <b>'+rows.length+'</b> · Хүүхэд тус бүрээр, сар бүр тусад нь хадгална.</div>'+
+    '<div style="font-size:11px;color:#64748b;margin-bottom:8px;">Автомат ноорог нь зөвхөн багшийн бодит тэмдэглэлд тулгуурлана. Хүүхдийн чадварыг нотолгоогүйгээр үнэлэхгүй.</div>'+
+    '<textarea id="ktReportConclusionInput" class="f-input" rows="9" style="width:100%;font-size:12.5px;line-height:1.6;" placeholder="Сарын дүгнэлтээ энд бичнэ үү...">'+ktEsc(saved||ktReportDraft(cur.childId,m))+'</textarea>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;">'+
+      '<button type="button" class="act-btn" style="flex:1;min-width:120px;background:#0d9488;color:#fff;" onclick="ktReportSaveConclusion()">💾 Дүгнэлт хадгалах</button>'+
+      '<button type="button" class="act-btn" style="flex:1;min-width:120px;background:#fff;border:1px solid #99f6e4;color:#0f766e;" onclick="ktReportRefreshDraft()">✨ Ноорог шинэчлэх</button>'+
+    '</div></div>';
+}
+function ktReportRefreshDraft(){
+  var el=$('ktReportConclusionInput');if(!el)return;
+  if(el.value.trim()&&!confirm('Одоогийн бичвэрийг шинээр үүсгэсэн нооргоор солих уу?'))return;
+  el.value=ktReportDraft(cur.childId,ktReportMonth());
+}
 function generateReport(scope){
-  var childId=cur.childId;
-  var child=DB.children.filter(function(c){return c.id===childId;})[0];
-  var logs=DB.dailyLogs[childId]||[];
-  var rangeDays=scope==='month'?30:90;
-  var cutoff=new Date();cutoff.setDate(cutoff.getDate()-rangeDays);
-  var cutoffStr=getLocalDateKey(cutoff);
-  var recent=logs.filter(function(l){return l.date>=cutoffStr;});
-  var tagCounts={};
-  CURRICULUM_TAGS.forEach(function(t){tagCounts[t]=0;});
-  recent.forEach(function(l){(l.domains||[]).forEach(function(t){tagCounts[t]=(tagCounts[t]||0)+1;});});
-  var emo=computeEmotionMap(childId);
-  var strengths=computeStrengths(childId);
-  var periodLabel=scope==='month'?'сарын':'улирлын';
-
-  var lines=[];
-  lines.push((child?child.name:'Хүүхэд')+'-ийн '+periodLabel+' тайлан');
-  lines.push('');
-  lines.push('Энэ хугацаанд нийт '+recent.length+' тэмдэглэл бүртгэгдсэн.');
-  if(emo.total){
-    lines.push('Сэтгэл хөдлөлийн байдал: аз жаргалтай '+emo.happy+'%, тайван '+emo.neutral+'%, түгшүүртэй '+emo.sad+'%.');
+  var cid=cur.childId,child=(DB.children||[]).filter(function(c){return c.id===cid;})[0];
+  var month=ktReportMonth(),months=scope==='month'?[month]:(function(){
+    var i=MONTHS.indexOf(month);return i>=2?MONTHS.slice(i-2,i+1):MONTHS.slice(0,i+1);
+  })();
+  var rows=[];months.forEach(function(m){rows=rows.concat(ktReportMonthRecords(cid,m));});
+  var lines=[(child?child.name:'Хүүхэд')+' — '+(scope==='month'?month+'-р сарын':'улирлын')+' тайлан','',
+    'Нийт бүртгэгдсэн ажиглалт: '+rows.length+'.'];
+  if(scope==='month'){
+    var ed=$('ktReportConclusionInput');
+    var text=ed?ed.value.trim():(ktReportStoredConclusion(cid,month)||ktReportDraft(cid,month));
+    lines.push('','Хүүхдийн сарын дүгнэлт:',text||'Дүгнэлт бичээгүй байна.');
+  }else{
+    months.forEach(function(m){lines.push(m+'-р сар: '+ktReportMonthRecords(cid,m).length+' ажиглалт.');});
   }
-  var topTags=Object.keys(tagCounts).filter(function(t){return tagCounts[t]>0;}).sort(function(a,b){return tagCounts[b]-tagCounts[a];});
-  if(topTags.length){
-    lines.push('Хамгийн их анхаарал хандуулсан чиглэл: '+topTags.slice(0,2).join(', ')+'.');
-  }
-  if(strengths.length){
-    lines.push('Хүүхдийн илэрсэн хүчтэй талууд: '+strengths.join(', ')+'.');
-  } else {
-    lines.push('Одоогоор тодорхой хүчтэй тал гарч ирээгүй байна, ажиглалтыг үргэлжлүүлнэ үү.');
-  }
-  var weakTags=CURRICULUM_TAGS.filter(function(t){return tagCounts[t]===0;});
-  if(weakTags.length){
-    lines.push('Анхаарал хандуулах шаардлагатай чиглэл: '+weakTags.slice(0,2).join(', ')+'.');
-  }
-  lines.push('');
-  lines.push('* Энэ тайлан нь багшийн өдөр тутмын тэмдэглэл дээр үндэслэн автоматаар нэгтгэгдсэн дата-аналитик тайлан бөгөөд бодит хиймэл оюун ухаан ашиглаагүй болно.');
-
+  lines.push('','* Энэхүү тайлан нь бүртгэлтэй ажиглалтын тэмдэглэлд тулгуурласан. Автомат ноорог нь мэргэжлийн үнэлгээ, онош биш.');
   return lines.join('\n');
 }
+
 function updateObsSummary(child){
   try{
     var obs=(DB.dailyObs&&DB.dailyObs[child.id])||[];
@@ -8419,7 +8472,7 @@ function raChildren(){
 }
 function raObs(cid){
   return ((DB.dailyObs&&DB.dailyObs[cid])||[]).filter(function(e){
-    if(RA.month!=='all'&&e.month!==RA.month)return false;
+    if(RA.month!=='all'&&ktReportDateMonth(e)!==RA.month)return false;
     if(RA.dir!=='all'){
       var ds=(e.domains&&e.domains.length)?e.domains:(e.dir?[e.dir]:[]);
       if(ds.indexOf(RA.dir)<0)return false;
@@ -14444,6 +14497,16 @@ function renderReportTab(){
   var b2=document.createElement('button');b2.className='act-btn act-save';b2.style.cssText='flex:1;background:#0d9488;color:#fff;';b2.textContent='📊 Нэгдсэн тайлан';b2.onclick=function(){buildFullReport();};
   btnRow.appendChild(b1);btnRow.appendChild(b2);
   w.appendChild(btnRow);
+  var monthWrap=document.createElement('div');
+  monthWrap.style.cssText='margin-top:12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;';
+  monthWrap.innerHTML='<label for="ktReportMonthSelect" style="font-size:12px;font-weight:800;color:#334155;">Дүгнэлт гаргах сар</label>';
+  var monthSelect=document.createElement('select');monthSelect.id='ktReportMonthSelect';monthSelect.className='f-input';
+  monthSelect.style.cssText='flex:1;min-width:135px;padding:10px;border-radius:10px;';
+  MONTHS.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m+'-р сар';if(m===(cur.month||String(new Date().getMonth()+1)))o.selected=true;monthSelect.appendChild(o);});
+  monthSelect.onchange=function(){cur.month=monthSelect.value;ktReportMonthPanel();var out=$('reportOutput');if(out)out.innerHTML='';};
+  monthWrap.appendChild(monthSelect);w.appendChild(monthWrap);
+  var conclusionWrap=document.createElement('div');conclusionWrap.id='ktReportMonthPanel';w.appendChild(conclusionWrap);
+  ktReportMonthPanel();
   var monthBtn=document.createElement('button');monthBtn.className='act-btn';monthBtn.style.cssText='width:100%;margin-top:8px;background:#fff;color:#0f766e;border:1px solid #99f6e4;font-weight:700;';monthBtn.textContent='📄 Сарын тайлан';monthBtn.onclick=function(){showReport('month');};w.appendChild(monthBtn);
   var certBtn=document.createElement('button');certBtn.className='act-btn';certBtn.style.cssText='width:100%;margin-top:10px;background:#fef3c7;color:#b45309;font-weight:700;border:none;';certBtn.textContent='🏆 Гэрчилгээ гаргах';certBtn.onclick=openCertModal;w.appendChild(certBtn);
   var box=document.createElement('div');box.id='reportOutput';w.appendChild(box);
