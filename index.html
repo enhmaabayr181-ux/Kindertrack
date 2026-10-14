@@ -1454,8 +1454,9 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
         <button class="btn-submit" onclick="doLogin()">Нэвтрэх</button>
         <div style="text-align:center;margin-top:9px;"><button type="button" onclick="ktForgotPass()" style="border:none;background:none;color:#0d9488;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">Нууц үг мартсан уу?</button></div>
       </div>
-      <button type="button" id="ktMagicLoginBtn" onclick="ktSendMagicLogin()" style="width:100%;margin-top:13px;padding:13px 12px;border-radius:12px;border:1.5px solid #0d9488;background:#f0fdfa;color:#0f766e;font-size:14px;font-family:inherit;font-weight:800;cursor:pointer;">✉️ Нууц үггүй нэвтрэх — и-мэйлээр</button>
-      <div style="font-size:11.5px;color:#64748b;line-height:1.5;text-align:center;margin-top:6px;">Бүртгэлтэй и-мэйлдээ ирсэн нэг удаагийн холбоосоор нэвтэрнэ.</div>
+      <button type="button" id="ktMagicLoginBtn" onclick="ktSendMagicLogin()" style="width:100%;margin-top:13px;padding:13px 12px;border-radius:12px;border:1.5px solid #0d9488;background:#f0fdfa;color:#0f766e;font-size:14px;font-family:inherit;font-weight:800;cursor:pointer;">✉️ Нууц үггүй нэвтрэх — холбоос авах</button>
+      <div id="ktMagicLoginStatus" role="status" aria-live="polite" aria-atomic="true" style="display:none;"></div>
+      <div style="font-size:11.5px;color:#64748b;line-height:1.5;text-align:center;margin-top:6px;">① И-мэйлээ оруулна → ② Холбоос авна → ③ Мэйл дэх холбоосыг дарж нэвтэрнэ.</div>
 
       <div style="font-size:11.5px;color:#64748b;text-align:center;line-height:1.55;margin-top:10px;">Өмнө нь бүртгүүлсэн бол дахин бүртгүүлэхгүй — ижил и-мэйл, нууц үгээрээ орно.</div>
       <div class="auth-switch">Анх удаа ашиглаж байна уу? <a onclick="showAuth('register')">Шинээр бүртгүүлэх</a></div>
@@ -4369,28 +4370,62 @@ async function saveProfile(){
   if(btn){btn.disabled=false;btn.textContent='Хадгалах';}
 }
 
+var KT_MAGIC_BUSY=false;
+var KT_MAGIC_SENT={};
+function ktMagicStatus(text,ok){
+  var el=$('ktMagicLoginStatus')||$('login-err');if(!el)return;
+  el.style.display='block';
+  el.style.cssText='margin-top:10px;padding:12px;border-radius:10px;font-size:13px;line-height:1.6;'+
+    (ok?'background:#f0fdfa;border:1px solid #99f6e4;color:#0f766e;':'background:#fef2f2;border:1px solid #fecaca;color:#991b1b;');
+  el.textContent=text;
+}
 async function ktSendMagicLogin(){
-  var email=((($('li-email')&&$('li-email').value)||'').trim()).toLowerCase();
+  if(KT_MAGIC_BUSY)return;
+  var input=$('li-email'),email=((input&&input.value)||'').trim().toLowerCase();
   var err=$('login-err'),btn=$('ktMagicLoginBtn');
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
-    if(err)err.innerHTML='<div class="err-msg">Эхлээд бүртгэлтэй и-мэйл хаягаа зөв оруулна уу.</div>';
-    return;
+    ktMagicStatus('Бүртгэлтэй и-мэйл хаягаа зөв оруулаад холбоос авна уу.',false);
+    if(input)input.focus();return;
   }
-  if(btn){btn.disabled=true;btn.textContent='Холбоос илгээж байна...';}
+  if(navigator.onLine===false){
+    ktMagicStatus('Интернэт холболтгүй байна. Холболтоо сэргээгээд дахин дарна уу.',false);return;
+  }
+  var wait=Math.ceil(((KT_MAGIC_SENT[email]||0)-Date.now())/1000);
+  if(wait>0){
+    ktMagicStatus('Дахин холбоос авахын өмнө '+wait+' секунд хүлээнэ үү. Өмнөх мэйлийн Inbox / Spam хавтсыг шалгаарай.',false);return;
+  }
+  KT_MAGIC_BUSY=true;
+  if(btn){btn.disabled=true;btn.setAttribute('aria-busy','true');btn.textContent='⏳ Холбоос илгээж байна...';}
   if(err)err.innerHTML='';
+  ktMagicStatus('Нэвтрэх холбоос хүсэж байна. Түр хүлээнэ үү...',true);
   try{
-    var result=await ktSB.auth.signInWithOtp({
-      email:email,
-      options:{shouldCreateUser:false,emailRedirectTo:'https://kindertrack-five.vercel.app/'}
-    });
+    if(!ktSB||!ktSB.auth)throw new Error('KT_AUTH_UNAVAILABLE');
+    var req=ktSB.auth.signInWithOtp({email:email,options:{
+      shouldCreateUser:false,emailRedirectTo:'https://kindertrack-five.vercel.app/'
+    }});
+    var result=await ktTimeout(req,15000,'Нэвтрэх холбоос');
     if(result&&result.error)throw result.error;
-    if(err)err.innerHTML='<div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;color:#0f766e;padding:12px;font-size:12.5px;line-height:1.6;">✓ <b>'+ktEsc(email)+'</b> хаяг руу нэвтрэх холбоос хүссэн. Inbox болон Spam-аа шалгаад хамгийн сүүлд ирсэн холбоосыг нэг удаа нээнэ үү. Хэрэв и-мэйл ирэхгүй бол хаяг бүртгэлтэй эсэхийг шалгана уу.</div>';
+    KT_MAGIC_SENT[email]=Date.now()+60000;
+    ktMagicStatus('✓ Холбоосын хүсэлт амжилттай. '+email+' хаягийн Inbox эсвэл Spam / Junk хавтсаа шалгана уу. Ирсэн мэйл дэх хамгийн сүүлийн нэвтрэх холбоосыг дарж аппдаа орно. Энэ товчийг дарахад шууд нэвтрэхгүй.',true);
   }catch(e){
-    var m=(e&&e.message)||String(e);
-    var msg=/rate|limit|429/i.test(m)?'Хэт олон хүсэлт илгээсэн байна. Түр хүлээгээд дахин оролдоно уу.':'Холбоос илгээж чадсангүй. И-мэйл болон холболтоо шалгана уу.';
-    if(err)err.innerHTML='<div class="err-msg">'+ktEsc(msg)+'</div>';
+    var code=(e&&e.code)||'',m=(e&&e.message)||String(e),msg;
+    if(code==='KT_TIMEOUT'||/timeout|хугацаа хэтэр/i.test(m)){
+      msg='Хүсэлт удааширлаа. Холбоос мэйлд ирсэн байж болох тул Inbox / Spam-аа шалгана уу. Ирэхгүй бол интернэтээ шалгаад дахин оролдоорой.';
+    }else if((e&&e.status)===429||/rate|limit|429|after \d+ seconds/i.test(m)){
+      var secs=m.match(/after (\d+) seconds/i),delay=secs?Number(secs[1]):60;
+      KT_MAGIC_SENT[email]=Date.now()+delay*1000;
+      msg='Холбоос давтан хүссэн тул '+delay+' секунд хүлээнэ үү. Хамгийн сүүлд ирсэн мэйлийн холбоосыг ашиглаарай.';
+    }else if(/signup|not found|user_not_found|signups? not allowed/i.test(code+' '+m)){
+      msg='Энэ хаягаар нууц үггүй нэвтрэх боломжгүй байна. Бүртгүүлсэн и-мэйлээ шалгах эсвэл “Шинээр бүртгүүлэх”-ийг сонгоно уу.';
+    }else if(/email_address_not_authorized|smtp|sending.*email|email.*send/i.test(code+' '+m)){
+      msg='Нэвтрэх мэйл илгээхэд серверийн алдаа гарлаа. Одоохондоо нууц үгээрээ нэвтэрч болно.';
+    }else{
+      msg='Холбоос илгээж чадсангүй. И-мэйл болон интернэтээ шалгаад дахин оролдоно уу. Нууц үгээр нэвтрэх боломжтой.';
+    }
+    ktMagicStatus(msg,false);
   }finally{
-    if(btn){btn.disabled=false;btn.textContent='✉️ Нууц үггүй нэвтрэх — и-мэйлээр';}
+    KT_MAGIC_BUSY=false;
+    if(btn){btn.disabled=false;btn.removeAttribute('aria-busy');btn.textContent='✉️ Нууц үггүй нэвтрэх — холбоос авах';}
   }
 }
 
