@@ -3470,7 +3470,7 @@ async function openTeacherAdvice(){
 var ktUid=null;            // нэвтэрсэн хэрэглэгчийн id
 var ktReady=false;         // эхний pull дуустал push хийхгүй
 var ktPushTimer=null;
-var KT_DATA_FIELDS=['children','ratings','notes','dailyLogs','devCriteria','devCriteriaDates','initialAssess','initialA79','finalA79','parentFeedback','parentMessages','parentMeetings','interviews','docs','reportNotes','songs','homework','dailyObs','gallery','attendance','tlHighlights','tlManual','plans','staff','obs2','childExtra','assistantWork','teacherDocs'];
+var KT_DATA_FIELDS=['children','ratings','notes','dailyLogs','devCriteria','devCriteriaDates','initialAssess','initialA79','finalA79','parentFeedback','parentMessages','parentMeetings','interviews','docs','reportNotes','monthlyConclusions','songs','homework','dailyObs','gallery','attendance','tlHighlights','tlManual','plans','staff','obs2','childExtra','assistantWork','teacherDocs'];
 
 function ktExtractData(){
   var o={};KT_DATA_FIELDS.forEach(function(k){o[k]=DB[k];});return o;
@@ -3547,6 +3547,7 @@ function ktMergeCriticalLocal(cloudData){
   if(hasUnsynced){
     d.plans=ktMergeObjectLocalWins(d.plans||{},DB.plans||{});
     d.teacherDocs=ktMergeObjectLocalWins(d.teacherDocs||{},DB.teacherDocs||{});
+    d.monthlyConclusions=ktMergeObjectLocalWins(d.monthlyConclusions||{},DB.monthlyConclusions||{});
   }
   return {data:d,merged:hasUnsynced||recovered};
 }
@@ -4144,6 +4145,7 @@ function loadDB(){
   if(!DB.notes)DB.notes={};
   if(!DB.docs)DB.docs={};
   if(!DB.reportNotes)DB.reportNotes={};
+  if(!DB.monthlyConclusions)DB.monthlyConclusions={};
   if(!DB.songs)DB.songs=[];
   if(!DB.dailyObs)DB.dailyObs={};
   if(!DB.homework)DB.homework=[];
