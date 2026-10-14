@@ -4,7 +4,7 @@
    - Never caches Supabase API, auth, or any non-GET request
    - Update flow driven by the page (SKIP_WAITING message)
 */
-const SW_VERSION = 'kt-v3';
+const SW_VERSION = 'kt-v4';
 const SHELL_CACHE = SW_VERSION + '-shell';
 const STATIC_CACHE = SW_VERSION + '-static';
 const SHELL_KEY = 'shell';
