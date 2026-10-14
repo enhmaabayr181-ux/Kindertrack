@@ -5583,16 +5583,28 @@ function tdAddDev(){
   saveDB();renderTeacherDocs();toast('Мэргэжлийн хөгжлийн тэмдэглэл хадгалагдлаа ✓');
 }
 
+function tdSetReportMonth(v){TD.reportMonth=v;renderTeacherDocs();}
+function tdOpenChildMonthReport(cid,m){
+  var c=(DB.children||[]).filter(function(x){return String(x.id)===String(cid);})[0];
+  if(!c){toast('Хүүхэд олдсонгүй');return;}
+  openObs(c);
+  cur.month=String(parseInt(m.split('-')[1],10));
+  switchSubtab('report');
+}
 function tdReport(){
-  var d=tdEnsure(),m=tdMonth();
+  var d=tdEnsure(),m=TD.reportMonth||tdMonth();
   var countMonth=function(arr){return (arr||[]).filter(function(x){return String(x.date||'').slice(0,7)===m;}).length;};
-  var obs=0;
-  Object.keys(DB.dailyObs||{}).forEach(function(cid){
-    (DB.dailyObs[cid]||[]).forEach(function(x){if(String(x.date||x.createdAt||'').slice(0,7)===m)obs++;});
+  var monthNum=String(parseInt(m.split('-')[1],10)),obs=0,byChild=[];
+  (DB.children||[]).forEach(function(c){
+    var rows=ktReportMonthRecords(c.id,monthNum).filter(function(x){return !x.date||String(x.date).slice(0,7)===m;});
+    obs+=rows.length;byChild.push({c:c,n:rows.length});
   });
   var center=countMonth(d.centers),protect=countMonth(d.childProtection),parents=countMonth(d.parentWork),dev=countMonth(d.selfDev),evidence=countMonth(d.evidence);
   var work=d.monthlyWork[m],done=work&&work.tasks?work.tasks.filter(function(x){return x.done;}).length:0,total=work&&work.tasks?work.tasks.length:0;
-  return '<div class="td-card"><h3>📊 '+m+' сарын ажлын тайлан</h3><div class="td-grid">'+
+  return '<div class="td-card"><h3>📊 Сарын ажлын тайлан</h3>'+
+    '<label style="font-size:12px;font-weight:800;display:block;margin-bottom:7px;">Тайлангийн сар сонгох</label>'+
+    '<input type="month" value="'+ktEsc(m)+'" onchange="tdSetReportMonth(this.value)" style="padding:10px;width:100%;border:1px solid #99f6e4;border-radius:10px;font-size:14px;margin-bottom:12px;">'+
+    '<div class="td-grid">'+
     '<div class="td-stat"><b>'+obs+'</b><span>хүүхдийн ажиглалт</span></div>'+
     '<div class="td-stat"><b>'+center+'</b><span>орчин / төвийн хяналт</span></div>'+
     '<div class="td-stat"><b>'+protect+'</b><span>хамгааллын тэмдэглэл</span></div>'+
@@ -5600,6 +5612,12 @@ function tdReport(){
     '<div class="td-stat"><b>'+dev+'</b><span>мэргэжлийн хөгжил</span></div>'+
     '<div class="td-stat"><b>'+evidence+'</b><span>нотолгоо</span></div>'+
     '</div></div>'+
+    '<div class="td-card"><h3>👧 Хүүхэд тус бүрийн сарын дүгнэлт</h3>'+
+    '<div class="td-note">Хүүхдээ сонгоод тухайн сарын ажиглалтаас дүгнэлт гаргаж, хадгалж болно.</div>'+
+    (byChild.length?byChild.map(function(x){return '<div class="td-row" style="display:flex;align-items:center;gap:8px;justify-content:space-between;">'+
+      '<span style="font-size:12px;"><b>'+ktEsc(x.c.name||'Хүүхэд')+'</b><small style="display:block;">'+x.n+' ажиглалт</small></span>'+
+      '<button class="td-btn sec" style="width:auto;padding:8px 10px;font-size:11px;" onclick="tdOpenChildMonthReport(\''+String(x.c.id).replace(/'/g,'')+'\',\''+m+'\')">📝 Дүгнэлт</button></div>';}).join(''):'<div class="td-note">Хүүхэд бүртгэлгүй байна.</div>')+
+    '</div>'+
     '<div class="td-card"><h3>Автоматаар бэлтгэсэн товч тайлан</h3><div class="td-report">'+
     'Тайлант сард хүүхдийн хөгжлийн <b>'+obs+'</b> ажиглалт, сургалтын орчин/төвийн <b>'+center+'</b> хяналт, хүүхэд хамгааллын <b>'+protect+'</b> анхан тэмдэглэл, эцэг эхтэй мэдээлэл солилцсон <b>'+parents+'</b> бүртгэл, мэргэжлийн хөгжлийн <b>'+dev+'</b> тэмдэглэл, хүүхдийн бүтээл/нотолгооны <b>'+evidence+'</b> бүртгэл хөтөлсөн. Сарын төлөвлөсөн ажлын биелэлт <b>'+done+'/'+total+'</b> байна.'+
     '</div><button class="td-btn sec" onclick="window.print()">🖨 Хэвлэх / PDF</button></div>';
