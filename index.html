@@ -6031,6 +6031,11 @@ function renderChildren(){
 }
 var a79DashQ='9';
 function renderA79Dashboard(){
+  if(raUseA79Reports()){
+    renderReportsAnalytics();
+    var reportRoot=$('reportsAnalytics');if(reportRoot)reportRoot.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
   var w=$('a79Dashboard');if(!w)return;
   if(w.dataset.open==='1'){w.innerHTML='';w.dataset.open='';return;}
   w.dataset.open='1';w.innerHTML='';
@@ -8550,7 +8555,7 @@ var RA={month:'all',grp:'all',age:'all',dir:'all',q:''};
 function raChildren(){
   return (DB.children||[]).filter(function(c){
     if(RA.grp!=='all'&&(c.grp||'')!==RA.grp)return false;
-    if(RA.age!=='all'&&c.age!==RA.age)return false;
+    if(RA.age!=='all'&&String(c.age)!==String(RA.age))return false;
     if(RA.q){var s=(c.name||'').toLowerCase();if(s.indexOf(RA.q.toLowerCase())<0)return false;}
     return true;
   });
@@ -8700,6 +8705,7 @@ function raAnimate(){
 }
 function renderReportsAnalytics(){
   var w=$('reportsAnalytics');if(!w)return;
+  if(raUseA79Reports()){raRenderA79Reports(w);return;}
   var kids=raChildren(),allKids=DB.children||[];
   var m=RA.month==='all'?(cur.month||'9'):RA.month;
   var totObs=0,totShared=0,totHl=0,totAssess=0;
@@ -16433,6 +16439,128 @@ function ktA79Child(){
  '</div><div class="kt-a79-info">Энэ хүүхдэд <b>'+ktA79AgeLabel(x.key)+'</b>-ны <b>'+cfg.level+' түвшний</b> шалгуураас KinderTrack-ийн 5 чиглэлд хамаарах шалгуурууд гарна. <b>Хөгжим, Хөдөлгөөний шалгуур энд орохгүй.</b> <b>1 = хангасан</b>, <b>0 = хангаагүй/илрээгүй</b>. Үнэлээгүйг хоосон үлдээнэ.</div><div class="kt-a79-overview"><div><span>Бөглөсөн</span><b>'+all.done+'/'+all.total+'</b></div><div><span>1 оноо</span><b>'+all.one+'</b></div><div><span>0 оноо</span><b>'+all.zero+'</b></div><div><span>Бөглөлт</span><b>'+all.completePct+'%</b></div></div><div class="kt-a79-progress"><i style="width:'+all.completePct+'%"></i></div><div class="kt-a79-sumgrid">'+sums+'</div><div class="kt-a79-top-actions three"><button onclick="KT_A79_SHOW_RESULT=true;KT_A79_RESULT_VIEW=\'child\';renderInitialAssessment()">📊 Хүүхдийн үр дүн</button><button onclick="KT_A79_SHOW_RESULT=true;KT_A79_RESULT_VIEW=\'class\';renderInitialAssessment()">👥 Ангийн үр дүн</button><button class="print" onclick="ktA79PrintResult()">🖨️ Хэвлэх</button></div>'+ktA79SupportHtml(child)+tabs+'<div class="kt-a79-list">'+list+'</div><div class="kt-a79-foot">Сүүлд шинэчилсэн: '+(st.updatedAt?formatLocalDateTime(st.updatedAt):'—')+'</div>';
 }
 function renderInitialAssessment(){var root=$('initialAssessRoot');if(!root)return;root.innerHTML=ktA79Child();}
+
+/* Reports consume the same numbered A/79 answers as the assessment form.
+   Read-only: never migrate, initialize, or overwrite stored answers here. */
+function raUseA79Reports(){
+  var kids=DB.children||[];
+  var current=kids.some(function(c){return ['initialA79','finalA79'].some(function(k){
+    var a=((DB[k]||{})[c.id]||{}).answers||{};
+    return Object.keys(a).some(function(n){return a[n]===0||a[n]===1;});
+  });});
+  var legacy=kids.some(function(c){return Object.keys((DB.ratings||{})[c.id]||{}).length>0;});
+  return current||!legacy;
+}
+function raA79Stage(){return RA.a79Stage==='final'?'final':'initial';}
+function raA79Read(child,stage,scope){
+  var cfg=ktA79Cfg(child).cfg;
+  var st=((DB[stage==='final'?'finalA79':'initialA79']||{})[child.id])||{};
+  return ktA79Stats(cfg,{answers:st.answers||{}},scope||'all');
+}
+function raA79Aggregate(kids,stage,scope){
+  var out={total:0,done:0,one:0,zero:0,assessed:0,complete:0};
+  kids.forEach(function(c){var x=raA79Read(c,stage,scope);
+    ['total','done','one','zero'].forEach(function(k){out[k]+=x[k];});
+    if(x.done)out.assessed++;if(x.total&&x.done===x.total)out.complete++;
+  });
+  out.pct=out.done?Math.round(out.one/out.done*100):null;
+  out.coverage=out.total?Math.round(out.done/out.total*100):0;
+  return out;
+}
+function raA79Matched(kids,scope){
+  var n=0,initial=0,final=0;
+  kids.forEach(function(c){
+    var a=(((DB.initialA79||{})[c.id]||{}).answers)||{};
+    var b=(((DB.finalA79||{})[c.id]||{}).answers)||{};
+    ktA79Flat(ktA79Cfg(c).cfg).forEach(function(r){
+      if(scope&&scope!=='all'&&r.scope!==scope)return;
+      var x=a[String(r.no)],y=b[String(r.no)];
+      if((x===0||x===1)&&(y===0||y===1)){n++;initial+=x;final+=y;}
+    });
+  });
+  return {count:n,change:n?Math.round((final-initial)/n*100):null};
+}
+function raA79Graph(groups){
+  var colors=['#0d9488','#6366f1','#e9a23b'];
+  var bars=groups.map(function(g,i){
+    var x=35+i*100,h=g.stats.pct===null?0:g.stats.pct;
+    return '<rect x="'+x+'" y="30" width="50" height="100" rx="5" fill="#f1f5f9"/>'+
+      '<rect x="'+x+'" y="'+(130-h)+'" width="50" height="'+h+'" rx="5" fill="'+colors[i]+'"/>'+
+      '<text x="'+(x+25)+'" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="#334155">'+(g.stats.pct===null?'—':h+'%')+'</text>'+
+      '<text x="'+(x+25)+'" y="151" text-anchor="middle" font-size="12" fill="#475569">'+g.label+'</text>';
+  }).join('');
+  return '<svg role="img" aria-label="А/79 үнэлгээний гурван хүрээний хангасан хувь" viewBox="0 0 320 166" style="display:block;width:100%;max-width:520px;margin:auto;">'+bars+'</svg>';
+}
+function raA79SetStage(value){RA.a79Stage=value;renderReportsAnalytics();}
+function raA79OpenChild(id){
+  var c=(DB.children||[]).filter(function(x){return String(x.id)===String(id);})[0];
+  if(!c)return;openObs(c);switchSubtab('checklist');
+  if(raA79Stage()==='final'){switchSubtab('report');renderFinalAssessment();}
+}
+function raA79Download(){
+  var stage=raA79Stage(),rows=[['Нэр','Нас','Бүлэг','Үнэлгээ','Хангасан','Хангаагүй','Үнэлээгүй','Бөглөлт %','Хангасан %']];
+  raChildren().forEach(function(c){var x=raA79Read(c,stage);
+    rows.push([c.name,c.age,c.grp||'',stage==='final'?'Үр дүнгийн':'Гарааны',x.one,x.zero,x.total-x.done,x.completePct,x.done?x.pct:'']);
+  });
+  var csv='\ufeff'+rows.map(function(r){return r.map(function(v){
+    var text=String(v==null?'':v);if(/^[=+@\-\t\r]/.test(text))text="'"+text;
+    return '"'+text.replace(/"/g,'""')+'"';
+  }).join(',');}).join('\n');
+  var url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  var a=document.createElement('a');a.href=url;a.download='KinderTrack_A79_'+stage+'_'+getLocalDateKey()+'.csv';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},10000);
+}
+function raA79Print(){
+  var box=$('raA79Printable');if(!box)return;
+  offPrint('<style>body{font-family:Arial,sans-serif;color:#263238;font-size:12px}section{break-inside:avoid}button{display:none!important}svg{max-width:420px!important}h2{color:#0f766e}</style><h1>А/79 бүлгийн нэгдсэн тайлан</h1>'+box.innerHTML,'portrait');
+}
+function raRenderA79Reports(root){
+  var stage=raA79Stage(),kids=raChildren(),s=raA79Aggregate(kids,stage),matched=raA79Matched(kids);
+  var title=stage==='final'?'Үр дүнгийн үнэлгээ':'Гарааны үнэлгээ';
+  var groups=[['knowledge','Мэдлэг'],['skill','Чадвар'],['disposition','Төлөвшил']].map(function(g){
+    return {key:g[0],label:g[1],stats:raA79Aggregate(kids,stage,g[0])};
+  });
+  var grps=[];(DB.children||[]).forEach(function(c){if(c.grp&&grps.indexOf(c.grp)<0)grps.push(c.grp);});
+  var card='background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px;';
+  var field='font:inherit;font-size:13px;min-height:42px;border:1px solid #cbd5e1;border-radius:10px;padding:8px;background:#fff;max-width:100%;';
+  var options=function(v,selected,label){return '<option value="'+ktEsc(v)+'"'+(String(v)===String(selected)?' selected':'')+'>'+ktEsc(label)+'</option>';};
+  var monthCounts=MONTHS.map(function(m){return kids.reduce(function(n,c){return n+ktReportMonthRecords(c.id,m).length;},0);});
+  var obs=kids.reduce(function(n,c){return n+raObs(c.id).length;},0);
+  var directions=SECTIONS.map(function(sec){var n=0;kids.forEach(function(c){raObs(c.id).forEach(function(o){
+    if((o.domains||[]).indexOf(sec.cls)>=0)n++;
+  });});return {l:sec.label,v:n,c:SEC_BORDER[sec.cls]};});
+  var kpis=[['Хүүхэд',kids.length],['Үнэлгээ эхэлсэн',s.assessed],['Бүрэн бөглөсөн',s.complete],['Бөглөлт',s.coverage+'%'],['Хангасан',s.pct===null?'—':s.pct+'%'],['Ажиглалт',obs]];
+  var records=kids.map(function(c){var x=raA79Read(c,stage);
+    return '<section style="border-bottom:1px solid #e2e8f0;padding:12px 0;"><b>'+ktEsc(c.name)+'</b> <span style="font-size:12px;color:#64748b;">'+ktEsc(ageLabel(c.age))+(c.grp?' · '+ktEsc(c.grp):'')+'</span>'+
+      '<div style="font-size:12px;margin:6px 0;">Хангасан: '+x.one+' · Хангаагүй: '+x.zero+' · Үнэлээгүй: '+(x.total-x.done)+'</div>'+
+      '<div style="height:8px;background:#f1f5f9;border-radius:6px;overflow:hidden;"><div style="height:100%;width:'+x.completePct+'%;background:#0d9488;"></div></div>'+
+      '<div style="display:flex;justify-content:space-between;margin-top:5px;font-size:12px;"><span>Бөглөлт '+x.done+'/'+x.total+' ('+x.completePct+'%)</span><b>'+(x.done?'Хангасан '+x.pct+'%':'Үнэлгээ оруулаагүй')+'</b></div>'+
+      '<button type="button" data-ra-a79-child="'+ktEsc(c.id)+'" style="'+field+'margin-top:8px;color:#0f766e;">Үнэлгээ нээх →</button></section>';
+  }).join('');
+  root.innerHTML='<div class="no-print" style="'+card+'"><h3 style="margin-top:0;">Тайлангийн шүүлтүүр</h3>'+
+    '<input type="search" aria-label="Хүүхдийн нэр" placeholder="Хүүхдийн нэрээр хайх" value="'+ktEsc(RA.q||'')+'" onchange="raSetFilter(\'q\',this.value)" style="'+field+'width:100%;box-sizing:border-box;margin-bottom:8px;">'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+    '<select aria-label="Үнэлгээний төрөл" onchange="raA79SetStage(this.value)" style="'+field+'flex:1;">'+options('initial',stage,'Гарааны үнэлгээ')+options('final',stage,'Үр дүнгийн үнэлгээ')+'</select>'+
+    '<select aria-label="Бүлэг" onchange="raSetFilter(\'grp\',this.value)" style="'+field+'flex:1;">'+options('all',RA.grp,'Бүх бүлэг')+grps.map(function(g){return options(g,RA.grp,g);}).join('')+'</select>'+
+    '<select aria-label="Нас" onchange="raSetFilter(\'age\',this.value)" style="'+field+'flex:1;">'+options('all',RA.age,'Бүх нас')+AGES.map(function(a){return options(a.val,RA.age,a.label);}).join('')+'</select></div>'+
+    '<div style="font-size:12px;color:#64748b;margin-top:10px;">Доорх хоёр шүүлтүүр зөвхөн ажиглалтад хамаарна:</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"><select aria-label="Ажиглалтын сар" onchange="raSetFilter(\'month\',this.value)" style="'+field+'flex:1;">'+options('all',RA.month,'Бүх сар')+MONTHS.map(function(m){return options(m,RA.month,m+'-р сар');}).join('')+'</select>'+
+    '<select aria-label="Ажиглалтын чиглэл" onchange="raSetFilter(\'dir\',this.value)" style="'+field+'flex:1;">'+options('all',RA.dir,'Бүх чиглэл')+SECTIONS.map(function(sec){return options(sec.cls,RA.dir,sec.label);}).join('')+'</select></div>'+
+    '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button onclick="raA79Download()" style="'+field+'color:#0f766e;">⬇ CSV / Excel</button><button onclick="raA79Print()" style="'+field+'color:#0f766e;">🖨 Тайлан, график / PDF</button></div></div>'+
+    '<div id="raA79Printable"><h2 style="font-size:18px;color:#0f766e;">А/79 — '+title+'</h2>'+
+    '<div class="ra-kpis" style="margin-bottom:12px;">'+kpis.map(function(k){return '<div style="'+card+'padding:10px;text-align:center;margin:0;"><strong style="font-size:20px;">'+k[1]+'</strong><div style="font-size:11px;color:#64748b;">'+k[0]+'</div></div>';}).join('')+'</div>'+
+    '<section style="'+card+'"><h3 style="margin-top:0;">Бүлгийн үнэлгээний график</h3>'+raA79Graph(groups)+
+    '<p style="font-size:12px;color:#64748b;">Хангасан хувь = 1 оноотой шалгуур ÷ үнэлсэн (1 ба 0) шалгуур × 100. Үнэлээгүй шалгуурыг 0 оноо гэж тооцохгүй.</p>'+
+    (s.done?'':'<p>Энэ шүүлтүүрээр '+title.toLowerCase()+' оруулаагүй байна.</p>')+
+    groups.map(function(g){var x=g.stats;return '<div style="padding:8px 0;border-top:1px solid #f1f5f9;"><b>'+g.label+'</b> · '+(x.pct===null?'Үнэлгээгүй':x.pct+'%')+'<div style="font-size:12px;color:#64748b;">Хангасан '+x.one+' · Хангаагүй '+x.zero+' · Үнэлээгүй '+(x.total-x.done)+'</div></div>';}).join('')+'</section>'+
+    '<section style="'+card+'"><h3 style="margin-top:0;">Гарааны → үр дүнгийн харьцуулалт</h3>'+
+    (matched.count?'<p>Хоёр үнэлгээнд хоёуланд нь бөглөсөн '+matched.count+' шалгуурын өөрчлөлт: <b>'+(matched.change>0?'+':'')+matched.change+' нэгж хувь</b>.</p>':'<p>Харьцуулахын тулд гарааны болон үр дүнгийн үнэлгээнд ижил шалгуурыг бөглөнө үү.</p>')+
+    '<p style="font-size:12px;color:#64748b;">Гарааны үнэлгээ нь сарын үнэлгээ биш тул сар бүрийн өсөлт болгон давтаж зурахгүй.</p></section>'+
+    '<section style="'+card+'"><h3 style="margin-top:0;">Хүүхэд бүрийн үнэлгээ</h3>'+(records||'<p>Сонгосон бүлэг, насанд хүүхэд алга.</p>')+'</section></div>'+
+    '<section style="'+card+'"><h3 style="margin-top:0;">Сар бүрийн ажиглалт</h3>'+raBarSVG(MONTHS,monthCounts,'#0d9488')+'</section>'+
+    '<section style="'+card+'"><h3 style="margin-top:0;">Ажиглалтын хуваарилалт</h3>'+raPieSVG(directions)+'</section>';
+  root.querySelectorAll('[data-ra-a79-child]').forEach(function(button){button.onclick=function(){raA79OpenChild(button.getAttribute('data-ra-a79-child'));};});
+}
 
 
 setTimeout(function(){
