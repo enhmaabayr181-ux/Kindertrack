@@ -2210,10 +2210,14 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
       </select>
     </div>
     <div class="f-group"><label class="f-label">Бүлэг</label>
-      <select class="f-select" id="newGroup">
-        <option>Бага А</option><option>Бага Б</option><option>Дунд А</option><option>Дунд Б</option>
-        <option>Ахлах А</option><option>Ахлах Б</option><option>Бэлтгэл А</option><option>Бэлтгэл Б</option>
-      </select>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select class="f-select" id="newGroup" aria-label="Бүлгийн төрөл" onchange="ktPreviewChildGroup()" style="flex:1;min-width:0;">
+          <option>Бага</option><option>Дунд</option><option>Ахлах</option><option>Бэлтгэл</option>
+        </select>
+        <input class="f-input" id="newGroupSuffix" aria-label="Бүлгийн үсэг эсвэл дугаар" value="А" placeholder="Үсэг / дугаар" maxlength="20" autocomplete="off" oninput="ktPreviewChildGroup()" style="flex:1;min-width:0;">
+      </div>
+      <div style="font-size:12px;color:#64748b;margin-top:7px;">Бүлгийн үсэг, дугаараа өөрөө бичнэ. Жишээ: В, Г, 1, 2.</div>
+      <div id="newGroupPreview" aria-live="polite" style="font-size:12px;color:#0f766e;margin-top:4px;">Хадгалах бүлэг: Бага А</div>
     </div>
     <div class="f-group"><label class="f-label">Хүйс</label>
       <select class="f-select" id="newGender"><option value="m">Хөвгүүн</option><option value="f">Охин</option></select>
@@ -5723,7 +5727,7 @@ function addChild(){
   if(ktIsAssistantTeacher())return ktAssistantBlocked('Хүүхэд нэмэхийг үндсэн багш хийнэ.');
   var name=$('newName').value.trim();
   if(!name){toast('Нэр оруулна уу');return;}
-  var child={id:'c'+Date.now(),name:name,age:$('newAge').value,grp:($('newGroup')&&$('newGroup').value)||'',gender:$('newGender').value,emoji:EMOJIS[DB.children.length%EMOJIS.length],created:getLocalDateKey()};
+  var child={id:'c'+Date.now(),name:name,age:$('newAge').value,grp:ktChildGroupValue(),gender:$('newGender').value,emoji:EMOJIS[DB.children.length%EMOJIS.length],created:getLocalDateKey()};
   DB.children.push(child);saveDB();
   closeModal('modal-add');$('newName').value='';
   toast(name+' нэмэгдлээ ✓');
@@ -5736,11 +5740,25 @@ function filterChildren(q){
 var BGS=['#fce7f3','#dbeafe','#dcfce7','#fef3c7','#ede9fe','#cffafe','#fee2e2','#fef9c3'];
 function ageLabel(age){var a=AGES.filter(function(x){return x.val===age;})[0];return a?a.label:'';}
 function grpLabel(age){return {'2':'Бага','3':'Дунд','4':'Ахлах','5':'Бэлтгэл'}[age]||'';}
-function syncChildGroup(){var m={'2':'Бага А','3':'Дунд А','4':'Ахлах А','5':'Бэлтгэл А'};var a=$('newAge').value;var g=$('newGroup');if(g&&m[a])g.value=m[a];}
+function ktChildGroupValue(){
+  var group=$('newGroup'),suffix=$('newGroupSuffix');
+  var base=String((group&&group.value)||'').trim();
+  var ending=String((suffix&&suffix.value)||'').trim().replace(/\s+/g,' ');
+  return base+(ending?' '+ending:'');
+}
+function ktPreviewChildGroup(){
+  var preview=$('newGroupPreview');if(preview)preview.textContent='Хадгалах бүлэг: '+ktChildGroupValue();
+}
+function syncChildGroup(){
+  var m={'2':'Бага','3':'Дунд','4':'Ахлах','5':'Бэлтгэл'};
+  var a=$('newAge').value,g=$('newGroup');
+  if(g&&m[a])g.value=m[a];
+  ktPreviewChildGroup();
+}
 function makeChildCard(child,idx){
   var card=document.createElement('div');card.className='child-card';card.style.position='relative';
   card.innerHTML='<div class="child-avatar" style="background:'+BGS[idx%BGS.length]+'">'+child.emoji+'</div>'+
-    '<div class="child-info"><div class="child-name">'+ktEsc(child.name)+'</div><div class="child-meta">'+ageLabel(child.age)+(child.grp?' • '+child.grp:'')+' • '+child.created+'</div></div>'+
+    '<div class="child-info"><div class="child-name">'+ktEsc(child.name)+'</div><div class="child-meta">'+ageLabel(child.age)+(child.grp?' • '+ktEsc(child.grp):'')+' • '+child.created+'</div></div>'+
     '<div class="child-prog"><div class="prog-ring">'+getProgress(child.id)+'%</div></div>';
   card.dataset.name=child.name;
   card.onclick=function(){openChildProfile(child);};
