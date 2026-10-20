@@ -1568,6 +1568,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
     </div>
   </div>
   <div class="app-body">
+    <aside id="ktSurveyBanner" class="no-print" style="display:none;background:#f0fdfa;border:1px solid #99f6e4;border-radius:16px;padding:14px;margin-bottom:16px;"></aside>
     <div class="page active" id="pg-dashboard">
       <div id="hmHero"></div>
       <div id="hmQuick"></div>
@@ -1754,6 +1755,8 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
         <div class="set-title">Баг ба төхөөрөмж</div>
         <div class="set-item" id="passSetItem" onclick="openChangePass()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="set-info"><div class="set-name">Шинэ нууц үг</div><div class="set-sub">Нэвтрэх нууц үгээ шинэчлэх</div></div></div>
         <div class="set-item" id="chatSetItem" onclick="openMyChat()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="set-info"><div class="set-name">Админд хандах <span id="chatState" style="font-size:11px;color:#0d9488;font-weight:700;"></span></div><div class="set-sub">Асуулт/санал бичих, тусламж авах</div></div></div>
+        <div class="set-item" id="ktSurveySetItem" onclick="ktOpenSurvey()"><div class="set-icon">💚</div><div class="set-info"><div class="set-name">Санал асуулга</div><div class="set-sub">KinderTrack-ийн тухай 3 асуултад хариулах</div></div></div>
+        <div class="set-item set-item--admin" id="ktSurveyInboxSetItem" style="display:none" onclick="ktOpenSurveyInbox()"><div class="set-icon">📥</div><div class="set-info"><div class="set-name">Ирсэн саналууд <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Санал асуулгын хариултуудыг харах</div></div></div>
         <div class="set-item" id="assistantManagerSetItem" onclick="openAssistantManager()"><div class="set-icon">🤝</div><div class="set-info"><div class="set-name">Багшийн туслах</div><div class="set-sub">Туслах урих, холбогдсон туслахын ажлыг харах</div></div></div>
         <div class="set-item set-item--admin" id="ownerModeSetItem" style="display:none" onclick="ktOpenOwnerModeMenu()"><div class="set-icon">🎛️</div><div class="set-info"><div class="set-name">Ажлын самбар солих <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Админ · Бүлгийн багш · Арга зүйч · Багшийн туслах</div></div></div>
         <div class="set-item set-item--admin" id="notifySetItem" style="display:none" onclick="openSendNotify()"><div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div><div class="set-info"><div class="set-name">Мэдэгдэл илгээх <span class="st-tag st-tag--admin">ЭЗЭН</span></div><div class="set-sub">Бүх багшид зарлал/мэдэгдэл илгээх</div></div></div>
@@ -1826,6 +1829,18 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
   </div>
 </div>
 
+<div class="modal-ov" id="modal-kt-survey" role="dialog" aria-modal="true" aria-labelledby="ktSurveyTitle" aria-hidden="true">
+  <div class="modal-sh" style="max-height:88vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;"><div id="ktSurveyTitle" class="modal-title" style="margin:0;">💚 Таны санал бидэнд үнэ цэнтэй</div><button type="button" onclick="closeModal('modal-kt-survey')" aria-label="Хаах" style="min-width:44px;min-height:44px;border:0;border-radius:10px;background:#f1f5f9;font-size:22px;">×</button></div>
+    <div id="ktSurveyContent"></div>
+  </div>
+</div>
+<div class="modal-ov" id="modal-kt-survey-inbox" role="dialog" aria-modal="true" aria-labelledby="ktSurveyInboxTitle" aria-hidden="true">
+  <div class="modal-sh" style="max-height:88vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;"><div id="ktSurveyInboxTitle" class="modal-title" style="margin:0;">📥 Ирсэн саналууд</div><button type="button" onclick="closeModal('modal-kt-survey-inbox')" aria-label="Хаах" style="min-width:44px;min-height:44px;border:0;border-radius:10px;background:#f1f5f9;font-size:22px;">×</button></div>
+    <div id="ktSurveyInboxContent"></div>
+  </div>
+</div>
 <div class="modal-ov" id="modal-activity">
   <div class="modal-sh">
     <div class="modal-title">💡 Үйл ажиллагааны санал</div>
@@ -2406,7 +2421,7 @@ function ktIsOwner(){
 }
 function ktApplyOwnerUI(){
   var on=ktIsOwner()?'flex':'none';
-  ['ownerSetItem','ownerModeSetItem','notifySetItem','inboxSetItem'].forEach(function(id){
+  ['ownerSetItem','ownerModeSetItem','notifySetItem','inboxSetItem','ktSurveyInboxSetItem'].forEach(function(id){
     var el=document.getElementById(id);
     if(el)el.style.display=on;
   });
@@ -5684,6 +5699,7 @@ function renderTeacherDocs(){
     '<div class="td-tabs">'+tabs.map(function(t){return '<button class="td-tab '+(TD.tab===t[0]?'on':'')+'" onclick="tdTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+'</div>'+body;
 }
 function goPage(p){
+  try{ktSurveyHome(p);}catch(e){}
   try{ktRecoverScrollLock();}catch(e){}
   if(ktIsOwner())setTimeout(ktRenderOwnerModeButton,20);
   document.querySelectorAll('.page').forEach(function(x){x.classList.remove('active');});
@@ -5994,6 +6010,7 @@ async function sendNotification(){
   if(btn){btn.disabled=false;btn.textContent='📢 Илгээх';}
 }
 function renderDashboard(){
+  try{ktSurveyHome('dashboard');}catch(e){}
   try{var q=$('teacherDocsQuick');if(q)q.style.display=((!ktIsOwner()||ktOwnerAs('teacher'))&&!mdIsMethodologist()&&!ktIsAssistantTeacher())?'block':'none';}catch(e){}
 
   if(ktSB&&Date.now()-(window._ktNotifT||0)>30000){window._ktNotifT=Date.now();fetchNotifications();}
@@ -16591,6 +16608,111 @@ function raRenderA79Reports(root){
 setTimeout(function(){
   try{ktPrepareAssistantInviteUI();}catch(e){console.warn(e);}
 },80);
+
+
+/* Customer survey uses the existing authenticated user → admin message channel.
+   No teacher workspace, child data, or cloud sync payload is modified. */
+var KT_SURVEY_PREFIX='💚 KinderTrack — Санал асуулга';
+var KT_SURVEY_Q=['Та яагаад KinderTrack-ийг сонгосон бэ?','Аль боломжийг хамгийн их ашигладаг вэ?','Хэрэглэхэд юу хамгийн төвөгтэй байна вэ?'];
+var KT_SURVEY={uid:'',busy:false,loading:false,error:'',saved:null,draft:['','',''],token:0};
+var KT_SURVEY_ADMIN={page:0,busy:false,token:0};
+function ktSurveyKey(uid){return 'kt_survey_v1_'+uid;}
+function ktSurveyReadLocal(uid){try{var x=JSON.parse(localStorage.getItem(ktSurveyKey(uid))||'null');return x&&typeof x==='object'?x:{};}catch(e){return {};}}
+function ktSurveyWriteLocal(uid,value){try{localStorage.setItem(ktSurveyKey(uid),JSON.stringify(value));}catch(e){}}
+function ktSurveyHome(page){
+  var w=$('ktSurveyBanner');if(!w)return;
+  var local=ktUid?ktSurveyReadLocal(ktUid):{};
+  var visible=ktUid&&['dashboard','methodologist','assistant'].indexOf(page)>=0;
+  w.style.display=visible?'block':'none';
+  if(!visible)return;
+  w.innerHTML='<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><div style="flex:1;min-width:180px;"><b style="font-size:15px;color:#0f766e;">💚 Таны санал бидэнд үнэ цэнтэй</b><div style="font-size:12px;color:#475569;margin-top:4px;">'+(local.sent?'Туршлагаа хуваалцсанд баярлалаа!':'KinderTrack-ийг сайжруулах 3 асуултад хариулаарай.')+'</div></div><button class="ks-btn ks-btn--primary" type="button" onclick="ktOpenSurvey()">'+(local.sent?'Илгээсэн саналаа харах':'Санал өгөх →')+'</button></div>'+(ktIsOwner()?'<button type="button" class="ks-btn ks-btn--secondary" style="margin-top:10px;" onclick="ktOpenSurveyInbox()">📥 Ирсэн саналууд</button>':'');
+}
+function ktSurveyDraft(index,value){
+  if(KT_SURVEY.uid!==String(ktUid)||KT_SURVEY.saved||KT_SURVEY.busy)return;
+  KT_SURVEY.draft[index]=String(value||'').slice(0,1500);
+  ktSurveyWriteLocal(KT_SURVEY.uid,{draft:KT_SURVEY.draft});
+}
+function ktSurveyRender(){
+  var w=$('ktSurveyContent');if(!w||KT_SURVEY.uid!==String(ktUid))return;
+  var x=KT_SURVEY;
+  if(x.loading){w.innerHTML='<p role="status">Өмнө илгээсэн эсэхийг шалгаж байна…</p>';return;}
+  if(x.saved){
+    w.innerHTML='<div role="status" style="background:#ecfdf5;border-radius:14px;padding:16px;color:#047857;"><b>✓ Санал тань админд очсон. Баярлалаа!</b></div><div style="white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;margin-top:14px;font-size:13px;">'+ktEsc(String(x.saved.body||'').replace(KT_SURVEY_PREFIX+'\n',''))+'</div>';
+    return;
+  }
+  w.innerHTML='<p style="font-size:13px;line-height:1.6;color:#64748b;">Хариулт таны нэртэй хамт админд очно. Бусад багшид харагдахгүй. Хүүхдийн хувийн мэдээлэл оруулахгүйгээр санал, туршлагаа бичээрэй.</p>'+
+    '<form id="ktSurveyForm" onsubmit="event.preventDefault();ktSurveySubmit()">'+KT_SURVEY_Q.map(function(q,i){return '<label for="ktSurveyQ'+i+'" style="display:block;font-weight:700;font-size:14px;line-height:1.5;margin-top:16px;">'+(i+1)+'. '+q+'</label><textarea id="ktSurveyQ'+i+'" required maxlength="1500" rows="3" '+(x.busy?'disabled':'')+' oninput="ktSurveyDraft('+i+',this.value)" style="box-sizing:border-box;width:100%;resize:vertical;margin-top:7px;border:1px solid #cbd5e1;border-radius:12px;padding:12px;font:inherit;font-size:14px;min-height:90px;" placeholder="Хариултаа бичээрэй…">'+ktEsc(x.draft[i]||'')+'</textarea>';}).join('')+
+    '<div role="status" aria-live="polite" style="font-size:13px;color:#b91c1c;line-height:1.5;margin:12px 0;">'+ktEsc(x.error||'')+'</div><button type="submit" class="ks-btn ks-btn--primary" style="width:100%;min-height:46px;margin-top:8px;" '+(x.busy?'disabled':'')+'>'+(x.busy?'Илгээж байна…':'Саналаа илгээх 💚')+'</button><p style="font-size:11px;color:#64748b;">Бүх 3 асуултад хариулна уу. Асуулт бүрд 1500 хүртэл тэмдэгт бичиж болно.</p></form>';
+}
+async function ktSurveyLatest(uid){
+  var r=await ktTimeout(ktSB.from('messages').select('body,created_at').eq('thread_user',uid).eq('sender','user').like('body',KT_SURVEY_PREFIX+'%').order('created_at',{ascending:false}).limit(1),12000,'Санал шалгах');
+  if(r.error)throw r.error;return (r.data||[])[0]||null;
+}
+async function ktOpenSurvey(){
+  if(!ktUid){toast('Эхлээд нэвтэрнэ үү.');return;}
+  var uid=String(ktUid);
+  if(KT_SURVEY.busy){if(KT_SURVEY.uid===uid){openModal('modal-kt-survey');ktSurveyRender();}return;}
+  var local=ktSurveyReadLocal(uid),token=KT_SURVEY.token+1;
+  KT_SURVEY={uid:uid,busy:false,loading:true,error:'',saved:null,draft:Array.isArray(local.draft)?local.draft.slice(0,3):['','',''],token:token};
+  openModal('modal-kt-survey');ktSurveyRender();
+  try{
+    var saved=await ktSurveyLatest(uid);
+    if(String(ktUid)!==uid||KT_SURVEY.token!==token)return;
+    KT_SURVEY.saved=saved;
+    if(saved)ktSurveyWriteLocal(uid,{sent:saved.created_at||true});
+    else if(local.sent)ktSurveyWriteLocal(uid,{draft:KT_SURVEY.draft});
+  }catch(e){
+    if(String(ktUid)!==uid||KT_SURVEY.token!==token)return;
+    KT_SURVEY.error='Өмнө илгээсэн эсэхийг шалгаж чадсангүй. Хариултаа бичиж болно. Илгээх үед дахин шалгана.';
+  }finally{if(String(ktUid)===uid&&KT_SURVEY.token===token){KT_SURVEY.loading=false;ktSurveyRender();}}
+}
+function ktSurveyBody(answers){
+  var u=DB.user||{};
+  var role=mdIsMethodologist()?'Арга зүйч':ktIsAssistantTeacher()?'Туслах багш':'Бүлгийн багш';
+  return KT_SURVEY_PREFIX+'\nҮүрэг: '+role+(u.kinder?'\nЦэцэрлэг: '+String(u.kinder).slice(0,160):'')+'\n\n'+KT_SURVEY_Q.map(function(q,i){return (i+1)+'. '+q+'\n'+answers[i];}).join('\n\n');
+}
+async function ktSurveySubmit(){
+  var x=KT_SURVEY,uid=String(ktUid||'');
+  if(!uid||x.uid!==uid||x.busy||x.loading||x.saved)return;
+  var answers=KT_SURVEY_Q.map(function(_,i){var el=$('ktSurveyQ'+i);return String(el?el.value:x.draft[i]||'').trim();});
+  if(answers.some(function(v){return !v||v.length>1500;})){x.error='Бүх 3 асуултад 1–1500 тэмдэгттэй хариулт бичнэ үү.';x.draft=answers;ktSurveyRender();return;}
+  x.draft=answers;ktSurveyWriteLocal(uid,{draft:answers});
+  if(!navigator.onLine){x.error='Интернэт холболтгүй байна. Хариулт энэ төхөөрөмж дээр хадгалагдсан. Холболттой үед дахин илгээнэ үү.';ktSurveyRender();return;}
+  x.busy=true;x.error='';ktSurveyRender();
+  try{
+    var auth=await ktTimeout(ktSB.auth.getUser(),10000,'Нэвтрэлт шалгах');
+    if(auth.error||!auth.data||!auth.data.user||String(auth.data.user.id)!==uid||String(ktUid)!==uid)throw new Error('AUTH_CHANGED');
+    var saved=await ktSurveyLatest(uid);
+    if(String(ktUid)!==uid)throw new Error('AUTH_CHANGED');
+    if(!saved){
+      var body=ktSurveyBody(answers);
+      var r=await ktTimeout(ktSB.from('messages').insert({thread_user:uid,thread_name:String((DB.user||{}).name||'Хэрэглэгч').slice(0,160),sender:'user',body:body}),15000,'Санал илгээх');
+      if(r.error)throw r.error;
+      saved={body:body,created_at:new Date().toISOString()};
+    }
+    x.saved=saved;ktSurveyWriteLocal(uid,{sent:saved.created_at||true});
+    if(String(ktUid)===uid){toast('Санал тань илгээгдлээ. Баярлалаа! 💚');ktRefreshChatState();ktSurveyHome(document.querySelector('.page.active')?.id.replace('pg-','')||'dashboard');}
+  }catch(e){
+    x.error=e&&e.message==='AUTH_CHANGED'?'Нэвтрэлт өөрчлөгдсөн байна. Дахин нэвтэрч илгээнэ үү.':'Илгээсэн нь баталгаажаагүй байна. Хариулт хадгалагдсан. Дахин илгээхэд өмнө очсон эсэхийг шалгана.';
+  }finally{x.busy=false;if(String(ktUid)===uid&&KT_SURVEY===x)ktSurveyRender();}
+}
+async function ktOpenSurveyInbox(page){
+  if(!ktIsOwner()){toast('Энэ хэсэг зөвхөн админд нээлттэй.');return;}
+  var uid=String(ktUid||''),token=++KT_SURVEY_ADMIN.token,p=Math.max(0,parseInt(page,10)||0),w=$('ktSurveyInboxContent');
+  KT_SURVEY_ADMIN.page=p;openModal('modal-kt-survey-inbox');
+  w.innerHTML='<p role="status">Саналуудыг уншиж байна…</p>';
+  try{
+    var auth=await ktTimeout(ktSB.auth.getUser(),10000,'Админ шалгах'),u=auth.data&&auth.data.user;
+    if(auth.error||!u||String(u.id)!==uid||String(u.email||'').toLowerCase()!==KT_OWNER.toLowerCase())throw new Error('OWNER_REQUIRED');
+    var r=await ktTimeout(ktSB.from('messages').select('thread_user,thread_name,body,created_at',{count:'exact'}).eq('sender','user').like('body',KT_SURVEY_PREFIX+'%').order('created_at',{ascending:false}).range(p*30,p*30+29),12000,'Санал унших');
+    if(r.error)throw r.error;
+    if(String(ktUid)!==uid||!ktIsOwner()||token!==KT_SURVEY_ADMIN.token)return;
+    var rows=r.data||[],total=r.count==null?null:r.count;
+    w.innerHTML='<p style="font-size:13px;color:#64748b;">'+(total===null?'Ирсэн санал':('Нийт '+total+' санал'))+' · Хуудас '+(p+1)+'</p>'+
+      (rows.length?rows.map(function(m){return '<article style="border:1px solid #dbe5e4;border-radius:14px;padding:14px;margin:12px 0;"><b>'+ktEsc(m.thread_name||'Хэрэглэгч')+'</b><div style="font-size:11px;color:#64748b;margin:5px 0;">'+ktEsc(formatLocalDateTime(m.created_at))+'</div><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.65;">'+ktEsc(String(m.body||'').replace(KT_SURVEY_PREFIX+'\n',''))+'</div></article>';}).join(''):'<p>Одоогоор санал ирээгүй байна.</p>')+
+      '<div style="display:flex;gap:8px;"><button class="ks-btn ks-btn--secondary" type="button" onclick="ktOpenSurveyInbox('+(p-1)+')" '+(p===0?'disabled':'')+'>← Өмнөх</button><button class="ks-btn ks-btn--secondary" type="button" onclick="ktOpenSurveyInbox('+p+')">↻ Шинэчлэх</button><button class="ks-btn ks-btn--secondary" type="button" onclick="ktOpenSurveyInbox('+(p+1)+')" '+((total!==null?(p+1)*30>=total:rows.length<30)?'disabled':'')+'>Дараах →</button></div>';
+  }catch(e){if(String(ktUid)===uid&&token===KT_SURVEY_ADMIN.token)w.innerHTML='<p role="alert">Саналуудыг уншиж чадсангүй. Нэвтрэлт, холболтоо шалгаад дахин оролдоно уу.</p><button type="button" class="ks-btn ks-btn--secondary" onclick="ktOpenSurveyInbox('+p+')">Дахин оролдох</button>';}
+}
 
 </script>
 </body>
