@@ -1747,7 +1747,7 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
         <div class="st-profile__id">
           <div class="st-profile__name" id="setName">—</div>
           <div class="st-profile__email" id="setEmail">—</div>
-          <div class="st-profile__row"><span class="st-badge" id="setKinder">—</span><span class="st-phone" id="setPhone">—</span></div><div id="setRoleBadge" style="margin-top:7px;font-size:10.5px;font-weight:800;color:#6d28d9;"></div>
+          <div class="st-profile__row"><span class="st-badge" id="setKinder">—</span><span class="st-phone" id="setPhone">—</span><span class="st-badge" id="setGroup" style="display:none"></span></div><div id="setRoleBadge" style="margin-top:7px;font-size:10.5px;font-weight:800;color:#6d28d9;"></div>
           <button type="button" onclick="openEditProfile()" style="margin-top:10px;border:1px solid #eceef0;background:#fff;color:#0d9488;border-radius:12px;padding:0 14px;min-height:40px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;">✏️ Мэдээлэл засах</button>
         </div>
       </div>
@@ -2180,12 +2180,23 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 <div class="modal-ov" id="modal-editprofile">
   <div class="modal-sh">
     <div class="modal-title">✏️ Миний мэдээлэл</div>
-    <div class="modal-sub">Нэр, цэцэрлэг, утсаа шинэчлэх</div>
+    <div class="modal-sub">Нэр, цэцэрлэг, утас, бүлгээ шинэчлэх</div>
     <div id="epErr"></div>
     <div class="f-group"><label class="f-label" for="epName">Багшийн нэр</label><input class="f-input" id="epName" autocomplete="name"></div>
     <div class="f-group"><label class="f-label" for="epKinder">Цэцэрлэгийн нэр</label><input class="f-input" id="epKinder" placeholder="Жишээ: 100 дугаар цэцэрлэг"></div>
     <div class="f-group"><label class="f-label" for="epPhone">Утас</label><input class="f-input" id="epPhone" inputmode="tel" autocomplete="tel"></div>
-    <div style="font-size:11.5px;color:#9ca3af;line-height:1.55;margin-bottom:4px;">Цэцэрлэгийн нэр нь тайлан, хэвлэх хуудас, эцэг эхэд харагдах хуудсанд гарна. И-мэйл хаягийг энд өөрчлөх боломжгүй.</div>
+    <div class="f-group">
+      <label class="f-label" for="epGroup">Бүлэг</label>
+      <div style="display:flex;gap:8px;">
+        <select class="f-select" id="epGroup" onchange="ktProfileGroupPreview()" style="flex:1;min-width:0;" aria-label="Бүлгийн төрөл">
+          <option value="">Бүлэггүй / Сонгох</option><option value="Бага">Бага</option><option value="Дунд">Дунд</option><option value="Ахлах">Ахлах</option><option value="Бэлтгэл">Бэлтгэл</option><option value="Холимог">Холимог</option><option value="custom">Бусад</option>
+        </select>
+        <input class="f-input" id="epGroupSuffix" maxlength="80" oninput="ktProfileGroupPreview()" placeholder="А, Б, В, 1, 2…" aria-label="Бүлгийн үсэг эсвэл дугаар" style="flex:1;min-width:0;">
+      </div>
+      <div id="epGroupHint" style="font-size:11.5px;color:#64748b;line-height:1.5;margin-top:7px;">Бүлгийн үсэг, дугаараа өөрөө бичнэ. Жишээ: В, Г, 1, 2.</div>
+      <div id="epGroupPreview" aria-live="polite" style="font-size:12px;color:#0f766e;margin-top:5px;"></div>
+    </div>
+    <div style="font-size:11.5px;color:#9ca3af;line-height:1.55;margin-bottom:4px;">Цэцэрлэгийн нэр нь тайлан, хэвлэх хуудас, эцэг эхэд харагдах хуудсанд гарна. Энд бүлгээ засахад хүүхдүүдийн бүртгэл, бүлгийг өөрчлөхгүй. И-мэйл хаягийг энд өөрчлөх боломжгүй.</div>
     <button class="ks-btn ks-btn--primary" id="epBtn" onclick="saveProfile()" style="margin-top:10px;">Хадгалах</button>
     <button onclick="closeModal('modal-editprofile')" class="ks-btn ks-btn--secondary" style="margin-top:8px;">Болих</button>
   </div>
@@ -2398,7 +2409,8 @@ function ktApplyProfile(prof){
   DB.user={id:prof.id,name:prof.name,email:prof.email,phone:prof.phone,kinder:prof.kinder,
     activated:prof.activated,trialStart:prof.trial_start,trialEnd:prof.trial_end,paidUntil:prof.paid_until,plan:prof.plan,
     accountRole:prof.role||(!prof.team_code?'teacher':'methodologist'),
-    teamCode:prof.team_code,teamOwner:prof.team_owner,shareToken:prof.share_token};
+    teamCode:prof.team_code,teamOwner:prof.team_owner,shareToken:prof.share_token,
+    teacher_group:prof.teacher_group||'',group:prof.teacher_group||''};
   saveDB();
 }
 
@@ -4345,48 +4357,108 @@ function ktForgotEmailHelp(){
     '3. Хэрэв и-мэйл нь буруу бүртгэгдсэн бол админ засаж өгөх боломжтой.'+
     '</div>';
 }
-/* ===== Профайл засах (нэр, цэцэрлэг, утас) ===== */
-var PROF={saving:false};
-function openEditProfile(){
-  var u=DB.user||{};
-  var f=$('epName');if(f)f.value=u.name||'';
-  var g=$('epKinder');if(g)g.value=u.kinder||'';
-  var h=$('epPhone');if(h)h.value=u.phone||'';
-  var e=$('epErr');if(e)e.innerHTML='';
+/* ===== Профайл засах: анхны бүртгэлийн бүлгийг мөн шинэчилнэ ===== */
+var PROF={saving:false,loading:false,loaded:false,uid:'',token:0};
+function ktProfileGroupParts(value){
+  var raw=String(value||'').trim().replace(/\s+/g,' ');
+  if(!raw)return {base:'',suffix:''};
+  var m=raw.match(/^(Бага|Дунд|Ахлах|Бэлтгэл|Холимог)(?:\s+бүлэг)?(?:\s+(.*))?$/i);
+  if(m){var base=['Бага','Дунд','Ахлах','Бэлтгэл','Холимог'].filter(function(x){return x.toLowerCase()===m[1].toLowerCase();})[0];return {base:base,suffix:m[2]||''};}
+  return {base:'custom',suffix:raw};
+}
+function ktProfileGroupValue(){
+  var base=($('epGroup')&&$('epGroup').value)||'',suffix=String(($('epGroupSuffix')&&$('epGroupSuffix').value)||'').trim().replace(/\s+/g,' ');
+  if(!base)return '';
+  return base==='custom'?suffix:base+(suffix?' '+suffix:'');
+}
+function ktProfileGroupPreview(){
+  var base=($('epGroup')&&$('epGroup').value)||'',field=$('epGroupSuffix'),hint=$('epGroupHint'),preview=$('epGroupPreview');
+  if(field){if(!base)field.value='';field.disabled=!base||PROF.loading||!PROF.loaded;field.placeholder=base==='custom'?'Бүлгийн бүтэн нэр':'А, Б, В, 1, 2…';field.setAttribute('aria-label',base==='custom'?'Бүлгийн бүтэн нэр':'Бүлгийн үсэг эсвэл дугаар');}
+  if(hint)hint.textContent=base==='custom'?'Бүлгийнхээ бүтэн нэрийг бичнэ.':'Бүлгийн үсэг, дугаараа өөрөө бичнэ. Жишээ: В, Г, 1, 2.';
+  if(preview)preview.textContent='Хадгалах бүлэг: '+(ktProfileGroupValue()||'Бүлэггүй');
+}
+function ktProfileFill(u){
+  ['Name','Kinder','Phone'].forEach(function(k){var el=$('ep'+k);if(el)el.value=u[k.toLowerCase()]||'';});
+  var parts=ktProfileGroupParts(u.teacher_group||u.group||'');
+  if($('epGroup'))$('epGroup').value=parts.base;
+  if($('epGroupSuffix'))$('epGroupSuffix').value=parts.suffix;
+  ktProfileGroupPreview();
+}
+function ktProfileGroupBadge(){
+  var e=$('setGroup'),value=(DB.user&&(DB.user.teacher_group||DB.user.group))||'';
+  if(e){e.textContent=value;e.style.display=value?'inline-block':'none';}
+}
+async function openEditProfile(){
+  if(PROF.saving)return;
+  if(!ktUid){toast('Эхлээд нэвтэрнэ үү');return;}
+  var uid=String(ktUid),token=++PROF.token;
+  PROF.uid=uid;PROF.loading=true;PROF.loaded=false;
+  ktProfileFill(DB.user||{});
+  var err=$('epErr'),btn=$('epBtn');
+  if(err)err.innerHTML='<div role="status" style="font-size:12px;color:#64748b;">Бүртгэлийн мэдээллийг уншиж байна…</div>';
+  if(btn){btn.disabled=true;btn.textContent='Уншиж байна…';}
+  ['epName','epKinder','epPhone','epGroup','epGroupSuffix'].forEach(function(id){var el=$(id);if(el)el.disabled=true;});
   openModal('modal-editprofile');
+  try{
+    var r=await ktTimeout(ktSB.from('profiles').select('id,name,kinder,phone,teacher_group').eq('id',uid).single(),10000,'Профайл унших');
+    if(r.error)throw r.error;
+    if(!r.data||String(r.data.id)!==uid)throw new Error('Бүртгэлийн мэдээлэл олдсонгүй');
+    if(String(ktUid)!==uid||PROF.token!==token)return;
+    PROF.loaded=true;ktProfileFill(r.data);
+    if(err)err.innerHTML='';
+  }catch(e){
+    if(String(ktUid)!==uid||PROF.token!==token)return;
+    if(err)err.innerHTML='<div class="err-msg">Серверээс мэдээллийг уншиж чадсангүй. Холболтоо шалгаад дахин оролдоно уу.</div><button type="button" class="ks-btn ks-btn--secondary" onclick="openEditProfile()">Дахин унших</button>';
+  }finally{
+    if(String(ktUid)===uid&&PROF.token===token){
+      PROF.loading=false;
+      ['epName','epKinder','epPhone','epGroup','epGroupSuffix'].forEach(function(id){var el=$(id);if(el)el.disabled=!PROF.loaded;});
+      ktProfileGroupPreview();
+      if(btn){btn.disabled=!PROF.loaded;btn.textContent='Хадгалах';}
+    }
+  }
 }
 async function saveProfile(){
-  if(PROF.saving)return;
-  var name=(($('epName')&&$('epName').value)||'').trim();
-  var kinder=(($('epKinder')&&$('epKinder').value)||'').trim();
-  var phone=(($('epPhone')&&$('epPhone').value)||'').trim();
+  if(PROF.saving||PROF.loading||!PROF.loaded)return;
+  var uid=String(ktUid||''),user=DB.user;
+  var name=String(($('epName')&&$('epName').value)||'').trim();
+  var kinder=String(($('epKinder')&&$('epKinder').value)||'').trim();
+  var phone=String(($('epPhone')&&$('epPhone').value)||'').trim();
+  var group=ktProfileGroupValue(),base=($('epGroup')&&$('epGroup').value)||'',suffix=String(($('epGroupSuffix')&&$('epGroupSuffix').value)||'').trim();
   var err=$('epErr');
-  if(!name){if(err)err.innerHTML='<div class="err-msg">Нэрээ бичнэ үү</div>';return;}
-  if(!kinder){if(err)err.innerHTML='<div class="err-msg">Цэцэрлэгийн нэрээ бичнэ үү</div>';return;}
+  function fail(message){if(err)err.innerHTML='<div class="err-msg">'+ktEsc(message)+'</div>';}
+  if(!uid||PROF.uid!==uid||!user){fail('Нэвтрэлт өөрчлөгдсөн байна. Мэдээлэл засах хэсгийг дахин нээнэ үү.');return;}
+  if(!name){fail('Нэрээ бичнэ үү');return;}
+  if(!kinder){fail('Цэцэрлэгийн нэрээ бичнэ үү');return;}
+  if(base==='custom'&&!group){fail('Бүлгийнхээ бүтэн нэрийг бичнэ үү');return;}
+  if(!base&&suffix){fail('Бүлгийн төрлөө сонгоно уу');return;}
+  if(group.length>100){fail('Бүлгийн нэр 100 хүртэл тэмдэгттэй байна');return;}
   PROF.saving=true;
-  var btn=$('epBtn');if(btn){btn.disabled=true;btn.textContent='Хадгалж байна...';}
+  var btn=$('epBtn');if(btn){btn.disabled=true;btn.textContent='Хадгалж байна…';}
   if(err)err.innerHTML='';
   try{
-    if(!ktUid)throw new Error('Нэвтрээгүй байна');
-    var r=await ktSB.from('profiles').update({name:name,kinder:kinder,phone:phone}).eq('id',ktUid);
-    if(r&&r.error)throw r.error;
-    DB.user.name=name;DB.user.kinder=kinder;DB.user.phone=phone;
-    saveDB();
-    var a=$('setName');if(a)a.textContent=name;
-    var c=$('setKinder');if(c)c.textContent=kinder;
-    var d2=$('setPhone');if(d2)d2.textContent=phone||'—';
-    var s=$('dashSub');if(s)s.textContent=kinder;
-    var un=$('setUserName');if(un)un.textContent=name;
-    var av=$('userAvatar');if(av)av.textContent=name?name[0]:'Б';
-    closeModal('modal-editprofile');
-    toast('Мэдээлэл шинэчлэгдлээ ✓');
+    var auth=await ktTimeout(ktSB.auth.getUser(),10000,'Нэвтрэлт шалгах');
+    if(auth.error||!auth.data||!auth.data.user||String(auth.data.user.id)!==uid||String(ktUid)!==uid)throw new Error('Нэвтрэлт өөрчлөгдсөн байна. Дахин нэвтэрнэ үү.');
+    var r=await ktTimeout(ktSB.from('profiles').update({name:name,kinder:kinder,phone:phone,teacher_group:group||null}).eq('id',uid).select('id,name,kinder,phone,teacher_group').single(),12000,'Мэдээлэл хадгалах');
+    if(r.error)throw r.error;
+    if(!r.data||String(r.data.id)!==uid)throw new Error('Мэдээлэл хадгалагдсан нь баталгаажаагүй байна. Дахин шалгана уу.');
+    if(String(ktUid)!==uid||DB.user!==user)return;
+    DB.user.name=r.data.name;DB.user.kinder=r.data.kinder;DB.user.phone=r.data.phone;
+    DB.user.teacher_group=r.data.teacher_group||'';DB.user.group=r.data.teacher_group||'';
+    saveDB();ktProfileGroupBadge();
+    var a=$('setName');if(a)a.textContent=DB.user.name;
+    var c=$('setKinder');if(c)c.textContent=DB.user.kinder;
+    var d=$('setPhone');if(d)d.textContent=DB.user.phone||'—';
+    var sub=$('dashSub');if(sub)sub.textContent=DB.user.kinder;
+    var un=$('setUserName');if(un)un.textContent=DB.user.name;
+    var av=$('userAvatar');if(av)av.textContent=DB.user.name?DB.user.name[0]:'Б';
+    closeModal('modal-editprofile');toast('Мэдээлэл шинэчлэгдлээ ✓');
   }catch(e){
-    var m=(e&&e.message)||'Алдаа гарлаа';
-    if(err)err.innerHTML='<div class="err-msg">'+ktEsc(m)+'</div>'+
-      '<div style="font-size:11.5px;color:#6b7280;margin-top:6px;">Интернэт холболтоо шалгаад дахин оролдоно уу.</div>';
+    if(String(ktUid)===uid)fail((e&&e.message)||'Хадгалж чадсангүй. Холболтоо шалгаад дахин оролдоно уу.');
+  }finally{
+    PROF.saving=false;
+    if(btn){btn.disabled=false;btn.textContent='Хадгалах';}
   }
-  PROF.saving=false;
-  if(btn){btn.disabled=false;btn.textContent='Хадгалах';}
 }
 
 var KT_MAGIC_BUSY=false;
@@ -4934,6 +5006,7 @@ function enterApp(){
   $('userAvatar').textContent=DB.user.name?DB.user.name[0]:'Б';
   $('setName').textContent=DB.user.name;$('setEmail').textContent=DB.user.email;$('setKinder').textContent=DB.user.kinder;
   if($('setPhone'))$('setPhone').textContent=DB.user.phone||'—';
+  ktProfileGroupBadge();
   if($('setRoleBadge'))$('setRoleBadge').textContent=ktIsOwner()?('👑 Админ / Эзэн · '+ktOwnerModeLabel()):(mdIsMethodologist()?'🧭 Арга зүйчийн эрх':(ktIsAssistantTeacher()?'🤝 Багшийн туслахын эрх':'👩‍🏫 Багшийн эрх'));
   $('setUserName').textContent=DB.user.name;
   ktApplyOwnerUI();
