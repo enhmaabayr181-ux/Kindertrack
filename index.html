@@ -4933,11 +4933,21 @@ function ktOwnerModeLabel(){
 function ktSetOwnerWorkMode(mode){
   if(!ktIsOwner())return;
   if(['admin','teacher','methodologist','assistant'].indexOf(mode)<0)return;
+  var activeReport=document.querySelector('#pg-reports.active,#pg-mdreports.active')||
+    (document.querySelector('#pg-assistant.active')&&typeof AST!=='undefined'&&AST.tab==='report');
+  if(typeof OWNER_RP!=='undefined'){
+    OWNER_RP.requestId=(OWNER_RP.requestId||0)+1;OWNER_RP.loading=false;
+  }
+  var oldReports=$('ownerReportsDashboard');if(oldReports){oldReports.innerHTML='';oldReports.style.display='none';}
   KT_OWNER_WORKMODE=mode;
   try{localStorage.setItem('kt_owner_workmode',mode);}catch(e){}
   ktCloseOwnerModeMenu();
   try{ktApplyRoleNav();}catch(e){}
   try{ktRenderOwnerModeButton();}catch(e){}
+  if(activeReport){
+    if(mode==='assistant'){KT_ASSISTANT_GROUP_CHILDREN=[];KT_ASSISTANT_LINK=null;}
+    goRoleNav('reports');return;
+  }
   if(mode==='admin'){renderDashboard();goPage('dashboard');return;}
   if(mode==='teacher'){renderDashboard();goPage('dashboard');return;}
   if(mode==='methodologist'){goPage('methodologist');return;}
@@ -4971,7 +4981,7 @@ function ktRenderOwnerModeButton(){
   document.body.appendChild(b);
 }
 function ktRole(){return (DB.user&&DB.user.accountRole)||'teacher';}
-function ktIsAssistantTeacher(){return ktOwnerAs('assistant')||ktRole()==='assistant_teacher';}
+function ktIsAssistantTeacher(){return ktIsOwner()?ktOwnerAs('assistant'):ktRole()==='assistant_teacher';}
 function ktAssistantBlocked(msg){toast(msg||'Энэ үйлдлийг үндсэн багш гүйцэтгэнэ.');return false;}
 function ktApplyAssistantUI(){
   if(!ktIsAssistantTeacher())return;
@@ -5786,6 +5796,8 @@ function goPage(p){
     else if(p==='mdcontrol')nb=$('nv-methodologist');
     else if(p==='mdreports')nb=$('nv-reports');
     else if(p==='settings')nb=$('nv-settings');
+  }else if(ktIsAssistantTeacher()&&p==='assistant'){
+    nb=$('nv-'+(AST.tab==='report'?'reports':'dashboard'));
   }else nb=$('nv-'+p);
   if(nb)nb.classList.add('active');
   if(p==='dashboard')renderDashboard();
@@ -6237,34 +6249,41 @@ function ownerRpSetTab(tab){
 }
 async function renderOwnerReportsDashboard(force){
   var root=$('ownerReportsDashboard');if(!root)return;
-  if(OWNER_RP.loading)return;
-  if(!OWNER_RP.profiles.length||force){
-    OWNER_RP.loading=true;
-    root.innerHTML='<div class="owner-rp-loading">Мэдээлэл шинэчилж байна…</div>';
-    try{
-      var pr=await ktSB.from('profiles')
-        .select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan')
-        .order('name',{ascending:true});
-      if(pr.error)throw pr.error;
-      OWNER_RP.profiles=pr.data||[];
-      OWNER_RP.data={};
-      var teacherIds=OWNER_RP.profiles.filter(function(u){return ownerRpRole(u)==='teacher';}).map(function(u){return u.id;});
-      if(teacherIds.length){
-        try{
-          var ad=await ktSB.from('app_data').select('user_id,data,updated_at').in('user_id',teacherIds);
-          if(!ad.error)(ad.data||[]).forEach(function(x){OWNER_RP.data[x.user_id]={data:x.data||{},updated_at:x.updated_at};});
-        }catch(e){}
-      }
-    }catch(e){
-      root.innerHTML='<div class="md-alert">Эзэн самбарын мэдээлэл уншихад алдаа: '+ktEsc(e.message||String(e))+'</div>';
-      OWNER_RP.loading=false;return;
+  if(!ktOwnerAdminMode()){root.style.display='none';root.innerHTML='';return;}
+  if(OWNER_RP.loading&&!force)return;
+  if(OWNER_RP.profiles.length&&!force){ownerRpPaint();return;}
+  var uid=String(ktUid||''),requestId=(OWNER_RP.requestId||0)+1;
+  OWNER_RP.requestId=requestId;OWNER_RP.loading=true;
+  var current=function(){return ktOwnerAdminMode()&&String(ktUid||'')===uid&&OWNER_RP.requestId===requestId;};
+  root.innerHTML='<div class="owner-rp-loading">Мэдээлэл шинэчилж байна…</div>';
+  try{
+    var pr=await ktSB.from('profiles')
+      .select('id,email,name,kinder,teacher_group,role,team_code,team_owner,trial_end,paid_until,plan')
+      .order('name',{ascending:true});
+    if(!current())return;
+    if(pr.error)throw pr.error;
+    var profiles=pr.data||[],data={};
+    var teacherIds=profiles.filter(function(u){return ownerRpRole(u)==='teacher';}).map(function(u){return u.id;});
+    if(teacherIds.length){
+      try{
+        var ad=await ktSB.from('app_data').select('user_id,data,updated_at').in('user_id',teacherIds);
+        if(!current())return;
+        if(!ad.error)(ad.data||[]).forEach(function(x){data[x.user_id]={data:x.data||{},updated_at:x.updated_at};});
+      }catch(e){if(!current())return;}
     }
-    OWNER_RP.loading=false;
+    if(!current())return;
+    OWNER_RP.profiles=profiles;OWNER_RP.data=data;
+    ownerRpPaint();
+  }catch(e){
+    if(current())root.innerHTML='<div class="md-alert">Эзэн самбарын мэдээлэл уншихад алдаа: '+ktEsc(e.message||String(e))+'</div>';
+  }finally{
+    if(OWNER_RP.requestId===requestId)OWNER_RP.loading=false;
   }
-  ownerRpPaint();
 }
+
 function ownerRpPaint(){
   var root=$('ownerReportsDashboard');if(!root)return;
+  if(!ktOwnerAdminMode()){root.innerHTML='';root.style.display='none';return;}
   var teachers=OWNER_RP.profiles.filter(function(u){return ownerRpRole(u)==='teacher';});
   var methodologists=OWNER_RP.profiles.filter(function(u){return ownerRpRole(u)==='methodologist';});
   var now=new Date();now.setHours(0,0,0,0);
@@ -6315,8 +6334,8 @@ function ownerRpMethodologistsHtml(list){
 }
 
 function renderReportsPage(){
-  // Эзэн/админд л Багш + Арга зүйчийн нэгдсэн самбар харагдана.
-  if(typeof ktIsOwner==='function'&&ktIsOwner()){
+  // Тайлан нь сонгосон ажлын горимоор нээгдэнэ.
+  if(ktOwnerAdminMode()){
     var oc=$('ownerReportsDashboard'),tc=$('teacherReportsContent');
     if(oc)oc.style.display='block';
     if(tc)tc.style.display='none';
@@ -6324,7 +6343,15 @@ function renderReportsPage(){
     return;
   }
   var oc=$('ownerReportsDashboard'),tc=$('teacherReportsContent');
-  if(oc)oc.style.display='none';
+  if(oc){oc.style.display='none';oc.innerHTML='';}
+  if(mdIsMethodologist()){
+    if(tc)tc.style.display='none';
+    goPage('mdreports');return;
+  }
+  if(ktIsAssistantTeacher()){
+    if(tc)tc.style.display='none';
+    AST.tab='report';goPage('assistant');return;
+  }
   if(tc)tc.style.display='block';
   try{renderReportsAnalytics();}catch(e){console.log('analytics',e);}
   var w=$('reportsChildList');w.innerHTML='';
