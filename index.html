@@ -8838,9 +8838,8 @@ function raAnimate(){
     requestAnimationFrame(step);
   });
 }
-function renderReportsAnalytics(){
+function raRenderMonthlyAnalytics(){
   var w=$('reportsAnalytics');if(!w)return;
-  if(raUseA79Reports()){raRenderA79Reports(w);return;}
   var kids=raChildren(),allKids=DB.children||[];
   var m=RA.month==='all'?(cur.month||'9'):RA.month;
   var totObs=0,totShared=0,totHl=0,totAssess=0;
@@ -16584,15 +16583,41 @@ function renderInitialAssessment(){var root=$('initialAssessRoot');if(!root)retu
 
 /* Reports consume the same numbered A/79 answers as the assessment form.
    Read-only: never migrate, initialize, or overwrite stored answers here. */
-function raUseA79Reports(){
-  var kids=DB.children||[];
-  var current=kids.some(function(c){return ['initialA79','finalA79'].some(function(k){
-    var a=((DB[k]||{})[c.id]||{}).answers||{};
-    return Object.keys(a).some(function(n){return a[n]===0||a[n]===1;});
-  });});
-  var legacy=kids.some(function(c){return Object.keys((DB.ratings||{})[c.id]||{}).length>0;});
-  return current||!legacy;
+function raUseA79Reports(){return RA.reportMode!=='monthly';}
+function raA79ResetFilters(){
+  RA.q='';RA.grp='all';RA.age='all';RA.month='all';RA.dir='all';renderReportsAnalytics();
 }
+function raReportTypeHtml(selected){
+  return '<label style="display:block;font-size:13px;font-weight:700;margin-bottom:8px;">Тайлангийн төрөл</label><select aria-label="Тайлангийн төрөл" onchange="raA79SetStage(this.value)" style="font:inherit;width:100%;min-height:44px;padding:8px;border:1px solid #cbd5e1;border-radius:10px;">'+
+    [['initial','Гарааны үнэлгээ'],['final','Үр дүнгийн үнэлгээ'],['monthly','Сарын үнэлгээ, ажиглалт']].map(function(x){return '<option value="'+x[0]+'"'+(selected===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select>';
+}
+function renderReportsAnalytics(){
+  var w=$('reportsAnalytics');if(!w)return;
+  try{
+    if(raUseA79Reports()){raRenderA79Reports(w);return;}
+    raRenderMonthlyAnalytics();
+    w.insertAdjacentHTML('afterbegin','<div class="no-print" style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px;">'+raReportTypeHtml('monthly')+'</div>');
+  }catch(e){
+    console.warn('report-render',e);
+    w.innerHTML='<div style="padding:16px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;">'+raReportTypeHtml(raUseA79Reports()?raA79Stage():'monthly')+'<p role="alert">Тайланг харуулахад алдаа гарлаа. Шүүлтүүрээ цэвэрлээд дахин оролдоно уу.</p><button type="button" onclick="raA79ResetFilters()" style="min-height:44px;padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:#f0fdfa;">Шүүлтүүр цэвэрлэх, дахин нээх</button></div>';
+  }
+}
+function raA79ObservationData(kids){
+  try{
+    var monthCounts=MONTHS.map(function(m){return kids.reduce(function(n,c){return n+ktReportMonthRecords(c.id,m).length;},0);});
+    var records=[];kids.forEach(function(c){records=records.concat(raObs(c.id));});
+    var directions=SECTIONS.map(function(sec){var count=records.filter(function(o){var ds=Array.isArray(o.domains)?o.domains:(o.dir?[o.dir]:[]);return ds.indexOf(sec.cls)>=0;}).length;return {l:sec.label,v:count,c:SEC_BORDER[sec.cls]};});
+    return {available:true,monthCounts:monthCounts,obs:records.length,directions:directions};
+  }catch(e){console.warn('report-observations',e);return {available:false,obs:null};}
+}
+function raA79ObservationHtml(data,card){
+  var unavailable='<section style="'+card+'"><h3 style="margin-top:0;">Ажиглалтын мэдээлэл</h3><p>Ажиглалтын нэгтгэлийг харуулж чадсангүй. Гарааны болон үр дүнгийн үнэлгээг дээр тусад нь харуулж байна.</p></section>';
+  if(!data.available)return unavailable;
+  try{return '<section style="'+card+'"><h3 style="margin-top:0;">Сар бүрийн ажиглалт</h3>'+raBarSVG(MONTHS,data.monthCounts,'#0d9488')+'</section>'+
+    '<section style="'+card+'"><h3 style="margin-top:0;">Ажиглалтын хуваарилалт</h3>'+raPieSVG(data.directions)+'</section>';
+  }catch(e){console.warn('report-observation-charts',e);return unavailable;}
+}
+
 function raA79Stage(){return RA.a79Stage==='final'?'final':'initial';}
 function raA79Read(child,stage,scope){
   var cfg=ktA79Cfg(child).cfg;
@@ -16633,7 +16658,7 @@ function raA79Graph(groups){
   }).join('');
   return '<svg role="img" aria-label="Ажиглагдсан үзүүлэлтийн хувь" viewBox="0 0 '+Math.max(320,groups.length*190)+' 166" style="display:block;width:100%;max-width:1000px;margin:auto;">'+bars+'</svg>';
 }
-function raA79SetStage(value){RA.a79Stage=value;renderReportsAnalytics();}
+function raA79SetStage(value){RA.reportMode=value==='monthly'?'monthly':'assessment';if(value!=='monthly')RA.a79Stage=value==='final'?'final':'initial';renderReportsAnalytics();}
 function raA79OpenChild(id){
   var c=(DB.children||[]).filter(function(x){return String(x.id)===String(id);})[0];
   if(!c)return;openObs(c);switchSubtab('checklist');
@@ -16666,11 +16691,7 @@ function raRenderA79Reports(root){
   var card='background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px;';
   var field='font:inherit;font-size:13px;min-height:42px;border:1px solid #cbd5e1;border-radius:10px;padding:8px;background:#fff;max-width:100%;';
   var options=function(v,selected,label){return '<option value="'+ktEsc(v)+'"'+(String(v)===String(selected)?' selected':'')+'>'+ktEsc(label)+'</option>';};
-  var monthCounts=MONTHS.map(function(m){return kids.reduce(function(n,c){return n+ktReportMonthRecords(c.id,m).length;},0);});
-  var obs=kids.reduce(function(n,c){return n+raObs(c.id).length;},0);
-  var directions=SECTIONS.map(function(sec){var n=0;kids.forEach(function(c){raObs(c.id).forEach(function(o){
-    if((o.domains||[]).indexOf(sec.cls)>=0)n++;
-  });});return {l:sec.label,v:n,c:SEC_BORDER[sec.cls]};});
+  var observations=raA79ObservationData(kids),obs=observations.available?observations.obs:'—';
   var kpis=[['Хүүхэд',kids.length],['Үнэлгээ эхэлсэн',s.assessed],['Бүрэн бөглөсөн',s.complete],['Бөглөлт',s.coverage+'%'],['Тийм (1)',s.pct===null?'—':s.pct+'%'],['Ажиглалт',obs]];
   var records=kids.map(function(c){var x=raA79Read(c,stage);
     return '<section style="border-bottom:1px solid #e2e8f0;padding:12px 0;"><b>'+ktEsc(c.name)+'</b> <span style="font-size:12px;color:#64748b;">'+ktEsc(ageLabel(c.age))+(c.grp?' · '+ktEsc(c.grp):'')+'</span>'+
@@ -16682,13 +16703,13 @@ function raRenderA79Reports(root){
   root.innerHTML='<div class="no-print" style="'+card+'"><h3 style="margin-top:0;">Тайлангийн шүүлтүүр</h3>'+
     '<input type="search" aria-label="Хүүхдийн нэр" placeholder="Хүүхдийн нэрээр хайх" value="'+ktEsc(RA.q||'')+'" onchange="raSetFilter(\'q\',this.value)" style="'+field+'width:100%;box-sizing:border-box;margin-bottom:8px;">'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
-    '<select aria-label="Үнэлгээний төрөл" onchange="raA79SetStage(this.value)" style="'+field+'flex:1;">'+options('initial',stage,'Гарааны үнэлгээ')+options('final',stage,'Үр дүнгийн үнэлгээ')+'</select>'+
+    '<select aria-label="Үнэлгээний төрөл" onchange="raA79SetStage(this.value)" style="'+field+'flex:1;">'+options('initial',stage,'Гарааны үнэлгээ')+options('final',stage,'Үр дүнгийн үнэлгээ')+options('monthly',stage,'Сарын үнэлгээ, ажиглалт')+'</select>'+
     '<select aria-label="Бүлэг" onchange="raSetFilter(\'grp\',this.value)" style="'+field+'flex:1;">'+options('all',RA.grp,'Бүх бүлэг')+grps.map(function(g){return options(g,RA.grp,g);}).join('')+'</select>'+
     '<select aria-label="Нас" onchange="raSetFilter(\'age\',this.value)" style="'+field+'flex:1;">'+options('all',RA.age,'Бүх нас')+AGES.map(function(a){return options(a.val,RA.age,a.label);}).join('')+'</select></div>'+
     '<div style="font-size:12px;color:#64748b;margin-top:10px;">Доорх хоёр шүүлтүүр зөвхөн ажиглалтад хамаарна:</div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"><select aria-label="Ажиглалтын сар" onchange="raSetFilter(\'month\',this.value)" style="'+field+'flex:1;">'+options('all',RA.month,'Бүх сар')+MONTHS.map(function(m){return options(m,RA.month,m+'-р сар');}).join('')+'</select>'+
     '<select aria-label="Ажиглалтын чиглэл" onchange="raSetFilter(\'dir\',this.value)" style="'+field+'flex:1;">'+options('all',RA.dir,'Бүх чиглэл')+SECTIONS.map(function(sec){return options(sec.cls,RA.dir,sec.label);}).join('')+'</select></div>'+
-    '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button onclick="raA79Download()" style="'+field+'color:#0f766e;">⬇ CSV / Excel</button><button onclick="raA79Print()" style="'+field+'color:#0f766e;">🖨 Тайлан, график / PDF</button></div></div>'+
+    '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"><button onclick="raA79ResetFilters()" style="'+field+'">↻ Шүүлтүүр цэвэрлэх</button><button onclick="raA79Download()" style="'+field+'color:#0f766e;">⬇ CSV / Excel</button><button onclick="raA79Print()" style="'+field+'color:#0f766e;">🖨 Тайлан, график / PDF</button></div></div>'+
     '<div id="raA79Printable"><h2 style="font-size:18px;color:#0f766e;">Ажиглалт, үнэлгээ — '+title+'</h2>'+
     '<div class="ra-kpis" style="margin-bottom:12px;">'+kpis.map(function(k){return '<div style="'+card+'padding:10px;text-align:center;margin:0;"><strong style="font-size:20px;">'+k[1]+'</strong><div style="font-size:11px;color:#64748b;">'+k[0]+'</div></div>';}).join('')+'</div>'+
     '<section style="'+card+'"><h3 style="margin-top:0;">Бүлгийн үнэлгээний график</h3>'+raA79Graph(groups)+
@@ -16699,8 +16720,7 @@ function raRenderA79Reports(root){
     (matched.count?'<p>Хоёр үнэлгээнд хоёуланд нь бөглөсөн '+matched.count+' шалгуурын өөрчлөлт: <b>'+(matched.change>0?'+':'')+matched.change+' нэгж хувь</b>.</p>':'<p>Харьцуулахын тулд гарааны болон үр дүнгийн үнэлгээнд ижил шалгуурыг бөглөнө үү.</p>')+
     '<p style="font-size:12px;color:#64748b;">Гарааны үнэлгээ нь сарын үнэлгээ биш тул сар бүрийн өсөлт болгон давтаж зурахгүй.</p></section>'+
     '<section style="'+card+'"><h3 style="margin-top:0;">Хүүхэд бүрийн үнэлгээ</h3>'+(records||'<p>Сонгосон бүлэг, насанд хүүхэд алга.</p>')+'</section></div>'+
-    '<section style="'+card+'"><h3 style="margin-top:0;">Сар бүрийн ажиглалт</h3>'+raBarSVG(MONTHS,monthCounts,'#0d9488')+'</section>'+
-    '<section style="'+card+'"><h3 style="margin-top:0;">Ажиглалтын хуваарилалт</h3>'+raPieSVG(directions)+'</section>';
+    raA79ObservationHtml(observations,card);
   root.querySelectorAll('[data-ra-a79-child]').forEach(function(button){button.onclick=function(){raA79OpenChild(button.getAttribute('data-ra-a79-child'));};});
 }
 
