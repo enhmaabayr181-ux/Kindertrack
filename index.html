@@ -1376,6 +1376,30 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
 .pv-photo{aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:#f1f5f9;position:relative}
 .pv-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .pv-photo span{position:absolute;left:7px;right:7px;bottom:7px;background:rgba(15,23,42,.62);color:#fff;border-radius:10px;padding:5px 7px;font-size:9.5px;line-height:1.3}
+
+/* Teacher dashboard: scoped to the teacher workspace only. */
+#pg-dashboard.teacher-workspace{background:linear-gradient(180deg,#f0fdfa 0%,#f8fafc 650px);border-radius:24px}
+#pg-dashboard.teacher-workspace>.stats-grid{display:none}
+.tw-hero{position:relative;overflow:hidden;background:linear-gradient(120deg,#0f766e,#14b8a6 65%,#38bdf8);color:white;border-radius:24px;padding:26px 22px;margin-bottom:14px}
+.tw-hero:after{content:"";position:absolute;width:180px;height:180px;background:#ffffff14;border-radius:50%;right:-45px;top:-65px;pointer-events:none}
+.tw-eyebrow{font-size:11px;font-weight:800;letter-spacing:1px;opacity:.85}
+.tw-hero h1{font-size:clamp(24px,5vw,34px);line-height:1.2;margin:10px 0;font-weight:800}
+.tw-hero p{font-size:13px;line-height:1.7;margin:0 0 12px;max-width:580px}
+.tw-meta{display:flex;flex-wrap:wrap;gap:7px}.tw-meta span{padding:6px 10px;border:1px solid #ffffff40;background:#ffffff18;border-radius:30px;font-size:11px}
+.tw-tabs{display:flex;gap:6px;overflow-x:auto;max-width:100%;padding:7px;margin-bottom:14px;border:1px solid #e2e8f0;background:white;border-radius:24px}
+.tw-tabs button{flex:none;white-space:nowrap;border:0;background:none;padding:11px 15px;border-radius:20px;color:#64748b;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.tw-tabs button[aria-current="page"]{background:#0d9488;color:white}
+.tw-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.tw-action{display:flex;align-items:center;flex-direction:column;gap:7px;text-align:center;border:1px solid #e8edf2;background:white;border-radius:20px;padding:16px 5px;font-family:inherit;cursor:pointer;min-width:0;box-shadow:0 5px 16px #0f766e06}
+.tw-action i{font-style:normal;width:42px;height:42px;display:grid;place-items:center;border-radius:15px;font-size:24px}
+.tw-action b{font-size:12px;color:#334155;overflow-wrap:anywhere}.tw-action small{font-size:10px;line-height:1.4;color:#94a3b8}
+.tw-ai{display:flex;align-items:center;gap:12px;width:100%;padding:16px;border:1px solid #bae6fd;border-radius:20px;background:linear-gradient(110deg,#ecfeff,#faf5ff);font-family:inherit;text-align:left;cursor:pointer;margin-bottom:14px}
+.tw-ai i{font-style:normal;background:linear-gradient(135deg,#5eead4,#c4b5fd);padding:10px;border-radius:16px;font-size:25px}.tw-ai b{display:block;font-size:14px;color:#334155}.tw-ai small{display:block;color:#64748b;font-size:11px;margin-top:5px}.tw-ai em{margin-left:auto;color:#7c3aed;font-size:25px}
+.tw-class{padding:16px;border:1px solid #dcece8;border-radius:22px;background:white;margin-bottom:14px}.tw-class h2{font-size:15px;margin:0 0 12px}.tw-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.tw-metrics button{border:0;border-radius:15px;background:#f0fdfa;color:#0f766e;padding:13px 4px;font-family:inherit;cursor:pointer}.tw-metrics button:nth-child(2){background:#eff6ff;color:#2563eb}.tw-metrics button:nth-child(3){background:#fff7ed;color:#c2410c}.tw-metrics button:nth-child(4){background:#faf5ff;color:#7c3aed}.tw-metrics b{display:block;font-size:23px}.tw-metrics small{display:block;font-size:10px;margin-top:6px;line-height:1.4}
+#pg-dashboard.teacher-workspace #hmPlan .ks-card,#pg-dashboard.teacher-workspace #hmAttention .ks-card{border-radius:22px!important}
+@media(max-width:359px){.tw-actions,.tw-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.tw-hero{padding:22px 16px}}
+
 </style>
 </head>
 <body>
@@ -1584,8 +1608,8 @@ body.kt-scrolling .ks-skeleton,body.kt-scrolling .hm-sk,body.kt-scrolling .pv-sk
         <div class="stat-card"><div class="stat-card-icon stat-ic--year"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="stat-card-num">2026-2027</div><div class="stat-card-lbl">Хичээлийн жил</div></div>
       </div>
       <div id="hmKpis"></div>
-      <div id="hmAttention"></div>
       <div id="hmPlan"></div>
+      <div id="hmAttention"></div>
       <div id="hmNews"></div>
       <div id="hmModules"></div>
       <div id="dashAlerts"></div>
@@ -6095,6 +6119,7 @@ async function sendNotification(){
   if(btn){btn.disabled=false;btn.textContent='📢 Илгээх';}
 }
 function renderDashboard(){
+  $('pg-dashboard').classList.toggle('teacher-workspace',twIsTeacher());
   try{ktSurveyHome('dashboard');}catch(e){}
   try{var q=$('teacherDocsQuick');if(q)q.style.display=((!ktIsOwner()||ktOwnerAs('teacher'))&&!mdIsMethodologist()&&!ktIsAssistantTeacher())?'block':'none';}catch(e){}
 
@@ -11266,8 +11291,45 @@ function hmAnimate(){
   hmCounted=true;
 }
 /* --- Render --- */
+
+/* Teacher home uses existing actions and stored metrics; no duplicate records. */
+function twIsTeacher(){
+  return !mdIsMethodologist()&&!ktIsAssistantTeacher()&&(!ktIsOwner()||ktOwnerAs('teacher'));
+}
+function twRenderHero(w){
+  var u=DB.user||{},groups=[];
+  (DB.children||[]).forEach(function(c){if(c.grp&&groups.indexOf(c.grp)<0)groups.push(c.grp);});
+  var group=groups.length===1?groups[0]:(groups.length?groups.length+' бүлэг':(u.teacher_group||''));
+  w.innerHTML='<section class="tw-hero"><div class="tw-eyebrow">KINDERTRACK · БҮЛГИЙН БАГШ</div>'+
+    '<h1>Бүлгийн багшийн самбар</h1><p>Хүүхдийн ажиглалт, үнэлгээ, төлөвлөлт, тайлангаа нэг дор цэгцтэй хөтөлнө.</p>'+
+    '<div class="tw-meta"><span>📅 '+ktEsc(hmDateMn())+'</span>'+
+    (u.name?'<span>👩‍🏫 '+ktEsc(u.name)+'</span>':'')+
+    (group?'<span>👥 '+ktEsc(group)+'</span>':'')+'</div></section>';
+}
+function twRenderQuick(w){
+  var tabs=[['Өнөөдөр','goPage(\'dashboard\')'],['Хүүхдүүд','goPage(\'children\')'],['Ирц','goPage(\'attendance\')'],['Ажиглалт','hmActObs()'],['Үнэлгээ','hmActAssess()'],['Төлөвлөлт','openPlanner()'],['Тайлан','goPage(\'reports\')']];
+  var cards=[['👀','Ажиглалт','Өдөр тутмын тэмдэглэл','hmActObs()','#e0f2fe'],['📊','Үнэлгээ','Гарааны үнэлгээ','hmActAssess()','#fef3c7'],['📅','Төлөвлөлт','Жил · сар · 7 хоног','openPlanner()','#dcfce7'],['📄','Тайлан','Нэгтгэл · PDF','goPage(\'reports\')','#ede9fe']];
+  w.innerHTML='<nav class="tw-tabs" aria-label="Багшийн ажлын хэсгүүд">'+tabs.map(function(t,i){
+    return '<button type="button" '+(i===0?'aria-current="page" ':'')+'onclick="'+ktEsc(t[1])+'">'+t[0]+'</button>';
+  }).join('')+'</nav><div class="tw-actions">'+cards.map(function(c){
+    return '<button type="button" class="tw-action hm-press" onclick="'+ktEsc(c[3])+'"><i style="background:'+c[4]+'">'+c[0]+'</i><b>'+c[1]+'</b><small>'+c[2]+'</small></button>';
+  }).join('')+'</div><button type="button" class="tw-ai" onclick="openAIAssistant()"><i>🤖</i><span><b>AI туслах</b><small>Тэмдэглэл, төлөвлөгөө, санаагаа цэгцлүүлэх</small></span><em>›</em></button>';
+}
+function twRenderKpis(w){
+  var k=hmKpis(),cards=[
+    ['Нийт хүүхэд',k.kids,'goPage(\'children\')'],
+    ['Өнөөдрийн ажиглалт',k.obsToday,'hmActObs()'],
+    ['Өнөөдөр ирсэн',k.attPresent,'goPage(\'attendance\')'],
+    ['Хүлээгдэж буй ажил',k.pending,'hmActPlan()']
+  ];
+  w.innerHTML='<section class="tw-class"><h2>Миний анги</h2><div class="tw-metrics">'+cards.map(function(c){
+    return '<button type="button" onclick="'+ktEsc(c[2])+'"><b>'+c[1]+'</b><small>'+c[0]+'</small></button>';
+  }).join('')+'</div></section>';
+}
+
 function hmRenderHero(){
   var w=$('hmHero');if(!w)return;
+  if(twIsTeacher()){twRenderHero(w);return;}
   var name=(DB.user&&DB.user.name)||'';
   var grp='';
   var grps=[];(DB.children||[]).forEach(function(c){if(c.grp&&grps.indexOf(c.grp)<0)grps.push(c.grp);});
@@ -11296,6 +11358,7 @@ function hmRenderHero(){
 }
 function hmRenderQuick(){
   var w=$('hmQuick');if(!w)return;
+  if(twIsTeacher()){twRenderQuick(w);return;}
   var acts=[
     ['📅','Сургалтын хөтөлбөрийн төлөвлөгөө','openPlanner()',false],
     ['＋','Ажиглалт','hmActObs()',true],
@@ -11310,6 +11373,7 @@ function hmRenderQuick(){
 }
 function hmRenderKpis(){
   var w=$('hmKpis');if(!w)return;
+  if(twIsTeacher()){twRenderKpis(w);return;}
   var k=hmKpis();
   var cards=[
     ['👶','Нийт хүүхэд',k.kids,'',"goPage('children')"],
